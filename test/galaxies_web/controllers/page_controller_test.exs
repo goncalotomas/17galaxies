@@ -1,8 +1,8 @@
 defmodule GalaxiesWeb.PageControllerTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+    assert html_response(conn, 200) =~ "Explore the Uncharted,"
   end
 end

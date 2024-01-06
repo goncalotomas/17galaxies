@@ -15,10 +15,10 @@ defmodule GalaxiesWeb.PlayerSessionControllerTest do
         })
 
       assert get_session(conn, :player_token)
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, ~p"/")
+      conn = get(conn, ~p"/overview")
       response = html_response(conn, 200)
       assert response =~ player.email
       assert response =~ ~p"/players/settings"
@@ -36,7 +36,7 @@ defmodule GalaxiesWeb.PlayerSessionControllerTest do
         })
 
       assert conn.resp_cookies["_galaxies_web_player_remember_me"]
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
     end
 
     test "logs the player in with return to", %{conn: conn, player: player} do
@@ -65,7 +65,7 @@ defmodule GalaxiesWeb.PlayerSessionControllerTest do
           }
         })
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Account created successfully"
     end
 

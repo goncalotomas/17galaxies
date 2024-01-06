@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.PlayerSettingsLiveTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   alias Galaxies.Accounts
   import Phoenix.LiveViewTest

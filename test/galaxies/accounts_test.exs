@@ -38,7 +38,7 @@ defmodule Galaxies.AccountsTest do
   describe "get_player!/1" do
     test "raises if id is invalid" do
       assert_raise Ecto.NoResultsError, fn ->
-        Accounts.get_player!(-1)
+        Accounts.get_player!(Ecto.UUID.generate())
       end
     end
 

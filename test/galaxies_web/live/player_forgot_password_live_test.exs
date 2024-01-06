@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.PlayerForgotPasswordLiveTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import Galaxies.AccountsFixtures
@@ -21,7 +21,7 @@ defmodule GalaxiesWeb.PlayerForgotPasswordLiveTest do
         conn
         |> log_in_player(player_fixture())
         |> live(~p"/players/reset_password")
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/overview")
 
       assert {:ok, _conn} = result
     end

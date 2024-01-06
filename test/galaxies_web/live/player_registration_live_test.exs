@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import Galaxies.AccountsFixtures
@@ -9,7 +9,7 @@ defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
       {:ok, _lv, html} = live(conn, ~p"/players/register")
 
       assert html =~ "Register"
-      assert html =~ "Log in"
+      assert html =~ "Sign in"
     end
 
     test "redirects if already logged in", %{conn: conn} do
@@ -17,7 +17,7 @@ defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
         conn
         |> log_in_player(player_fixture())
         |> live(~p"/players/register")
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/overview")
 
       assert {:ok, _conn} = result
     end
@@ -45,10 +45,10 @@ defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, "/")
+      conn = get(conn, "/overview")
       response = html_response(conn, 200)
       assert response =~ email
       assert response =~ "Settings"
@@ -81,7 +81,7 @@ defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
         |> render_click()
         |> follow_redirect(conn, ~p"/players/log_in")
 
-      assert login_html =~ "Log in"
+      assert login_html =~ "Sign in"
     end
   end
 end

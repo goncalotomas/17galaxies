@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.PlayerResetPasswordLiveTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import Galaxies.AccountsFixtures
@@ -97,7 +97,7 @@ defmodule GalaxiesWeb.PlayerResetPasswordLiveTest do
         |> render_click()
         |> follow_redirect(conn, ~p"/players/log_in")
 
-      assert conn.resp_body =~ "Log in"
+      assert conn.resp_body =~ "Sign in"
     end
 
     test "redirects to password reset page when the Register button is clicked", %{

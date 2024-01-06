@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.PlayerConfirmationLiveTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import Galaxies.AccountsFixtures

@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.PlayerLoginLiveTest do
-  use GalaxiesWeb.ConnCase
+  use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import Galaxies.AccountsFixtures
@@ -8,8 +8,8 @@ defmodule GalaxiesWeb.PlayerLoginLiveTest do
     test "renders log in page", %{conn: conn} do
       {:ok, _lv, html} = live(conn, ~p"/players/log_in")
 
-      assert html =~ "Log in"
-      assert html =~ "Register"
+      assert html =~ "Sign in"
+      assert html =~ "Sign up"
       assert html =~ "Forgot your password?"
     end
 
@@ -18,7 +18,7 @@ defmodule GalaxiesWeb.PlayerLoginLiveTest do
         conn
         |> log_in_player(player_fixture())
         |> live(~p"/players/log_in")
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/overview")
 
       assert {:ok, _conn} = result
     end
@@ -36,7 +36,7 @@ defmodule GalaxiesWeb.PlayerLoginLiveTest do
 
       conn = submit_form(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
     end
 
     test "redirects to login page with a flash error if there are no valid credentials", %{

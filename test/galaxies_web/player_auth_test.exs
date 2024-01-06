@@ -22,7 +22,7 @@ defmodule GalaxiesWeb.PlayerAuthTest do
       conn = PlayerAuth.log_in_player(conn, player)
       assert token = get_session(conn, :player_token)
       assert get_session(conn, :live_socket_id) == "players_sessions:#{Base.url_encode64(token)}"
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
       assert Accounts.get_player_by_session_token(token)
     end
 
@@ -216,7 +216,7 @@ defmodule GalaxiesWeb.PlayerAuthTest do
     test "redirects if player is authenticated", %{conn: conn, player: player} do
       conn = conn |> assign(:current_player, player) |> PlayerAuth.redirect_if_player_is_authenticated([])
       assert conn.halted
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/overview"
     end
 
     test "does not redirect if player is not authenticated", %{conn: conn} do
