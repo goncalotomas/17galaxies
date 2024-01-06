@@ -1,3 +1,44 @@
+<ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
+      <%= if @current_player do %>
+        <li class="text-[0.8125rem] leading-6 text-white">
+          <%= @current_player.email %>
+        </li>
+        <li>
+          <.link
+            href={~p"/players/settings"}
+            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+          >
+            Settings
+          </.link>
+        </li>
+        <li>
+          <.link
+            href={~p"/players/log_out"}
+            method="delete"
+            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+          >
+            Log out
+          </.link>
+        </li>
+      <% else %>
+        <li>
+          <.link
+            href={~p"/players/register"}
+            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+          >
+            Register
+          </.link>
+        </li>
+        <li>
+          <.link
+            href={~p"/players/log_in"}
+            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+          >
+            Log in
+          </.link>
+        </li>
+      <% end %>
+    </ul>
 <header class="px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
     <div class="flex items-center gap-4">

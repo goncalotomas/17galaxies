@@ -63,7 +63,7 @@ defmodule GalaxiesWeb.Router do
   scope "/", GalaxiesWeb do
     pipe_through [:browser, :require_authenticated_player]
 
-    live_session :require_authenticated_player,
+    live_session :require_authenticated_player, layout: {GalaxiesWeb.Layouts, :app},
       on_mount: [{GalaxiesWeb.PlayerAuth, :ensure_authenticated}] do
       live "/players/settings", PlayerSettingsLive, :edit
       live "/players/settings/confirm_email/:token", PlayerSettingsLive, :confirm_email
