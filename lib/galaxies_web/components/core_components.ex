@@ -15,6 +15,7 @@ defmodule GalaxiesWeb.CoreComponents do
   Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
+  use GalaxiesWeb, :verified_routes
 
   alias Phoenix.LiveView.JS
   import GalaxiesWeb.Gettext
@@ -594,6 +595,73 @@ defmodule GalaxiesWeb.CoreComponents do
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
+    """
+  end
+
+  # Application specific components
+  attr :number, :integer, required: true
+
+  def formatted_number(assigns) do
+    ~H"""
+    <span>
+      <%= @number |> Integer.to_charlist |> Enum.reverse |> Enum.chunk_every(3) |> Enum.join(".") |> String.reverse %>
+    </span>
+    """
+  end
+
+  def navigation_menu(assigns) do
+    ~H"""
+    <nav class={@class}>
+      <%= for menu_item <- static_menu_items() do %>
+      <.link phx-click={GalaxiesWebJS.hide_sidebar()} navigate={menu_item.url} class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+        <!--
+          Heroicon name: outline/home
+
+          Current: "text-gray-300", Default: "text-gray-400 group-hover:text-gray-300"
+        -->
+        <%!-- <svg class="text-gray-300 mr-3 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg> --%>
+        <span class="px-6"><%= menu_item.name %></span>
+      </.link>
+      <% end %>
+    </nav>
+    """
+  end
+
+  defp static_menu_items() do
+    [
+      %{name: "Overview", url: ~p"/overview"},
+      %{name: "Resources", url: ~p"/resources"},
+      %{name: "Facilities", url: ~p"/facilities"},
+      %{name: "Research", url: ~p"/research"},
+      %{name: "Hangar", url: ~p"/hangar"},
+      %{name: "Fleet", url: ~p"/fleet"},
+      %{name: "Defenses", url: ~p"/defenses"},
+      %{name: "Galaxy", url: ~p"/galaxy"},
+      %{name: "Alliance", url: ~p"/alliance"},
+      %{name: "Empire", url: ~p"/facilities"},
+      %{name: "Academy", url: ~p"/facilities"},
+      %{name: "Merchant", url: ~p"/facilities"},
+      %{name: "Promote Server", url: ~p"/facilities"}
+    ]
+  end
+
+  def nav_menu_player_card(assigns) do
+    ~H"""
+    <div class="flex flex-shrink-0 bg-gray-700 p-4">
+      <.link navigate={~p"/players/settings"} class="group block w-full flex-shrink-0">
+        <div class="flex items-center">
+          <div>
+            <img class="inline-block h-9 w-9 rounded-full" src="/images/units/gamma-ray-cannon.png" alt="">
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-white"><%= @user.username %></p>
+            <p class="text-xs font-medium text-gray-300 group-hover:text-gray-200">Account Settings</p>
+          </div>
+        </div>
+      </.link>
+    </div>
     """
   end
 

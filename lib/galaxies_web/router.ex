@@ -69,7 +69,16 @@ defmodule GalaxiesWeb.Router do
       live "/players/settings/confirm_email/:token", PlayerSettingsLive, :confirm_email
 
       live "/overview", OverviewLive
+      # todo: delete buildinds in favour of resources / research
       live "/buildings", BuildingsLive
+      live "/resources", ResourcesLive
+      live "/facilities", FacilitiesLive
+      live "/research", ResearchLive
+      live "/hangar", HangarLive
+      live "/fleet", FleetLive
+      live "/defenses", DefensesLive
+      live "/galaxy", GalaxyLive
+      live "/alliance", AllianceLive
     end
   end
 
