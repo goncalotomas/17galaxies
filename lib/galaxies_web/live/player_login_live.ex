@@ -38,6 +38,6 @@ defmodule GalaxiesWeb.PlayerLoginLive do
   def mount(_params, _session, socket) do
     email = live_flash(socket.assigns.flash, :email)
     form = to_form(%{"email" => email}, as: "player")
-    {:ok, assign(socket, form: form), temporary_assigns: [form: form]}
+    {:ok, assign(socket, form: form), temporary_assigns: [form: form], layout: {GalaxiesWeb.Layouts, :single}}
   end
 end

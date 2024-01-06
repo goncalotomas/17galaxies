@@ -50,7 +50,7 @@ defmodule GalaxiesWeb.PlayerRegistrationLive do
       |> assign(trigger_submit: false, check_errors: false)
       |> assign_form(changeset)
 
-    {:ok, socket, temporary_assigns: [form: nil]}
+    {:ok, socket, temporary_assigns: [form: nil], layout: {GalaxiesWeb.Layouts, :single}}
   end
 
   def handle_event("save", %{"player" => player_params}, socket) do
