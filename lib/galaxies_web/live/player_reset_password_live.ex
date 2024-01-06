@@ -30,9 +30,9 @@ defmodule GalaxiesWeb.PlayerResetPasswordLive do
         </:actions>
       </.simple_form>
 
-      <p class="text-center text-sm mt-4">
-        <.link href={~p"/players/register"}>Register</.link>
-        | <.link href={~p"/players/log_in"}>Log in</.link>
+      <p class="text-center text-sm mt-4 text-gray-300">
+        <.link class="text-white" href={~p"/players/register"}>Register</.link>
+        | <.link class="text-white" href={~p"/players/log_in"}>Log in</.link>
       </p>
     </div>
     """

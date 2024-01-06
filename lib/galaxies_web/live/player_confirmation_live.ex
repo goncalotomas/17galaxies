@@ -15,7 +15,7 @@ defmodule GalaxiesWeb.PlayerConfirmationLive do
         </:actions>
       </.simple_form>
 
-      <p class="text-center mt-4">
+      <p class="text-center mt-4 text-gray-300">
         <.link href={~p"/players/register"}>Register</.link>
         | <.link href={~p"/players/log_in"}>Log in</.link>
       </p>

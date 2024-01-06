@@ -9,7 +9,7 @@ import Config
 
 config :galaxies,
   ecto_repos: [Galaxies.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 # Configures the endpoint
 config :galaxies, GalaxiesWeb.Endpoint,

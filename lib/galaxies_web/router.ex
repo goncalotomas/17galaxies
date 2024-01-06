@@ -19,9 +19,6 @@ defmodule GalaxiesWeb.Router do
 
   scope "/", GalaxiesWeb do
     pipe_through :browser
-
-    get "/", PageController, :home
-    live "/buildings", BuildingsLive
   end
 
   # Other scopes may use custom stacks.
@@ -53,6 +50,7 @@ defmodule GalaxiesWeb.Router do
 
     live_session :redirect_if_player_is_authenticated,
       on_mount: [{GalaxiesWeb.PlayerAuth, :redirect_if_player_is_authenticated}] do
+      get "/", PageController, :home
       live "/players/register", PlayerRegistrationLive, :new
       live "/players/log_in", PlayerLoginLive, :new
       live "/players/reset_password", PlayerForgotPasswordLive, :new
@@ -69,6 +67,9 @@ defmodule GalaxiesWeb.Router do
       on_mount: [{GalaxiesWeb.PlayerAuth, :ensure_authenticated}] do
       live "/players/settings", PlayerSettingsLive, :edit
       live "/players/settings/confirm_email/:token", PlayerSettingsLive, :confirm_email
+
+      live "/overview", OverviewLive
+      live "/buildings", BuildingsLive
     end
   end
 

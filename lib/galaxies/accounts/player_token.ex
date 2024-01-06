@@ -1,5 +1,5 @@
 defmodule Galaxies.Accounts.PlayerToken do
-  use Ecto.Schema
+  use Galaxies.Schema
   import Ecto.Query
   alias Galaxies.Accounts.PlayerToken
 

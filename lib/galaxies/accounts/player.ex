@@ -1,5 +1,5 @@
 defmodule Galaxies.Accounts.Player do
-  use Ecto.Schema
+  use Galaxies.Schema
   import Ecto.Changeset
 
   schema "players" do

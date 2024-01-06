@@ -4,7 +4,8 @@ defmodule Galaxies.Repo.Migrations.CreatePlayersAuthTables do
   def change do
     execute "CREATE EXTENSION IF NOT EXISTS citext", ""
 
-    create table(:players) do
+    create table(:players, primary_key: false) do
+      add :id, :binary_id, primary_key: true
       add :email, :citext, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :naive_datetime
@@ -13,8 +14,9 @@ defmodule Galaxies.Repo.Migrations.CreatePlayersAuthTables do
 
     create unique_index(:players, [:email])
 
-    create table(:players_tokens) do
-      add :player_id, references(:players, on_delete: :delete_all), null: false
+    create table(:players_tokens, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :player_id, references(:players, type: :binary_id, on_delete: :delete_all), null: false
       add :token, :binary, null: false
       add :context, :string, null: false
       add :sent_to, :string

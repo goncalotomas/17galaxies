@@ -19,7 +19,7 @@ defmodule GalaxiesWeb.PlayerForgotPasswordLive do
           </.button>
         </:actions>
       </.simple_form>
-      <p class="text-center text-sm mt-4">
+      <p class="text-center text-sm mt-4 text-gray-300">
         <.link href={~p"/players/register"}>Register</.link>
         | <.link href={~p"/players/log_in"}>Log in</.link>
       </p>
