@@ -118,13 +118,15 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Galaxies.Finch
+
   config :galaxies, Galaxies.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_HOST"),
     username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
     tls: :always,
-    tls_options: :tls_certificate_check.options(System.get_env("SMTP_HOST")),
+    # tls_options: :tls_certificate_check.options(System.get_env("SMTP_HOST")),
     auth: :always,
     port: 25,
     retries: 2,
