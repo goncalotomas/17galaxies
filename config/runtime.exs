@@ -123,9 +123,19 @@ if config_env() == :prod do
   config :galaxies, Galaxies.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_HOST"),
+    port: 25,
     username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
-    port: 25,
+    auth: :always,
+    ssl: false,
+    tls: :always,
+    tls_options: [
+     versions: [:"tlsv1.3"],
+     verify: :verify_peer,
+     cacerts: :public_key.cacerts_get(),
+     server_name_indication: String.to_charlist(System.get_env("SMTP_HOST")),
+     depth: 99
+    ],
     retries: 2,
     no_mx_lookups: false
 end
