@@ -2,7 +2,7 @@ import Config
 # I need this line here otherwise :tls_certificate_check is not started
 # when this runtime.exs is run. It should be started seeing as this lib
 # is specified in mix.exs as a project dependency.
-{:ok, _} = Application.ensure_all_started([:tls_certificate_check])
+# {:ok, _} = Application.ensure_all_started([:tls_certificate_check])
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the

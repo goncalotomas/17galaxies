@@ -19,7 +19,7 @@ defmodule Galaxies.MixProject do
   def application do
     [
       mod: {Galaxies.Application, []},
-      extra_applications: [:logger, :runtime_tools, :tls_certificate_check]
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
