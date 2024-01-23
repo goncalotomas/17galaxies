@@ -114,8 +114,7 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
-  # Configuring the mailer
-  config :galaxies, Sample.Mailer,
+  config :galaxies, Galaxies.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: "email-smtp.eu-west-1.amazonaws.com",
     username: System.get_env("SMTP_USERNAME"),
