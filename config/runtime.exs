@@ -2,7 +2,7 @@ import Config
 # I need this line here otherwise :tls_certificate_check is not started
 # when this runtime.exs is run. It should be started seeing as this lib
 # is specified in mix.exs as a project dependency.
-# {:ok, _} = Application.ensure_all_started([:tls_certificate_check])
+{:ok, _} = Application.ensure_all_started([:tls_certificate_check])
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
@@ -126,9 +126,9 @@ if config_env() == :prod do
     username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
     tls: :always,
-    # tls_options: :tls_certificate_check.options(System.get_env("SMTP_HOST")),
+    tls_options: :tls_certificate_check.options(System.get_env("SMTP_HOST")),
     auth: :always,
-    port: 25,
+    port: 587,
     retries: 2,
     no_mx_lookups: false
 end
