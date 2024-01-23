@@ -125,10 +125,11 @@ if config_env() == :prod do
     relay: System.get_env("SMTP_HOST"),
     username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
+    ssl: false,
     tls: :always,
     tls_options: :tls_certificate_check.options(System.get_env("SMTP_HOST")),
     auth: :always,
-    port: 587,
+    port: 465,
     retries: 2,
     no_mx_lookups: false
 end
