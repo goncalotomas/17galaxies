@@ -166,9 +166,14 @@ defmodule Galaxies.Accounts do
       {:ok, %{to: ..., body: ...}}
 
   """
-  def deliver_player_update_email_instructions(%Player{} = player, current_email, update_email_url_fun)
+  def deliver_player_update_email_instructions(
+        %Player{} = player,
+        current_email,
+        update_email_url_fun
+      )
       when is_function(update_email_url_fun, 1) do
-    {encoded_token, player_token} = PlayerToken.build_email_token(player, "change:#{current_email}")
+    {encoded_token, player_token} =
+      PlayerToken.build_email_token(player, "change:#{current_email}")
 
     Repo.insert!(player_token)
     PlayerNotifier.deliver_update_email_instructions(player, update_email_url_fun.(encoded_token))
@@ -263,7 +268,11 @@ defmodule Galaxies.Accounts do
     else
       {encoded_token, player_token} = PlayerToken.build_email_token(player, "confirm")
       Repo.insert!(player_token)
-      PlayerNotifier.deliver_confirmation_instructions(player, confirmation_url_fun.(encoded_token))
+
+      PlayerNotifier.deliver_confirmation_instructions(
+        player,
+        confirmation_url_fun.(encoded_token)
+      )
     end
   end
 
@@ -286,7 +295,10 @@ defmodule Galaxies.Accounts do
   defp confirm_player_multi(player) do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:player, Player.confirm_changeset(player))
-    |> Ecto.Multi.delete_all(:tokens, PlayerToken.by_player_and_contexts_query(player, ["confirm"]))
+    |> Ecto.Multi.delete_all(
+      :tokens,
+      PlayerToken.by_player_and_contexts_query(player, ["confirm"])
+    )
   end
 
   ## Reset password
@@ -304,7 +316,11 @@ defmodule Galaxies.Accounts do
       when is_function(reset_password_url_fun, 1) do
     {encoded_token, player_token} = PlayerToken.build_email_token(player, "reset_password")
     Repo.insert!(player_token)
-    PlayerNotifier.deliver_reset_password_instructions(player, reset_password_url_fun.(encoded_token))
+
+    PlayerNotifier.deliver_reset_password_instructions(
+      player,
+      reset_password_url_fun.(encoded_token)
+    )
   end
 
   @doc """

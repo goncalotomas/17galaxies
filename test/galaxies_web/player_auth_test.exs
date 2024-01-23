@@ -37,7 +37,9 @@ defmodule GalaxiesWeb.PlayerAuthTest do
     end
 
     test "writes a cookie if remember_me is configured", %{conn: conn, player: player} do
-      conn = conn |> fetch_cookies() |> PlayerAuth.log_in_player(player, %{"remember_me" => "true"})
+      conn =
+        conn |> fetch_cookies() |> PlayerAuth.log_in_player(player, %{"remember_me" => "true"})
+
       assert get_session(conn, :player_token) == conn.cookies[@remember_me_cookie]
 
       assert %{value: signed_token, max_age: max_age} = conn.resp_cookies[@remember_me_cookie]
@@ -86,7 +88,10 @@ defmodule GalaxiesWeb.PlayerAuthTest do
   describe "fetch_current_player/2" do
     test "authenticates player from session", %{conn: conn, player: player} do
       player_token = Accounts.generate_player_session_token(player)
-      conn = conn |> put_session(:player_token, player_token) |> PlayerAuth.fetch_current_player([])
+
+      conn =
+        conn |> put_session(:player_token, player_token) |> PlayerAuth.fetch_current_player([])
+
       assert conn.assigns.current_player.id == player.id
     end
 
@@ -149,7 +154,10 @@ defmodule GalaxiesWeb.PlayerAuthTest do
   end
 
   describe "on_mount: ensure_authenticated" do
-    test "authenticates current_player based on a valid player_token", %{conn: conn, player: player} do
+    test "authenticates current_player based on a valid player_token", %{
+      conn: conn,
+      player: player
+    } do
       player_token = Accounts.generate_player_session_token(player)
       session = conn |> put_session(:player_token, player_token) |> get_session()
 
@@ -214,7 +222,11 @@ defmodule GalaxiesWeb.PlayerAuthTest do
 
   describe "redirect_if_player_is_authenticated/2" do
     test "redirects if player is authenticated", %{conn: conn, player: player} do
-      conn = conn |> assign(:current_player, player) |> PlayerAuth.redirect_if_player_is_authenticated([])
+      conn =
+        conn
+        |> assign(:current_player, player)
+        |> PlayerAuth.redirect_if_player_is_authenticated([])
+
       assert conn.halted
       assert redirected_to(conn) == ~p"/overview"
     end
@@ -264,7 +276,9 @@ defmodule GalaxiesWeb.PlayerAuthTest do
     end
 
     test "does not redirect if player is authenticated", %{conn: conn, player: player} do
-      conn = conn |> assign(:current_player, player) |> PlayerAuth.require_authenticated_player([])
+      conn =
+        conn |> assign(:current_player, player) |> PlayerAuth.require_authenticated_player([])
+
       refute conn.halted
       refute conn.status
     end

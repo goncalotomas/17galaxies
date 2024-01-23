@@ -8,7 +8,7 @@ defmodule Galaxies.Accounts.PlayerNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Galaxies", "contact@example.com"})
+      |> from({"17 Galaxies", "admin@17galaxies.com"})
       |> subject(subject)
       |> text_body(body)
 

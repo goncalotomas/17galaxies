@@ -604,7 +604,12 @@ defmodule GalaxiesWeb.CoreComponents do
   def formatted_number(assigns) do
     ~H"""
     <span>
-      <%= @number |> Integer.to_charlist |> Enum.reverse |> Enum.chunk_every(3) |> Enum.join(".") |> String.reverse %>
+      <%= @number
+      |> Integer.to_charlist()
+      |> Enum.reverse()
+      |> Enum.chunk_every(3)
+      |> Enum.join(".")
+      |> String.reverse() %>
     </span>
     """
   end
@@ -613,17 +618,21 @@ defmodule GalaxiesWeb.CoreComponents do
     ~H"""
     <nav class={@class}>
       <%= for menu_item <- static_menu_items() do %>
-      <.link phx-click={GalaxiesWebJS.hide_sidebar()} navigate={menu_item.url} class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-        <!--
+        <.link
+          phx-click={GalaxiesWebJS.hide_sidebar()}
+          navigate={menu_item.url}
+          class="text-gray-300 hover:bg-gray-700 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+        >
+          <!--
           Heroicon name: outline/home
 
           Current: "text-gray-300", Default: "text-gray-400 group-hover:text-gray-300"
         -->
-        <%!-- <svg class="text-gray-300 mr-3 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+          <%!-- <svg class="text-gray-300 mr-3 flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg> --%>
-        <span class="px-6"><%= menu_item.name %></span>
-      </.link>
+          <span class="px-6"><%= menu_item.name %></span>
+        </.link>
       <% end %>
     </nav>
     """
@@ -653,11 +662,17 @@ defmodule GalaxiesWeb.CoreComponents do
       <.link navigate={~p"/players/settings"} class="group block w-full flex-shrink-0">
         <div class="flex items-center">
           <div>
-            <img class="inline-block h-9 w-9 rounded-full" src="/images/units/gamma-ray-cannon.png" alt="">
+            <img
+              class="inline-block h-9 w-9 rounded-full"
+              src="/images/units/gamma-ray-cannon.png"
+              alt=""
+            />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium text-white"><%= @user.username %></p>
-            <p class="text-xs font-medium text-gray-300 group-hover:text-gray-200">Account Settings</p>
+            <p class="text-xs font-medium text-gray-300 group-hover:text-gray-200">
+              Account Settings
+            </p>
           </div>
         </div>
       </.link>

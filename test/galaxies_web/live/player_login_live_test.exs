@@ -32,7 +32,9 @@ defmodule GalaxiesWeb.PlayerLoginLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/players/log_in")
 
       form =
-        form(lv, "#login_form", player: %{email: player.email, password: password, remember_me: true})
+        form(lv, "#login_form",
+          player: %{email: player.email, password: password, remember_me: true}
+        )
 
       conn = submit_form(form, conn)
 

@@ -1,44 +1,44 @@
 <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
-      <%= if @current_player do %>
-        <li class="text-[0.8125rem] leading-6 text-white">
-          <%= @current_player.email %>
-        </li>
-        <li>
-          <.link
-            href={~p"/players/settings"}
-            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
-          >
-            Settings
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/players/log_out"}
-            method="delete"
-            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
-          >
-            Log out
-          </.link>
-        </li>
-      <% else %>
-        <li>
-          <.link
-            href={~p"/players/register"}
-            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
-          >
-            Register
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/players/log_in"}
-            class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
-          >
-            Log in
-          </.link>
-        </li>
-      <% end %>
-    </ul>
+  <%= if @current_player do %>
+    <li class="text-[0.8125rem] leading-6 text-white">
+      <%= @current_player.email %>
+    </li>
+    <li>
+      <.link
+        href={~p"/players/settings"}
+        class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+      >
+        Settings
+      </.link>
+    </li>
+    <li>
+      <.link
+        href={~p"/players/log_out"}
+        method="delete"
+        class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+      >
+        Log out
+      </.link>
+    </li>
+  <% else %>
+    <li>
+      <.link
+        href={~p"/players/register"}
+        class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+      >
+        Register
+      </.link>
+    </li>
+    <li>
+      <.link
+        href={~p"/players/log_in"}
+        class="text-[0.8125rem] leading-6 text-white font-semibold hover:text-indigo-300"
+      >
+        Log in
+      </.link>
+    </li>
+  <% end %>
+</ul>
 <!--
   This example requires updating your template:
 
@@ -73,7 +73,10 @@
           From: "translate-x-0"
           To: "-translate-x-full"
       -->
-      <div id="off-canvas-menu" class="relative flex w-full max-w-xs flex-1 flex-col bg-gray-900/80">
+      <div
+        id="off-canvas-menu"
+        class="relative flex w-full max-w-xs flex-1 flex-col bg-gray-900/80"
+      >
         <!--
           Close button, show/hide based on off-canvas menu state.
 
@@ -85,11 +88,22 @@
             To: "opacity-0"
         -->
         <div id="off-canvas-menu-close-button" class="absolute top-0 right-0 -mr-12 pt-2">
-          <button phx-click={GalaxiesWebJS.hide_sidebar()}
-                  type="button" class="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+          <button
+            phx-click={GalaxiesWebJS.hide_sidebar()}
+            type="button"
+            class="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+          >
             <span class="sr-only">Close sidebar</span>
             <!-- Heroicon name: outline/x-mark -->
-            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <svg
+              class="h-6 w-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -97,11 +111,15 @@
 
         <div class="h-0 flex-1 overflow-y-auto pt-5 pb-4">
           <div class="flex flex-shrink-0 items-center px-4">
-            <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+            <img
+              class="h-8 w-auto"
+              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+              alt="Your Company"
+            />
           </div>
           <.navigation_menu class="mt-5 space-y-1 px-2" />
         </div>
-        <.nav_menu_player_card user={%{username: "Upska"}}/>
+        <.nav_menu_player_card user={%{username: "Upska"}} />
       </div>
 
       <div class="w-14 flex-shrink-0">
@@ -109,27 +127,46 @@
       </div>
     </div>
   </div>
-
   <!-- Static sidebar for desktop -->
   <div class="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
     <!-- Sidebar component, swap this element with another sidebar if you like -->
     <div class="flex min-h-0 flex-1 flex-col bg-gray-900/80">
       <div class="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
         <div class="flex flex-shrink-0 items-center px-4">
-          <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+          <img
+            class="h-8 w-auto"
+            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+            alt="Your Company"
+          />
         </div>
         <.navigation_menu class="mt-5 flex-1 space-y-1 px-2" />
       </div>
-      <.nav_menu_player_card user={%{username: "Upska"}}/>
+      <.nav_menu_player_card user={%{username: "Upska"}} />
     </div>
   </div>
   <div class="flex flex-1 flex-col md:pl-64">
     <div class="sticky top-0 z-10 bg-gray-100 pl-1 pt-1 sm:pl-3 sm:pt-3 md:hidden">
-      <button type="button" phx-click={GalaxiesWebJS.show_sidebar()} class="-ml-0.5 -mt-0.5 inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+      <button
+        type="button"
+        phx-click={GalaxiesWebJS.show_sidebar()}
+        class="-ml-0.5 -mt-0.5 inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+      >
         <span class="sr-only">Open sidebar</span>
         <!-- Heroicon name: outline/bars-3 -->
-        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        <svg
+          class="h-6 w-6"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+          />
         </svg>
       </button>
     </div>
@@ -139,54 +176,52 @@
           <h1 class="text-2xl font-semibold text-gray-900">@page_title</h1>
         </div> --%>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+          <div>
+            <dl class="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-5 md:divide-y-0 md:divide-x">
+              <div class="px-4 py-5 sm:p-6">
+                <dt class="text-base font-normal text-gray-900">Metal</dt>
+                <dd class="mt-1">
+                  <div class="text-2xl font-semibold text-indigo-600">
+                    71,897
+                  </div>
+                </dd>
+              </div>
 
-<div>
-  <dl class="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-5 md:divide-y-0 md:divide-x">
-    <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900">Metal</dt>
-      <dd class="mt-1">
-        <div class="text-2xl font-semibold text-indigo-600">
-          71,897
-        </div>
-      </dd>
-    </div>
+              <div class="px-4 py-5 sm:p-6">
+                <dt class="text-base font-normal text-gray-900">Crystal</dt>
+                <dd class="mt-1">
+                  <div class="text-2xl font-semibold text-indigo-600">
+                    71,897
+                  </div>
+                </dd>
+              </div>
+              <div class="px-4 py-5 sm:p-6">
+                <dt class="text-base font-normal text-gray-900">Deuterium</dt>
+                <dd class="mt-1">
+                  <div class="text-2xl font-semibold text-indigo-600">
+                    71,897
+                  </div>
+                </dd>
+              </div>
+              <div class="px-4 py-5 sm:p-6">
+                <dt class="text-base font-normal text-gray-900">Energy</dt>
+                <dd class="mt-1">
+                  <div class="text-2xl font-semibold text-indigo-600">
+                    71,897
+                  </div>
+                </dd>
+              </div>
 
-    <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900">Crystal</dt>
-      <dd class="mt-1">
-        <div class="text-2xl font-semibold text-indigo-600">
-          71,897
-        </div>
-      </dd>
-    </div>
-    <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900">Deuterium</dt>
-      <dd class="mt-1">
-        <div class="text-2xl font-semibold text-indigo-600">
-          71,897
-        </div>
-      </dd>
-    </div>
-    <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900">Energy</dt>
-      <dd class="mt-1">
-        <div class="text-2xl font-semibold text-indigo-600">
-          71,897
-        </div>
-      </dd>
-    </div>
-
-    <div class="px-4 py-5 sm:p-6">
-      <dt class="text-base font-normal text-gray-900">Dark Matter</dt>
-      <dd class="mt-1">
-        <div class="text-2xl font-semibold text-indigo-600">
-          71,897
-        </div>
-      </dd>
-    </div>
-  </dl>
-</div>
-
+              <div class="px-4 py-5 sm:p-6">
+                <dt class="text-base font-normal text-gray-900">Dark Matter</dt>
+                <dd class="mt-1">
+                  <div class="text-2xl font-semibold text-indigo-600">
+                    71,897
+                  </div>
+                </dd>
+              </div>
+            </dl>
+          </div>
 
           <%!-- <ul>
             <%= if @current_user do %>

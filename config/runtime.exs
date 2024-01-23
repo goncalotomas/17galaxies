@@ -48,7 +48,7 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "https://17galaxies.com"
+  host = System.get_env("PHX_HOST") || "17galaxies.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :galaxies, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
@@ -114,4 +114,16 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  # Configuring the mailer
+  config :galaxies, Sample.Mailer,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: "email-smtp.eu-west-1.amazonaws.com",
+    username: System.get_env("SMTP_USERNAME"),
+    password: System.get_env("SMTP_PASSWORD"),
+    ssl: true,
+    tls: :always,
+    auth: :always,
+    port: 25,
+    retries: 2,
+    no_mx_lookups: false
 end
