@@ -669,7 +669,7 @@ defmodule GalaxiesWeb.CoreComponents do
             />
           </div>
           <div class="ml-3">
-            <p class="text-sm font-medium text-white"><%= @user.username %></p>
+            <p class="text-sm font-medium text-white"><%= @username %></p>
             <p class="text-xs font-medium text-gray-300 group-hover:text-gray-200">
               Account Settings
             </p>
