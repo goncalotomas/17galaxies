@@ -1,8 +1,4 @@
 import Config
-# I need this line here otherwise :tls_certificate_check is not started
-# when this runtime.exs is run. It should be started seeing as this lib
-# is specified in mix.exs as a project dependency.
-{:ok, _} = Application.ensure_all_started([:tls_certificate_check])
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
@@ -123,13 +119,22 @@ if config_env() == :prod do
   config :galaxies, Galaxies.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_HOST"),
-    port: 25,
+    port: 465,
     username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
-    auth: :always,
     ssl: true,
-    tls: :always,
-    tls_options: :tls_certificate_check.options(System.get_env("SMTP_HOST")),
+    tls: :never,
+    auth: :always,
+    sock_opts: [
+      versions: [:"tlsv1.2", :"tlsv1.3"],
+      verify: :verify_peer,
+      cacerts: :public_key.cacerts_get(),
+      depth: 3,
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ],
+      server_name_indication: String.to_charlist(System.get_env("SMTP_HOST"))
+    ],
     retries: 2,
     no_mx_lookups: false
 end
