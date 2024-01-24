@@ -125,7 +125,7 @@ if config_env() == :prod do
     ssl: true,
     tls: :never,
     auth: :always,
-    sock_opts: [
+    sockopts: [
       versions: [:"tlsv1.2", :"tlsv1.3"],
       verify: :verify_peer,
       cacerts: :public_key.cacerts_get(),
