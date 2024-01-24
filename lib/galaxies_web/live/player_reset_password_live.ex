@@ -50,8 +50,8 @@ defmodule GalaxiesWeb.PlayerResetPasswordLive do
           %{}
       end
 
-    {:ok, assign_form(socket, form_source), temporary_assigns: [form: nil],
-    layout: {GalaxiesWeb.Layouts, :single}}
+    {:ok, assign_form(socket, form_source),
+     temporary_assigns: [form: nil], layout: {GalaxiesWeb.Layouts, :single}}
   end
 
   # Do not log in the player after reset password to avoid a

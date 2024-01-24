@@ -149,9 +149,9 @@ defmodule GalaxiesWeb.PlayerSettingsLive do
       |> Map.put(:action, :validate)
       |> to_form()
 
-    {:noreply, assign(socket, username_form: username_form, username_form_current_password: password)}
+    {:noreply,
+     assign(socket, username_form: username_form, username_form_current_password: password)}
   end
-
 
   def handle_event("update_email", params, socket) do
     %{"current_password" => password, "player" => player_params} = params

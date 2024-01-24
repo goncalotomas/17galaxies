@@ -9,6 +9,8 @@ defmodule Galaxies.Accounts.Player do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
 
+    has_many :planets, Galaxies.Planet
+
     timestamps(type: :utc_datetime)
   end
 

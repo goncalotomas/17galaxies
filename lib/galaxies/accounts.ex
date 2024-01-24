@@ -63,22 +63,42 @@ defmodule Galaxies.Accounts do
   ## Player registration
 
   @doc """
-  Registers a player.
+  Registers a player and creates a planet for that player.
 
   ## Examples
 
       iex> register_player(%{field: value})
-      {:ok, %Player{}}
+      {:ok, %{player: %Player{}, planet: %Planet{}}}
 
       iex> register_player(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
   def register_player(attrs) do
-    %Player{}
-    |> Player.registration_changeset(attrs)
-    |> Repo.insert()
+    player_changeset = Player.registration_changeset(%Player{}, attrs)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:player, player_changeset)
+    |> Ecto.Multi.insert(:planet, fn %{player: player} ->
+      {galaxy, system, slot} = get_available_planet_slot()
+
+      player
+      |> Ecto.build_assoc(:planets, %{
+        name: "Home World",
+        galaxy: galaxy,
+        system: system,
+        slot: slot
+      })
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, results} -> {:ok, results}
+      {:error, :player, changeset, _} -> {:error, changeset}
+    end
   end
+
+  defp get_available_planet_slot(),
+    do: {Enum.random(1..17), Enum.random(1..999), Enum.random(1..15)}
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking player changes.
@@ -108,7 +128,7 @@ defmodule Galaxies.Accounts do
     Player.email_changeset(player, attrs, validate_email: false)
   end
 
-    @doc """
+  @doc """
   Returns an `%Ecto.Changeset{}` for changing the player username.
 
   ## Examples
@@ -233,7 +253,7 @@ defmodule Galaxies.Accounts do
     end
   end
 
-    @doc """
+  @doc """
   Emulates that the username will change without actually changing
   it in the database.
 

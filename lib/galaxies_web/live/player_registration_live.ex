@@ -56,7 +56,7 @@ defmodule GalaxiesWeb.PlayerRegistrationLive do
 
   def handle_event("save", %{"player" => player_params}, socket) do
     case Accounts.register_player(player_params) do
-      {:ok, player} ->
+      {:ok, %{player: player, planet: _planet}} ->
         {:ok, _} =
           Accounts.deliver_player_confirmation_instructions(
             player,
