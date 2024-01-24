@@ -59,9 +59,17 @@ defmodule Galaxies.AccountsTest do
     end
 
     test "validates email and password when given" do
-      {:error, changeset} = Accounts.register_player(%{email: "not valid", password: "not valid"})
+      {:error, changeset} =
+        Accounts.register_player(%{
+          username: "not  valid",
+          email: "not valid",
+          password: "not valid"
+        })
 
       assert %{
+               username: [
+                 "Must include characters a-z, A-Z, 0-9 or '_'. Cannot start or end with '_'.\nMust not include multiple consecutive '_'.\n"
+               ],
                email: ["must have the @ sign and no spaces"],
                password: ["should be at least 12 character(s)"]
              } = errors_on(changeset)
@@ -97,7 +105,7 @@ defmodule Galaxies.AccountsTest do
   describe "change_player_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_player_registration(%Player{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required == [:username, :password, :email]
     end
 
     test "allows fields to be set" do

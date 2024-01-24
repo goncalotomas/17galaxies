@@ -108,6 +108,19 @@ defmodule Galaxies.Accounts do
     Player.email_changeset(player, attrs, validate_email: false)
   end
 
+    @doc """
+  Returns an `%Ecto.Changeset{}` for changing the player username.
+
+  ## Examples
+
+      iex> change_player_username(player)
+      %Ecto.Changeset{data: %Player{}}
+
+  """
+  def change_player_username(player, attrs \\ %{}) do
+    Player.username_changeset(player, attrs, validate_username: false)
+  end
+
   @doc """
   Emulates that the email will change without actually changing
   it in the database.
@@ -208,6 +221,35 @@ defmodule Galaxies.Accounts do
     changeset =
       player
       |> Player.password_changeset(attrs)
+      |> Player.validate_current_password(password)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:player, changeset)
+    |> Ecto.Multi.delete_all(:tokens, PlayerToken.by_player_and_contexts_query(player, :all))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{player: player}} -> {:ok, player}
+      {:error, :player, changeset, _} -> {:error, changeset}
+    end
+  end
+
+    @doc """
+  Emulates that the username will change without actually changing
+  it in the database.
+
+  ## Examples
+
+      iex> apply_player_username(player, "valid password", %{username: ...})
+      {:ok, %Player{}}
+
+      iex> apply_player_username(player, "invalid password", %{username: ...})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_player_username(player, password, attrs) do
+    changeset =
+      player
+      |> Player.username_changeset(attrs)
       |> Player.validate_current_password(password)
 
     Ecto.Multi.new()

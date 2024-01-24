@@ -3,7 +3,7 @@ defmodule GalaxiesWeb.OverviewLive do
 
   def render(assigns) do
     ~H"""
-    overview
+    Welcome, <%= assigns.current_player.username %>
     """
   end
 end

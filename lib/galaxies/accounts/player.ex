@@ -4,6 +4,7 @@ defmodule Galaxies.Accounts.Player do
 
   schema "players" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
@@ -36,9 +37,10 @@ defmodule Galaxies.Accounts.Player do
   """
   def registration_changeset(player, attrs, opts \\ []) do
     player
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :username])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_username(opts)
   end
 
   defp validate_email(changeset, opts) do
@@ -54,7 +56,7 @@ defmodule Galaxies.Accounts.Player do
     |> validate_required([:password])
     |> validate_length(:password, min: 12, max: 72)
     # Examples of additional password validation:
-    # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
+    |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
     |> maybe_hash_password(opts)
@@ -80,6 +82,58 @@ defmodule Galaxies.Accounts.Player do
       changeset
       |> unsafe_validate_unique(:email, Galaxies.Repo)
       |> unique_constraint(:email)
+    else
+      changeset
+    end
+  end
+
+  @doc """
+  A player changeset for changing the username.
+
+  It requires the username to change otherwise an error is added.
+  """
+  def username_changeset(player, attrs, opts \\ []) do
+    player
+    |> cast(attrs, [:username])
+    |> validate_username(opts)
+    |> case do
+      %{changes: %{username: _}} = changeset -> changeset
+      %{} = changeset -> add_error(changeset, :username, "did not change")
+    end
+  end
+
+  defp validate_username(changeset, opts) do
+    # ^(?![_])(?!.*[_]{2})[a-zA-Z0-9_]+(?<![_])$
+    #  └───┬─┘└────┬─────┘└─────┬────┘ └───┬──┘
+    #      │       │            │          │
+    #      │       │            │        no _ at the end
+    #      │       │            │
+    #      │       │         allowed characters
+    #      │       │
+    #      │      no double _ inside
+    #      │
+    #    no _ at the beginning
+    # modified version this regex: https://stackoverflow.com/a/12019115/3547126
+    username_regex = ~r/^(?![_])(?!.*[_]{2})[a-zA-Z0-9_]+(?<![_])$/
+
+    regex_message = """
+    Must include characters a-z, A-Z, 0-9 or '_'. Cannot start or end with '_'.
+    Must not include multiple consecutive '_'.
+    """
+
+    changeset
+    |> validate_required([:username])
+    |> validate_length(:username, min: 3)
+    |> validate_length(:username, max: 22)
+    |> validate_format(:username, username_regex, message: regex_message)
+    |> maybe_validate_unique_username(opts)
+  end
+
+  defp maybe_validate_unique_username(changeset, opts) do
+    if Keyword.get(opts, :validate_username, true) do
+      changeset
+      |> unsafe_validate_unique(:username, Galaxies.Repo)
+      |> unique_constraint(:username)
     else
       changeset
     end
