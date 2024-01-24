@@ -54,8 +54,10 @@ defmodule Galaxies.MixProject do
       {:plug_cowboy, "~> 2.5"},
       # for sending out emails using AWS SES. if eventually I need to add ExAws,
       # the swoosh adapter should probably be swapped out for ExAwsAmazonSes.
-      # switch to the package from hex after SMTP issue is fixed:
+      # tls_certificate check is also needed to configure proper TLS options
+      # when connecting via SMTP
       {:gen_smtp, "~> 1.2"},
+      {:tls_certificate_check, "~> 1.21"}
     ]
   end
 
