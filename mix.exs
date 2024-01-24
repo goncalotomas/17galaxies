@@ -54,7 +54,7 @@ defmodule Galaxies.MixProject do
       {:plug_cowboy, "~> 2.5"},
       # for sending out emails using AWS SES. if eventually I need to add ExAws,
       # the swoosh adapter should probably be swapped out for ExAwsAmazonSes.
-      {:gen_smtp, "~> 1.2"},
+      {:gen_smtp, "~> 1.2"}
     ]
   end
 

@@ -25,7 +25,9 @@ defmodule GalaxiesWeb.PlayerConfirmationLive do
 
   def mount(%{"token" => token}, _session, socket) do
     form = to_form(%{"token" => token}, as: "player")
-    {:ok, assign(socket, form: form), temporary_assigns: [form: nil]}
+
+    {:ok, assign(socket, form: form),
+     temporary_assigns: [form: nil], layout: {GalaxiesWeb.Layouts, :single}}
   end
 
   # Do not log in the player after confirmation to avoid a
@@ -36,7 +38,7 @@ defmodule GalaxiesWeb.PlayerConfirmationLive do
         {:noreply,
          socket
          |> put_flash(:info, "Player confirmed successfully.")
-         |> redirect(to: ~p"/")}
+         |> redirect(to: ~p"/overview")}
 
       :error ->
         # If there is a current player and the account was already confirmed,
@@ -45,7 +47,7 @@ defmodule GalaxiesWeb.PlayerConfirmationLive do
         # a warning message.
         case socket.assigns do
           %{current_player: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
-            {:noreply, redirect(socket, to: ~p"/")}
+            {:noreply, redirect(socket, to: ~p"/overview")}
 
           %{} ->
             {:noreply,

@@ -28,7 +28,7 @@ defmodule GalaxiesWeb.PlayerForgotPasswordLive do
   end
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, form: to_form(%{}, as: "player"))}
+    {:ok, assign(socket, form: to_form(%{}, as: "player")), layout: {GalaxiesWeb.Layouts, :single}}
   end
 
   def handle_event("send_email", %{"player" => %{"email" => email}}, socket) do
