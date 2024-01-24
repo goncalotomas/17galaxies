@@ -117,24 +117,8 @@ if config_env() == :prod do
   config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Galaxies.Finch
 
   config :galaxies, Galaxies.Mailer,
-    adapter: Swoosh.Adapters.SMTP,
-    relay: System.get_env("SMTP_HOST"),
-    port: 465,
-    username: System.get_env("SMTP_USERNAME"),
-    password: System.get_env("SMTP_PASSWORD"),
-    ssl: true,
-    tls: :never,
-    auth: :always,
-    sockopts: [
-      versions: [:"tlsv1.2", :"tlsv1.3"],
-      verify: :verify_peer,
-      cacerts: :public_key.cacerts_get(),
-      depth: 3,
-      customize_hostname_check: [
-        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-      ],
-      server_name_indication: String.to_charlist(System.get_env("SMTP_HOST"))
-    ],
-    retries: 2,
-    no_mx_lookups: false
+    adapter: Swoosh.Adapters.AmazonSES,
+    region: "eu-west-1",
+    access_key: System.get_env("AWS_SES_ACCESS_KEY"),
+    secret: System.get_env("AWS_SES_SECRET_KEY")
 end
