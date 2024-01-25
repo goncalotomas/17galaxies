@@ -20,7 +20,7 @@ defmodule GalaxiesWeb.PlayerSessionControllerTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, ~p"/overview")
       response = html_response(conn, 200)
-      assert response =~ player.email
+      assert response =~ player.username
       assert response =~ ~p"/players/settings"
       assert response =~ ~p"/players/log_out"
     end

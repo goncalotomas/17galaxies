@@ -40,8 +40,8 @@ defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
     test "creates account and logs the player in", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/players/register")
 
-      email = unique_player_email()
-      form = form(lv, "#registration_form", player: valid_player_attributes(email: email))
+      username = unique_player_username()
+      form = form(lv, "#registration_form", player: valid_player_attributes(username: username))
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
@@ -50,7 +50,7 @@ defmodule GalaxiesWeb.PlayerRegistrationLiveTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/overview")
       response = html_response(conn, 200)
-      assert response =~ email
+      assert response =~ username
       assert response =~ "Settings"
       assert response =~ "Log out"
     end

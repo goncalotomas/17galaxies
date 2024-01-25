@@ -76,11 +76,16 @@ defmodule Galaxies.Accounts do
   """
   def register_player(attrs) do
     home_planet_id = Ecto.UUID.generate()
+    attrs =
+      Enum.reduce(attrs, %{}, fn
+        {key, value}, acc when is_atom(key) -> Map.put(acc, key, value)
+        {key, value}, acc when is_binary(key) -> Map.put(acc, String.to_existing_atom(key), value)
+      end)
 
     player_changeset =
       Player.registration_changeset(
         %Player{},
-        Map.put(attrs, "current_planet_id", home_planet_id)
+        Map.put(attrs, :current_planet_id, home_planet_id)
       )
 
     Ecto.Multi.new()

@@ -116,6 +116,7 @@ defmodule GalaxiesWeb.PlayerSettingsLive do
 
     socket =
       socket
+      |> assign(:current_planet, Accounts.get_active_planet(socket.assigns.current_player))
       |> assign(:current_password, nil)
       |> assign(:email_form_current_password, nil)
       |> assign(:username_form_current_password, nil)

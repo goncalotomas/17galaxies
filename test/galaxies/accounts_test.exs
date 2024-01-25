@@ -94,7 +94,7 @@ defmodule Galaxies.AccountsTest do
 
     test "registers players with a hashed password" do
       email = unique_player_email()
-      {:ok, player} = Accounts.register_player(valid_player_attributes(email: email))
+      {:ok, %{player: player}} = Accounts.register_player(valid_player_attributes(email: email))
       assert player.email == email
       assert is_binary(player.hashed_password)
       assert is_nil(player.confirmed_at)

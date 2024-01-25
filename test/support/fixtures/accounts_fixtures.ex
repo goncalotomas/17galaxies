@@ -13,11 +13,12 @@ defmodule Galaxies.AccountsFixtures do
       username: unique_player_username(),
       email: unique_player_email(),
       password: valid_player_password()
+      # current_planet_id: "#{System.unique_integer()}"
     })
   end
 
   def player_fixture(attrs \\ %{}) do
-    {:ok, player} =
+    {:ok, %{player: player}} =
       attrs
       |> valid_player_attributes()
       |> Galaxies.Accounts.register_player()
