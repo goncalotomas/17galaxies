@@ -1,7 +1,7 @@
 <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
   <%= if @current_player do %>
     <li class="text-[0.8125rem] leading-6 text-white">
-      <%= @current_player.email %>
+      <%= @current_player.username %>
     </li>
     <li>
       <.link
@@ -111,11 +111,7 @@
 
         <div class="h-0 flex-1 overflow-y-auto pt-5 pb-4">
           <div class="flex flex-shrink-0 items-center px-4">
-            <img
-              class="h-8 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-              alt="Your Company"
-            />
+            <img class="h-12 w-auto" src="/images/logo.webp" alt="17 Galaxies" />
           </div>
           <.navigation_menu class="mt-5 space-y-1 px-2" />
         </div>
@@ -130,14 +126,10 @@
   <!-- Static sidebar for desktop -->
   <div class="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
     <!-- Sidebar component, swap this element with another sidebar if you like -->
-    <div class="flex min-h-0 flex-1 flex-col bg-gray-900/80">
+    <div class="flex min-h-0 flex-1 flex-col bg-slate-950/80">
       <div class="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
         <div class="flex flex-shrink-0 items-center px-4">
-          <img
-            class="h-8 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-            alt="Your Company"
-          />
+          <img class="h-24 w-auto" src="/images/logo.webp" alt="17 Galaxies" />
         </div>
         <.navigation_menu class="mt-5 flex-1 space-y-1 px-2" />
       </div>
@@ -176,51 +168,13 @@
           <h1 class="text-2xl font-semibold text-gray-900">@page_title</h1>
         </div> --%>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-          <div>
-            <dl class="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-5 md:divide-y-0 md:divide-x">
-              <div class="px-4 py-5 sm:p-6">
-                <dt class="text-base font-normal text-gray-900">Metal</dt>
-                <dd class="mt-1">
-                  <div class="text-2xl font-semibold text-indigo-600">
-                    71,897
-                  </div>
-                </dd>
-              </div>
-
-              <div class="px-4 py-5 sm:p-6">
-                <dt class="text-base font-normal text-gray-900">Crystal</dt>
-                <dd class="mt-1">
-                  <div class="text-2xl font-semibold text-indigo-600">
-                    71,897
-                  </div>
-                </dd>
-              </div>
-              <div class="px-4 py-5 sm:p-6">
-                <dt class="text-base font-normal text-gray-900">Deuterium</dt>
-                <dd class="mt-1">
-                  <div class="text-2xl font-semibold text-indigo-600">
-                    71,897
-                  </div>
-                </dd>
-              </div>
-              <div class="px-4 py-5 sm:p-6">
-                <dt class="text-base font-normal text-gray-900">Energy</dt>
-                <dd class="mt-1">
-                  <div class="text-2xl font-semibold text-indigo-600">
-                    71,897
-                  </div>
-                </dd>
-              </div>
-
-              <div class="px-4 py-5 sm:p-6">
-                <dt class="text-base font-normal text-gray-900">Dark Matter</dt>
-                <dd class="mt-1">
-                  <div class="text-2xl font-semibold text-indigo-600">
-                    71,897
-                  </div>
-                </dd>
-              </div>
-            </dl>
+          <div class="mx-auto max-w-xl">
+            <.live_component
+              class="max-w-2xl"
+              module={GalaxiesWeb.Components.PlanetResources}
+              id="hero"
+              planet={@current_planet}
+            />
           </div>
 
           <%!-- <ul>
@@ -245,7 +199,7 @@
           </ul> --%>
           <%!-- <%= @inner_content %> --%>
           <main class="px-4 py-20 sm:px-6 lg:px-8 text-white">
-            <div class="mx-auto max-w-2xl">
+            <div class="mx-auto max-w-4xl">
               <.flash_group flash={@flash} />
               <%= @inner_content %>
             </div>

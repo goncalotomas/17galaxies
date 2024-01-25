@@ -1,7 +1,0 @@
-<p>Current resources: <%= @resource_count %></p>
-<p>Current mine level: <%= @mine_level %></p>
-<hr />
-<p>Upgrade cost: <%= @upgrade_cost %></p>
-<%= if @upgrade_cost <= @resource_count do %>
-  <button phx-click="inc_mine_level">Increase mine</button>
-<% end %>

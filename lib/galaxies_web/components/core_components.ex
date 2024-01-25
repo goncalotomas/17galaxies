@@ -658,8 +658,8 @@ defmodule GalaxiesWeb.CoreComponents do
 
   def nav_menu_player_card(assigns) do
     ~H"""
-    <div class="flex flex-shrink-0 bg-gray-700 p-4">
-      <.link navigate={~p"/players/settings"} class="group block w-full flex-shrink-0">
+    <%!-- <div class="flex flex-shrink-0 bg-gray-700 p-4">
+      <div class="group block w-full flex-shrink-0">
         <div class="flex items-center">
           <div>
             <img
@@ -670,13 +670,15 @@ defmodule GalaxiesWeb.CoreComponents do
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium text-white"><%= @username %></p>
-            <p class="text-xs font-medium text-gray-300 group-hover:text-gray-200">
-              Account Settings
-            </p>
+            <.link navigate={~p"/players/settings"}>
+              <p class="text-xs font-medium text-gray-300 group-hover:text-gray-200">
+                Settings
+              </p>
+            </.link>
           </div>
         </div>
-      </.link>
-    </div>
+      </div>
+    </div> --%>
     """
   end
 

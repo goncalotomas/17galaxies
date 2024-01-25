@@ -1,6 +1,8 @@
 defmodule Galaxies.Accounts.Player do
+  alias Galaxies.Planet
   use Galaxies.Schema
   import Ecto.Changeset
+  import Ecto.Query
 
   schema "players" do
     field :email, :string
@@ -8,10 +10,25 @@ defmodule Galaxies.Accounts.Player do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    field :current_planet_id, :binary_id
 
     has_many :planets, Galaxies.Planet
 
     timestamps(type: :utc_datetime)
+  end
+
+  @doc """
+  Builds a query for fetching the active planet
+  """
+  def get_active_planet_query(player) do
+    query =
+      from player in __MODULE__,
+        join: planet in Planet,
+        on: planet.player_id == ^player.id,
+        where: player.id == ^player.id and planet.id == ^player.current_planet_id,
+        select: planet
+
+    {:ok, query}
   end
 
   @doc """
@@ -39,7 +56,7 @@ defmodule Galaxies.Accounts.Player do
   """
   def registration_changeset(player, attrs, opts \\ []) do
     player
-    |> cast(attrs, [:email, :password, :username])
+    |> cast(attrs, [:email, :password, :username, :current_planet_id])
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_username(opts)

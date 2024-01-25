@@ -32,6 +32,9 @@ defmodule Galaxies.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      # actual project dependencies
+      # {:uuid, "~> 1.1"},
+      # phoenix dependencies
       {:argon2_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
