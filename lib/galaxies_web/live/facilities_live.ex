@@ -3,6 +3,8 @@ defmodule GalaxiesWeb.FacilitiesLive do
 
   alias Galaxies.Accounts
 
+  require Logger
+
   def mount(_params, _session, socket) do
     {:ok,
      socket

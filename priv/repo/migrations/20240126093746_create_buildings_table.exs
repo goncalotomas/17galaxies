@@ -5,8 +5,7 @@ defmodule Galaxies.Repo.Migrations.AddBuildings do
   alias Galaxies.Repo
 
   def change do
-    create table("buildings", primary_key: false) do
-      add :id, :binary_id, primary_key: true
+    create table("buildings") do
       add :name, :string, null: false
 
       add :short_description, :text, null: false
@@ -32,7 +31,7 @@ defmodule Galaxies.Repo.Migrations.AddBuildings do
         null: false,
         primary_key: true
 
-      add :building_id, references(:buildings, type: :binary_id, on_delete: :delete_all),
+      add :building_id, references(:buildings, on_delete: :delete_all),
         null: false,
         primary_key: true
 

@@ -390,7 +390,8 @@ defmodule Galaxies.Accounts do
           image_src: building.image_src,
           current_level: planet_building.current_level,
           upgrade_cost_formula: building.upgrade_cost_formula
-        }
+        },
+        order_by: [building.id]
 
     Repo.all(query)
   end
@@ -413,7 +414,8 @@ defmodule Galaxies.Accounts do
           image_src: building.image_src,
           current_level: planet_building.current_level,
           upgrade_cost_formula: building.upgrade_cost_formula
-        }
+        },
+        order_by: [building.id]
 
     Repo.all(query)
   end

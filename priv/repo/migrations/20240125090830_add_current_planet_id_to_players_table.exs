@@ -21,6 +21,6 @@ defmodule Galaxies.Repo.Migrations.AddCurrentPlanetIdToPlayersTable do
     DEFERRABLE INITIALLY DEFERRED;
     """
 
-    create index("players", [:current_planet_id])
+    create index(:players, [:current_planet_id])
   end
 end

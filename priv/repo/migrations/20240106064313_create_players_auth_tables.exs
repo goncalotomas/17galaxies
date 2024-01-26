@@ -6,6 +6,7 @@ defmodule Galaxies.Repo.Migrations.CreatePlayersAuthTables do
 
     create table(:players, primary_key: false) do
       add :id, :binary_id, primary_key: true
+      add :username, :string, null: false
       add :email, :citext, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :naive_datetime
@@ -13,6 +14,7 @@ defmodule Galaxies.Repo.Migrations.CreatePlayersAuthTables do
     end
 
     create unique_index(:players, [:email])
+    create unique_index(:players, [:username])
 
     create table(:players_tokens, primary_key: false) do
       add :id, :binary_id, primary_key: true
