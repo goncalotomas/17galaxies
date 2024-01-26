@@ -29,7 +29,8 @@ defmodule GalaxiesWeb.PlayerConfirmationInstructionsLive do
   end
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, form: to_form(%{}, as: "player")), layout: {GalaxiesWeb.Layouts, :single}}
+    {:ok, assign(socket, form: to_form(%{}, as: "player")),
+     layout: {GalaxiesWeb.Layouts, :single}}
   end
 
   def handle_event("send_instructions", %{"player" => %{"email" => email}}, socket) do

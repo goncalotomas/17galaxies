@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.FleetLive do
-  use Phoenix.LiveView
+  use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
 

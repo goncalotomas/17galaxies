@@ -31,8 +31,9 @@ defmodule Galaxies.Planet do
     # image_id is used to refer to multiple planet images for the same planet type.
     field :image_id, :integer
 
-    timestamps(type: :utc_datetime)
-
     belongs_to :player, Galaxies.Accounts.Player
+    has_many :buildings, Galaxies.PlanetBuilding
+
+    timestamps(type: :utc_datetime_usec)
   end
 end

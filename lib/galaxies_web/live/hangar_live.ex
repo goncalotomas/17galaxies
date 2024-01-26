@@ -1,5 +1,5 @@
 defmodule GalaxiesWeb.HangarLive do
-  use Phoenix.LiveView
+  use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
 
@@ -26,9 +26,11 @@ defmodule GalaxiesWeb.HangarLive do
             <div class="mt-2 flex justify-between">
               <div class="sm:flex">
                 <div class="flex items-center text-sm text-gray-500">
+                  <!-- we need the object-fit style to adapt any rectangular images into square ones -->
                   <img
                     class="h-32 w-32 mr-8 flex-none rounded bg-gray-50"
-                    src="/images/planets/1/large.webp"
+                    style="object-fit: cover;"
+                    src={ship.image_src}
                   />
                   <%= ship.description_short %>
                 </div>

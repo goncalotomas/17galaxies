@@ -7,6 +7,29 @@ defmodule Galaxies.Accounts do
   alias Galaxies.Repo
 
   alias Galaxies.Accounts.{Player, PlayerToken, PlayerNotifier}
+  alias Galaxies.{Building, PlanetBuilding}
+
+  require Logger
+
+  @resource_buildings [
+    "Metal Mine",
+    "Crystal Mine",
+    "Deuterium Refinery",
+    "Solar Power Plant",
+    "Fusion Reactor",
+    "Metal Storage",
+    "Crystal Storage",
+    "Deuterium Tank"
+  ]
+
+  @facility_buildings [
+    "Robot Factory",
+    "Nanite Factory",
+    "Shipyard",
+    "Research Lab",
+    "Terraformer",
+    "Missile Silo"
+  ]
 
   ## Database getters
 
@@ -76,6 +99,7 @@ defmodule Galaxies.Accounts do
   """
   def register_player(attrs) do
     home_planet_id = Ecto.UUID.generate()
+
     attrs =
       Enum.reduce(attrs, %{}, fn
         {key, value}, acc when is_atom(key) -> Map.put(acc, key, value)
@@ -104,6 +128,29 @@ defmodule Galaxies.Accounts do
         max_temperature: 40,
         image_id: 1
       })
+    end)
+    |> Ecto.Multi.run(:planet_buildings, fn repo, %{player: player, planet: planet} ->
+      now = DateTime.utc_now()
+
+      planet_buildings =
+        repo.all(from(b in Building))
+        |> Enum.map(fn building ->
+          %{
+            planet_id: planet.id,
+            building_id: building.id,
+            current_level: 0,
+            inserted_at: now,
+            updated_at: now
+          }
+        end)
+
+      {building_count, nil} = repo.insert_all(PlanetBuilding, planet_buildings)
+
+      Logger.debug(
+        "inserted #{building_count} planet_buildings for planet #{planet.name} of #{player.username}"
+      )
+
+      {:ok, nil}
     end)
     |> Repo.transaction()
     |> case do
@@ -328,116 +375,47 @@ defmodule Galaxies.Accounts do
   Gets the resource buildings for a specific planet.
   Currently returning a stubbed response.
   """
-  def get_planet_resource_buildings(_planet) do
-    [
-      %{
-        name: "Metal Mine",
-        description_short:
-          "The metal mine allows the extraction of raw metal from the planet. Metal production increases as the structure level increases. Once the metal storages are fully filled, metal production on the planet is also stopped. Metal mine needs energy to operate.",
-        description_long:
-          "Metal is a basic resource put to the foundation of your empire. With increasing of metal production, more resources can be used in construction of buildings, ships, rocket complexes and scientific researches is produced. Deep mines, require more energy for maximum production of metal. As metal is the most common of all present resources, the manufacturing cost is considered the lowest of all resources for trade and exchange."
-      },
-      %{
-        name: "Crystal Mine",
-        description_short:
-          "The crystal mine allows the raw crystal to be extracted from the planet. Crystal production increases as the structure level increases. Once the crystal storages are fully filled, crystal production on the planet is also stopped. Crystal mine needs energy to operate.",
-        description_long:
-          "Crystals are the main resource for creation of technician and electronics. Crystal is also used for connection of crystals and metal, used for alloy of panels and armour. As compared with process of production of metal, for receipt of crude crystal structures in industrial scale, much more energy for their processing is required. Development of vessels and structures , as well as specialised researches updates, require a well determined amount of crystals."
-      },
-      %{
-        name: "Deuterium Refinery",
-        description_short:
-          "Deuterium synthesizer provides the extraction of deuterium from the planet. The deuterium production increases as the structure level increases. Once the deuterium tanks are fully filled, deuterium production on the planet is also stopped. Deuterium synthesizer needs energy to operate.",
-        description_long:
-          "The rare deuterium is a natural isotope of hydrogen. The extraction of the so-called \"heavy hydrogen\" from the world's oceans is very expensive, but as an essential fuel it provides the basic prerequisite for nuclear fusion. As an highly exothermic fuel, deuterium is significantly more efficient than other fossil fuels. As a result, long times ago effective drives for spaceships could be designed for the first time, which are still used today. Deuterium is also required to protect the sensor phalanx from overheating and to enable research into complex technologies."
-      },
-      %{
-        name: "Solar Power Plant",
-        description_short:
-          "Solar power plants are huge structures that produce energy using solar rays. They contribute to the energy production of the planet and helps the operation of the mines.",
-        description_long:
-          "Huge solar panels reflect incoming solar energy to a liquid-filled core. This passes on the energy gained through heating to a water cycle. Turbines can be driven by evaporation, which ultimately generate electricity. A planet's proximity to the sun actually doesn't matter in solar power plants, as the technology is limited by the efficiency of water evaporation. An increase in the surface area of the parabolic mirrors leads to an increase in energy production in the power grids. Another advantage is the indestructibility of the facility by enemy fleet attacks."
-      },
-      %{
-        name: "Fusion Reactor",
-        description_short:
-          "Fusion reactors are plants that produce radioactive energy using fusion technology. They contribute to the energy production of the planet and helping the operation of the mines. Fusion reactors need deuterium to work and use some of the deuterium production on the planet.",
-        description_long:
-          "In fusion reactors, deuterium and tritium nuclei are fused together at high speeds. Nuclear fusion thus represents the reversal of nuclear fission, so to speak. The fusion of both atomic nuclei leads to the formation of a helium nucleus and the emission of a high-energy neutron. Merely through the fusion of an atom, 17.6 MeV (mega-electron volts) can already be released. With constant expansion of the reactor, it can make a significant contribution to the energy supply of the planet. In contrast to the fragile solar satellites, this form of energy supply cannot be destroyed by attacks. Deuterium consumption during nuclear fusion can be made more efficient as scientists delve further into energy engineering."
-      },
-      %{
-        name: "Metal Storage",
-        description_short:
-          "Metal storages are structures used to store metal resources on the planet. Once the metal storages are fully filled, metal production on the planet is also stopped.",
-        description_long:
-          "This storage facility is used for storage of metal ores. Each level of update increases the amount of ore which can be preserved. If volume of the storage facility is exceeded, production of metal ceases automatically, in order to prevent a disastrous cave-in in mines pits."
-      },
-      %{
-        name: "Crystal Storage",
-        description_short:
-          "Crystal storages are used to store crystal resources on the planet. Once the crystal storages are fully filled, crystal production on the planet is also stopped.",
-        description_long:
-          "Raw crystal is stored in the buildings of this type. With each level of the storage facility, the amount of crystal is increased which will be preserved. As soon as production exceeds an admissible capacity, production of crystal ceases automatically, in order to prevent collapse in pits."
-      },
-      %{
-        name: "Deuterium Tank",
-        description_short:
-          "Deuterium tanks are structures used to store deuterium resources on the planet. Once the deuterium tanks are fully filled, deuterium production on the planet is also stopped.",
-        description_long:
-          "Is intended for storage of again synthesized deuterium. After processing in the synthesizer, deuterium in tubes enters this reservoir for subsequent use. With each level of the storage facility construction communicating capacity is increased. As soon as critical mark will be reached, synthesizer is switched off to prevent breakage of the reservoir."
-      }
-    ]
+  def get_planet_resource_buildings(planet) do
+    query =
+      from building in Building,
+        where: building.name in @resource_buildings,
+        join: planet_building in PlanetBuilding,
+        on: building.id == planet_building.building_id,
+        where: planet_building.planet_id == ^planet.id,
+        select: %{
+          id: building.id,
+          name: building.name,
+          description_short: building.short_description,
+          description_long: building.long_description,
+          image_src: building.image_src,
+          current_level: planet_building.current_level,
+          upgrade_cost_formula: building.upgrade_cost_formula
+        }
+
+    Repo.all(query)
   end
 
   @doc """
   Gets the facilities buildings for a specific planet.
-  Currently returning a stubbed response.
   """
-  def get_planet_facilities_buildings(_planet) do
-    [
-      %{
-        name: "Robot Factory",
-        description_short:
-          "Robot Factories are facilities that produce construction robots that greatly speed up the upgrade of buildings, facilities, ships, and defenses per level.",
-        description_long:
-          "The robot factory is named after the production of highly developed robots. These support the colonists in the expansion of the planet and thus shorten the construction times enormously. Slightly faster robots are developed in each new level of the factory, further reducing the time required for the construction of buildings, plants, ships and defenses."
-      },
-      %{
-        name: "Nanite Factory",
-        description_short:
-          "Nanite factory; manufactures nanometric robots that helps construction of building, ship and defense units. Each level of this facility increases the production speed of buildings, ships and defense units by 80%.",
-        description_long:
-          "Nanite factories greatly speed up the completion of buildings, ships, and defenses using nanometric bots. The microscopically small machines represent the culmination of robotics. For a meaningful use of the nanobots it was necessary to develop tiny processors beforehand, so the computer technology had to be mastered before building them."
-      },
-      %{
-        name: "Shipyard",
-        description_short:
-          "Shipyards are facilities where ships and defense units are produced. As the shipyard level increases, the time required to manufacture ships and defense units decreases.",
-        description_long:
-          "Shipyards are responsible for creation of spacecrafts and defence units. At increase of the level, the shipyard can produce more advanced transport and fighting vessels on much greater speed."
-      },
-      %{
-        name: "Research Lab",
-        description_short:
-          "With the help of these facilities, the scientific capabilities of the Empire are constantly being improved. Due to the expansion, new opportunities for researching even more complex technologies are constantly being released. As the level of this facility increases, so does the speed of scientific research.",
-        description_long:
-          "Important part of any empire are research laboratories, where they are improved old and new openings of science are studied. With each level of construction, speed, with which new technologies are investigated, is increased. So that to conduct researches as soon as possible, scientific empires are directed to given planet. In such a manner, knowledges of new technologies extend easily to the whole empire."
-      },
-      %{
-        name: "Terraformer",
-        description_short:
-          "Terraformer ensures that unusable lands on the planet are improved and put into use. Each level of this facility opens 6 new areas.",
-        description_long:
-          "The steady subjugation of the planet inevitably leads to scarce useable space. The reckless increase in production capacity and the consequent pollution of the atmosphere could soon consume the rest of the planet's living space. Scientists therefore developed a method to convert fallow land into usable space using large amounts of energy. Each stage of expansion guarantees +6 new fields, of which 1 field is already required for the terraformer."
-      },
-      %{
-        name: "Missile Silo",
-        description_short:
-          "Missile silos are facilities that produce and store interplanetary missiles and interceptors. As the structure level increases, the number of storable missiles increases.",
-        description_long:
-          "Missile silos are used to build, store and run interplanetary missiles and missile interceptors. With each level of the mine, the number of missiles increases proportionately. Interplanetary missiles and missile interceptors are stored in the same bunker."
-      }
-    ]
+  def get_planet_facilities_buildings(planet) do
+    query =
+      from building in Building,
+        where: building.name in @facility_buildings,
+        join: planet_building in PlanetBuilding,
+        on: building.id == planet_building.building_id,
+        where: planet_building.planet_id == ^planet.id,
+        select: %{
+          id: building.id,
+          name: building.name,
+          description_short: building.short_description,
+          description_long: building.long_description,
+          image_src: building.image_src,
+          current_level: planet_building.current_level,
+          upgrade_cost_formula: building.upgrade_cost_formula
+        }
+
+    Repo.all(query)
   end
 
   @doc """
@@ -448,6 +426,7 @@ defmodule Galaxies.Accounts do
     [
       %{
         name: "Spy Technology",
+        image_src: "/images/researches/espionage.webp",
         description_short:
           "As the level of this technique increases, more detailed information can be obtained from spying missions, while enemy spy probes can collect less information from your planets.",
         description_long:
@@ -455,60 +434,70 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Computer Technology",
+        image_src: "/images/researches/computer.webp",
         description_short: "Increases the maximum fleet slot by 1.",
         description_long:
           "Once launched on any mission, fleets are controlled primarily by a series of computers located on the originating planet. These massive computers calculate the exact time of arrival, controls course corrections as needed, calculates trajectories, and regulates flight speeds. With each level researched, the flight computer is upgraded to allow an additional slot to be launched. Computer technology should be continuously developed throughout the building of your empire."
       },
       %{
         name: "Energy Technology",
+        image_src: "/images/researches/energy.webp",
         description_short: "Increases energy production by 2%.",
         description_long:
           "As various fields of research advanced, it was discovered that the current technology of energy distribution was not sufficient enough to begin certain specialized research. With each upgrade of your Energy Technology, new research can be conducted which unlocks development of more sophisticated ships and defences."
       },
       %{
         name: "Laser Technology",
+        image_src: "/images/researches/laser.webp",
         description_short: "Increases the attack power of laser weapons by 1%.",
         description_long:
           "Lasers (light amplification by stimulated emission of radiation) produce an intense, energy rich emission of coherent light. These devices can be used in all sorts of areas, from optical computers to heavy laser weapons, which effortlessly cut through armour technology. The laser technology provides an important basis for research of other weapon technologies."
       },
       %{
         name: "Ion Technology",
+        image_src: "/images/researches/ion.webp",
         description_short: "Increases the attack power of ion weapons by 1%.",
         description_long:
           "Ions can be concentrated and accelerated into a deadly beam. These beams can then inflict enormous damage. Our scientists have also developed a technique that will clearly reduce the deconstruction costs for buildings and systems."
       },
       %{
         name: "Plasma Technology",
+        image_src: "/images/researches/plasma.webp",
         description_short: "Increases the attack power of plasma weapons by 1%.",
         description_long:
           "A further development of ion technology that doesn`t speed up ions but high-energy plasma instead, which can then inflict devastating damage on impact with an object."
       },
       %{
         name: "Graviton Technology",
+        image_src: "/images/researches/graviton.webp",
         description_short: "Increases the attack power of graviton weapons by 2%.",
         description_long:
           "A graviton is an elementary particle that is massless and has no cargo. It determines the gravitational power. By firing a concentrated load of gravitons, an artificial gravitational field can be constructed. Not unlike a black hole, it draws mass into itself. Thus it can destroy ships and even entire moons. To produce a sufficient amount of gravitons, huge amounts of energy are required. Graviton Research is required to construct a destructive Deathstar."
       },
       %{
         name: "Weapons Technology",
+        image_src: "/images/researches/weapons.webp",
         description_short: "Increases the attack power of all units by 10%.",
         description_long:
           "Weapons Technology is a key research technology and is critical to your survival against enemy Empires. With each level of Weapons Technology researched, the weapons systems on ships and your defence mechanisms become increasingly more efficient. Each level increases the base strength of your weapons by 10% of the base value."
       },
       %{
         name: "Shields Technology",
+        image_src: "/images/researches/shield.webp",
         description_short: "Increases the shield power of all units by 10%.",
         description_long:
           "With the invention of the magnetosphere generator, scientists learned that an artificial shield could be produced to protect the crew in space ships not only from the harsh solar radiation environment in deep space, but also provide protection from enemy fire during an attack. Once scientists finally perfected the technology, a magnetosphere generator was installed on all ships and defence systems. As the technology is advanced to each level, the magnetosphere generator is upgraded which provides an additional 10% strength to the shields base value."
       },
       %{
         name: "Armor Technology",
+        image_src: "/images/researches/armor.webp",
         description_short: "Increases the armor power of all units by 10%.",
         description_long:
           "The environment of deep space is harsh. Pilots and crew on various missions not only faced intense solar radiation, they also faced the prospect of being hit by space debris, or destroyed by enemy fire in an attack. With the discovery of an aluminum-lithium titanium carbide alloy, which was found to be both light weight and durable, this afforded the crew a certain degree of protection. With each level of Armour Technology developed, a higher quality alloy is produced, which increases the armours strength by 10%."
       },
       %{
         name: "Hyperspace Technology",
+        image_src: "/images/researches/hyperspace.webp",
         description_short:
           "Hyperspace technology increases expedition and asteroid mining gains by 1%.",
         description_long:
@@ -516,24 +505,28 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Combustion Engine Technology",
+        image_src: "/images/researches/combustion.webp",
         description_short: "Increases the speed of all ships using a combustion engine by 10%.",
         description_long:
           "The Combustion Drive is the oldest of technologies, but is still in use. With the Combustion Drive, exhaust is formed from propellants carried within the ship prior to use. In a closed chamber, the pressures are equal in each direction and no acceleration occurs. If an opening is provided at the bottom of the chamber then the pressure is no longer opposed on that side. The remaining pressure gives a resultant thrust in the side opposite the opening, which propels the ship forward by expelling the exhaust rearwards at extreme high speed."
       },
       %{
         name: "Impulse Engine Technology",
+        image_src: "/images/researches/impulse.webp",
         description_short: "Increases the speed of all ships using a impulse engine by 20%.",
         description_long:
           "The impulse drive is based on the recoil principle, by which the stimulated emission of radiation is mainly produced as a waste product from the core fusion to gain energy."
       },
       %{
         name: "Hyperspace Engine Technology",
+        image_src: "/images/researches/warp.webp",
         description_short: "Increases the speed of all ships using a hyperspace engine by 30%.",
         description_long:
           "Long distances can be covered very quickly due to the curvature of the immediate vicinity of the ship. The more developed the hyperspace propellant, the greater the curvature of space."
       },
       %{
         name: "Cargo Technology",
+        image_src: "/images/researches/cargo.webp",
         description_short:
           "Increases the cargo capacity of Cargo ships by 50% and increases the cargo capacity of all other ships by 5%.",
         description_long:
@@ -541,6 +534,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Astrophysics Technology",
+        image_src: "/images/researches/astrophysics.webp",
         description_short:
           "This technology allows you to colonize new planets and increase the maximum number of expedition missions.",
         description_long:
@@ -548,28 +542,32 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Intergalactic Research Network",
+        image_src: "/images/researches/intergalactic-research-network.webp",
         description_short:
           "Scientific research laboratories on different planets connect to each other and increasing the speed of research.",
         description_long:
           "When research is getting more and more complex scientists are revolutionary to connect individual laboratories developed a path: Intergalactic Research Network! Central computers of research stations via this network they connect directly with each other, which speeds up research. A research laboratory is connected for each level researched. Always here laboratories with the highest level are added. The networked lab is should be developed sufficiently to carry out independently. All participating laboratories expansion stages meet in intergalactic research network was introduced."
-      },
-      %{
-        name: "Mineral Extration Technology",
-        description_short: "Increases metal mine production on all planets.",
-        description_long:
-          "Since metal is the most widely used resource in the industry, efforts have been made to increase production power. As a result of using the raw resources processed in metal mines more effectively, metal production power also increases considerably."
-      },
-      %{
-        name: "Crystallization Technology",
-        description_short: "Increases crystal mine production on all planets.",
-        description_long:
-          "Since crystals are frangible, processing and using them require great skill. As the industry's need for crystals increases, efforts are being made to avoid wasting crystals."
-      },
-      %{
-        name: "Fuel Cell Technology",
-        description_short: "Increases deuterium production on all planets.",
-        description_long:
-          "Since Deuterium deposits are mostly under the sea, removing and storing them requires great efforts. Some of the deuterium may become unusable during this process. Scientists are working to use these resources more effectively in many fields. The amount of raw deuterium required decreases as fuel technology improves."
+        # },
+        # %{
+        #   name: "Mineral Extration Technology",
+        #   image_src: "/images/researches/.webp",
+        #   description_short: "Increases metal mine production on all planets.",
+        #   description_long:
+        #     "Since metal is the most widely used resource in the industry, efforts have been made to increase production power. As a result of using the raw resources processed in metal mines more effectively, metal production power also increases considerably."
+        # },
+        # %{
+        #   name: "Crystallization Technology",
+        #   image_src: "/images/researches/.webp",
+        #   description_short: "Increases crystal mine production on all planets.",
+        #   description_long:
+        #     "Since crystals are frangible, processing and using them require great skill. As the industry's need for crystals increases, efforts are being made to avoid wasting crystals."
+        # },
+        # %{
+        #   name: "Fuel Cell Technology",
+        #   image_src: "/images/researches/.webp",
+        #   description_short: "Increases deuterium production on all planets.",
+        #   description_long:
+        #     "Since Deuterium deposits are mostly under the sea, removing and storing them requires great efforts. Some of the deuterium may become unusable during this process. Scientists are working to use these resources more effectively in many fields. The amount of raw deuterium required decreases as fuel technology improves."
       }
     ]
   end
@@ -582,6 +580,7 @@ defmodule Galaxies.Accounts do
     [
       %{
         name: "Light Fighter",
+        image_src: "/images/units/light-fighter.webp",
         description_short:
           "They are the most primitive warships of an empire. But when their number increases, they can easily destroy even huge ships.",
         description_long:
@@ -593,6 +592,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Heavy Fighter",
+        image_src: "/images/units/heavy-fighter.webp",
         description_short:
           "The constant further development of the light fighters finally made the production of the much more stable heavy fighters possible.",
         description_long:
@@ -604,6 +604,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Cruiser",
+        image_src: "/images/units/cruiser.webp",
         description_short:
           "Due to their maneuverability and high speed, cruisers are a major challenge for enemy fleets and defenses.",
         description_long:
@@ -615,6 +616,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Battleship",
+        image_src: "/images/units/battleship.webp",
         description_short:
           "Battleships are the backbone for early fleets, providing a high resistance to ships designed to overpower defenses during the first stages of new empires.",
         description_long:
@@ -626,6 +628,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Interceptor",
+        image_src: "/images/units/interceptor.webp",
         description_short:
           "Interceptors are very agile ships with sophisticated weapon systems. They were designed to counterbalance the prevailing battleships.",
         description_long:
@@ -637,6 +640,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Bomber",
+        image_src: "/images/units/bombardier.webp",
         description_short:
           "Bombers are designed to destroy the enemy's defense line. Their concentrated bombardments are very strong against defensive units.",
         description_long:
@@ -648,6 +652,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Destroyer",
+        image_src: "/images/units/dreadnaught.webp",
         description_short:
           "Destroyers are the most fearful of middle class warships due to their high shield strength and damage ability.",
         description_long:
@@ -659,6 +664,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Reaper",
+        image_src: "/images/units/battleship-v3.webp",
         description_short:
           "The ability to collect debris fields immediately after battle has made this warship one of the most popular in the universe! They can directly collect a maximum of 40% of the total debris.",
         description_long:
@@ -670,6 +676,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Deathstar",
+        image_src: "/images/units/juggernaut.webp",
         description_short:
           "The destructive power of Death Stars is unmatched. By focusing huge amounts of energy, the gigantic gravitational cannon can even destroy entire moons.",
         description_long:
@@ -681,6 +688,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Solar Satellite",
+        image_src: "/images/units/solar-satellite.webp",
         description_short:
           "Solar satellites are launched directly into the orbit of the respective planet. The satellites collect the sun's energy and contribute to the planet's energy production.",
         description_long:
@@ -692,6 +700,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Crawler",
+        image_src: "/images/units/crawler.webp",
         description_short:
           "These units can only move on the surface of the planet. They contribute to the production of metal, crystal and deuterium on the planet. These units cannot be given fleet orders and cannot leave their planet.",
         description_long:
@@ -703,6 +712,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Spy Probe",
+        image_src: "/images/units/espionage-probe.webp",
         description_short:
           "Spy probes are built to collect information about enemy planets. They are very small and enormously fast units.",
         description_long:
@@ -713,7 +723,8 @@ defmodule Galaxies.Accounts do
         hit_points: 100
       },
       %{
-        name: "Light Cargo",
+        name: "Small Cargo Ship",
+        image_src: "/images/units/light-cargo.webp",
         description_short:
           "These small ships were designed purely for carrying raw materials, allowing quick allocation of resources between colonies. Their enormous maneuverability means that today they represent an elementary part of the goods traffic of every empire.",
         description_long:
@@ -724,7 +735,8 @@ defmodule Galaxies.Accounts do
         hit_points: 400
       },
       %{
-        name: "Heavy Cargo",
+        name: "Large Cargo Ship",
+        image_src: "/images/units/large-cargo.webp",
         description_short:
           "With around five times the cargo capacity of small transporters, large transporters offer an efficient way of loading huge amounts of resources efficiently. However, their disadvantage is that they are a bit slower than small transporters.",
         description_long:
@@ -736,6 +748,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Recycler",
+        image_src: "/images/units/large-cargo-v2.webp",
         description_short:
           "These ships can collect floating resources (known as debris fields) in space and bring them back to the Empire for re-use.",
         description_long:
@@ -747,6 +760,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Colonizer",
+        image_src: "/images/units/colony.webp",
         description_short: "These ships are specially designed to colonize new planets.",
         description_long:
           "These ships are specially designed to colonize new planets. Even if they move slowly in space, it doesn't in the least diminish the settlers' joy in colonizing new planets. To not disappoint their hopes, but to make their new life as smooth as possible, colony ships will be loaded with resources far beyond their usual capacity limits when colonizing new planets.",
@@ -757,6 +771,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Asteroid Miner",
+        image_src: "/images/units/asteroid-miner.webp",
         description_short:
           "Asteroid miners are ships specially designed to collect resources from asteroid surfaces.",
         description_long:
@@ -777,6 +792,7 @@ defmodule Galaxies.Accounts do
     [
       %{
         name: "Missile Launcher",
+        image_src: "/images/units/missile-launcher.webp",
         description_short:
           "Rocket launchers are a relic of the past, yet prove that in large numbers they are a cheap and effective defense mechanism.",
         description_long:
@@ -788,6 +804,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Light Laser Turret",
+        image_src: "/images/units/light-laser-turret.webp",
         description_short:
           "These underdeveloped turrets prove that simple technology can be devastating when multiple lasers combine their power. Due to their very low overall cost, many empires' defenses consist primarily of these turrets.",
         description_long:
@@ -799,6 +816,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Heavy Laser Turret",
+        image_src: "/images/units/heavy-laser-turret.webp",
         description_short:
           "Through further research into laser technology, much larger guns with higher penetrating power could soon be built.",
         description_long:
@@ -810,6 +828,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Ion Cannon",
+        image_src: "/images/units/ion-cannon.webp",
         description_short:
           "Ion cannons accelerate small particles to such high speeds that they damage the attacking fleet's electronics and navigational equipment.",
         description_long:
@@ -821,6 +840,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Gauss Cannon",
+        image_src: "/images/units/gauss-cannon.webp",
         description_short:
           "The penetrating power of the huge projectiles in this gun can be further increased by ferromagnetic acceleration.",
         description_long:
@@ -832,6 +852,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Plasma Cannon",
+        image_src: "/images/units/plasma-cannon.webp",
         description_short:
           "When it hits enemy weapons and navigation systems, the electrical conductivity of plasma will bypass circuits for truly devastating damage regarding maneuverability.",
         description_long:
@@ -841,41 +862,45 @@ defmodule Galaxies.Accounts do
         shield_value: 300,
         hit_points: 10_000
       },
-      %{
-        name: "Fortress",
-        description_short:
-          "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks.",
-        description_long:
-          "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks. The construction of the complex is reminiscent of long-forgotten civilizations, that tried to protect their cities from invaders with stone walls. Of course, the materials used are not in the least comparable. In addition to protecting the infrastructure, the highly developed weapon systems can simultaneously defend entire cities by opening fire on the attacker at the same time. With every unit the thickness of fortress is being increased.",
-        type: "defense",
-        attack_value: 10_800,
-        shield_value: 20_000,
-        hit_points: 960_000
-      },
-      %{
-        name: "Doom Cannon",
-        description_short:
-          "The doom cannon's massive blasts of energy can even hit multiple Death Stars and Avatars at once with their unimaginable level of destructive power.",
-        description_long:
-          "During the first test attempts by scientists, there was a short-term power failure when the cannons were used. Due to the total darkness combined with the rumbling sound, the inhabitants thought the planet was about to collapse. Since then, the huge cannons have been called \"Cannons of Doom\". Inside these cannons, graviton and plasma articles are first fused in a nuclear fusion. However, the unstable mixture implodes after a short time, so that the outer shells only have the purpose of directing the projectile in the approximate direction of the attacker. The enormous bursts of energy from the plasma-graviton-cannon can even hit several Death Stars and Avatars at once due to their unimaginable degree of destructive power.",
-        type: "defense",
-        attack_value: 20_000,
-        shield_value: 120_000,
-        hit_points: 3_600_000
-      },
-      %{
-        name: "Orbital Defense Platform",
-        description_short:
-          "This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
-        description_long:
-          "Due to the technological advancement of warships there was much need for a new defence system to counter massive enemy fleets. This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
-        type: "defense",
-        attack_value: 96_000,
-        shield_value: 1_000_000,
-        hit_points: 22_400_000
-      },
+      # %{
+      #   name: "Fortress",
+      #   image_src: "/images/units/.webp",
+      #   description_short:
+      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks.",
+      #   description_long:
+      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks. The construction of the complex is reminiscent of long-forgotten civilizations, that tried to protect their cities from invaders with stone walls. Of course, the materials used are not in the least comparable. In addition to protecting the infrastructure, the highly developed weapon systems can simultaneously defend entire cities by opening fire on the attacker at the same time. With every unit the thickness of fortress is being increased.",
+      #   type: "defense",
+      #   attack_value: 10_800,
+      #   shield_value: 20_000,
+      #   hit_points: 960_000
+      # },
+      # %{
+      #   name: "Doom Cannon",
+      #   image_src: "/images/units/.webp",
+      #   description_short:
+      #     "The doom cannon's massive blasts of energy can even hit multiple Death Stars and Avatars at once with their unimaginable level of destructive power.",
+      #   description_long:
+      #     "During the first test attempts by scientists, there was a short-term power failure when the cannons were used. Due to the total darkness combined with the rumbling sound, the inhabitants thought the planet was about to collapse. Since then, the huge cannons have been called \"Cannons of Doom\". Inside these cannons, graviton and plasma articles are first fused in a nuclear fusion. However, the unstable mixture implodes after a short time, so that the outer shells only have the purpose of directing the projectile in the approximate direction of the attacker. The enormous bursts of energy from the plasma-graviton-cannon can even hit several Death Stars and Avatars at once due to their unimaginable degree of destructive power.",
+      #   type: "defense",
+      #   attack_value: 20_000,
+      #   shield_value: 120_000,
+      #   hit_points: 3_600_000
+      # },
+      # %{
+      #   name: "Orbital Defense Platform",
+      #   image_src: "/images/units/.webp",
+      #   description_short:
+      #     "This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
+      #   description_long:
+      #     "Due to the technological advancement of warships there was much need for a new defence system to counter massive enemy fleets. This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
+      #   type: "defense",
+      #   attack_value: 96_000,
+      #   shield_value: 1_000_000,
+      #   hit_points: 22_400_000
+      # },
       %{
         name: "Small Shield Dome",
+        image_src: "/images/units/small-shield.webp",
         description_short:
           "The small shield dome covers the defense units and ships with a protective energy shield using a generator. This can absorb additional energy from the outside and is still permeable enough to let your own defenses fire.",
         description_long:
@@ -887,6 +912,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Large Shield Dome",
+        image_src: "/images/units/large-shield.webp",
         description_short:
           "Further research into shield technologies has significantly improved the resilience of small shield domes. Large shield domes thus cover a much larger area of the planet, which means that its facilities and units can be protected much more efficiently.",
         description_long:
@@ -896,19 +922,21 @@ defmodule Galaxies.Accounts do
         shield_value: 10_000,
         hit_points: 20_000
       },
-      %{
-        name: "Atmospheric Shield",
-        description_short:
-          "These vast energy shields reinforce a planet's natural atmosphere. They span the entire planet and, in conjunction with other defense systems, make it possible to withstand even major attacks without damage.",
-        description_long:
-          "These vast energy shields reinforce a planet's natural atmosphere. They span the entire planet and, in conjunction with other defense systems, make it possible to withstand even major attacks without damage. Due to the high energy voltage required, only a limited number of atmospheric shields can be built per planet.",
-        type: "defense",
-        attack_value: 0,
-        shield_value: 2_000_000,
-        hit_points: 4_000_000
-      },
+      # %{
+      #   name: "Atmospheric Shield",
+      #   image_src: "/images/units/.webp",
+      #   description_short:
+      #     "These vast energy shields reinforce a planet's natural atmosphere. They span the entire planet and, in conjunction with other defense systems, make it possible to withstand even major attacks without damage.",
+      #   description_long:
+      #     "These vast energy shields reinforce a planet's natural atmosphere. They span the entire planet and, in conjunction with other defense systems, make it possible to withstand even major attacks without damage. Due to the high energy voltage required, only a limited number of atmospheric shields can be built per planet.",
+      #   type: "defense",
+      #   attack_value: 0,
+      #   shield_value: 2_000_000,
+      #   hit_points: 4_000_000
+      # },
       %{
         name: "Interceptor Missile",
+        image_src: "/images/units/interceptor-missile.webp",
         description_short:
           "With this anti-ballistic missile defense system, incoming interplanetary missiles can be successfully shot down in the stratosphere.",
         description_long: "TBD",
@@ -919,6 +947,7 @@ defmodule Galaxies.Accounts do
       },
       %{
         name: "Interplanetary Missile",
+        image_src: "/images/units/interplanetary-missile.webp",
         description_short:
           "The plasma warheads used by the interplanetary missiles cause devastating damage to enemy defense systems - if they are not protected by interceptor missiles. Defenses destroyed by missiles are not restored.",
         description_long:

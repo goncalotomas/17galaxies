@@ -1,7 +1,8 @@
 defmodule GalaxiesWeb.ResourcesLive do
-  use Phoenix.LiveView
+  use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
+  require Logger
 
   def mount(_params, _session, socket) do
     {:ok,
@@ -26,30 +27,27 @@ defmodule GalaxiesWeb.ResourcesLive do
             <div class="mt-2 flex justify-between">
               <div class="sm:flex">
                 <div class="flex items-center text-sm text-gray-500">
+                  <!-- we need the object-fit style to adapt any rectangular images into square ones -->
                   <img
                     class="h-32 w-32 mr-8 flex-none rounded bg-gray-50"
-                    src="/images/planets/1/large.webp"
+                    style="object-fit: cover;"
+                    src={building.image_src}
                   />
-                  <%= building.description_short %>
+                  <p>
+                    <%= building.description_short %><br />
+                    <%= list_upgrade_costs(building.upgrade_cost_formula, building.current_level + 1) %>
+                  </p>
                 </div>
               </div>
-              <div class="ml-2 flex items-center text-sm text-gray-500">
+              <div class="ml-2 flex items-center text-sm text-indigo-500">
                 <a href="#" class="block hover:bg-gray-50">
-                  Upgrade
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                    />
-                  </svg>
+                  <.button phx-click={"upgrade:#{building.id}:#{building.current_level + 1}"}>
+                    <%= if building.current_level == 0 do %>
+                      Build
+                    <% else %>
+                      Upgrade to level <%= building.current_level + 1 %>
+                    <% end %>
+                  </.button>
                 </a>
               </div>
             </div>
@@ -58,5 +56,46 @@ defmodule GalaxiesWeb.ResourcesLive do
       </ul>
     </div>
     """
+  end
+
+  def handle_event("upgrade:" <> upgrade, _value, socket) do
+    [building_id, level] = String.split(upgrade, ":")
+    Logger.debug("upgrading #{building_id} to #{level}")
+    {:noreply, socket}
+  end
+
+  defp list_upgrade_costs(nil, _current_level), do: nil
+
+  defp list_upgrade_costs(formula, current_level) do
+    {metal, crystal, deuterium, energy} = Galaxies.calc_upgrade_cost(formula, current_level)
+    assigns = %{metal: metal, crystal: crystal, deuterium: deuterium, energy: energy}
+
+    ~H"""
+    Requirements:
+    <%= if @metal > 0 do %>
+      Metal: <strong><%= format_number(@metal) %></strong>
+    <% end %>
+    <%= if @crystal > 0 do %>
+      Crystal: <strong><%= format_number(@crystal) %></strong>
+    <% end %>
+    <%= if @deuterium > 0 do %>
+      Deuterium: <strong><%= format_number(@deuterium) %></strong>
+    <% end %>
+    <%= if @energy > 0 do %>
+      Energy: <strong><%= format_number(@energy) %></strong>
+    <% end %>
+    """
+  end
+
+  defp format_number(number) when number < 1000, do: "#{number}"
+
+  defp format_number(number) do
+    number
+    |> Kernel.to_string()
+    |> String.reverse()
+    |> String.split("", trim: true)
+    |> Enum.chunk_every(3)
+    |> Enum.join(".")
+    |> String.reverse()
   end
 end

@@ -33,7 +33,7 @@ defmodule Galaxies.MixProject do
   defp deps do
     [
       # actual project dependencies
-      # {:uuid, "~> 1.1"},
+      {:abacus, "~> 2.0"},
       # phoenix dependencies
       {:argon2_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.10"},
