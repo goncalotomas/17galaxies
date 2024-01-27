@@ -1,21 +1,21 @@
-defmodule Galaxies.PlanetBuilding do
+defmodule Galaxies.PlayerResearch do
   use Galaxies.Schema
 
   import Ecto.Changeset
 
-  schema "planet_buildings" do
+  schema "player_researches" do
     field :current_level, :integer
     field :is_upgrading, :boolean
     field :upgrade_finish_time, :utc_datetime
 
-    belongs_to :planet, Galaxies.Planet
-    belongs_to :building, Galaxies.Building
+    belongs_to :player, Galaxies.Accounts.Player
+    belongs_to :research, Galaxies.Research
 
     timestamps(type: :utc_datetime_usec)
   end
 
-  def upgrade_changeset(planet_building, attrs) do
-    planet_building
+  def upgrade_changeset(player_research, attrs) do
+    player_research
     |> cast(attrs, [:current_level])
   end
 end

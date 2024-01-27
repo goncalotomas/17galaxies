@@ -39,7 +39,7 @@ defmodule Galaxies.Planet do
     timestamps(type: :utc_datetime_usec)
   end
 
-  def upgrade_planet_building_changeset(planet, attrs) do
+  def upgrade_building_changeset(planet, attrs) do
     planet
     |> cast(attrs, [
       :used_fields,
@@ -49,6 +49,15 @@ defmodule Galaxies.Planet do
       :deuterium_units,
       :available_energy,
       :total_energy
+    ])
+  end
+
+  def upgrade_research_changeset(planet, attrs) do
+    planet
+    |> cast(attrs, [
+      :metal_units,
+      :crystal_units,
+      :deuterium_units
     ])
   end
 end

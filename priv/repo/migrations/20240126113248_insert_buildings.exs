@@ -13,6 +13,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 10,
         image_src: "/images/buildings/metal-mine-v3.webp",
         upgrade_cost_formula: "60 * 1.5^(level - 1)$15 * 1.5^(level - 1)$0$0",
+        upgrade_time_formula: "5",
         short_description:
           "The metal mine allows the extraction of raw metal from the planet. Metal production increases as the structure level increases. Once the metal storages are fully filled, metal production on the planet is also stopped. Metal mine needs energy to operate.",
         long_description:
@@ -25,6 +26,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 20,
         image_src: "/images/buildings/crystal-mine.webp",
         upgrade_cost_formula: "48 * 1.6^(level - 1)$24 * 1.6^(level - 1)$0$0",
+        upgrade_time_formula: "5",
         short_description:
           "The metal mine allows the extraction of raw metal from the planet. Metal production increases as the structure level increases. Once the metal storages are fully filled, metal production on the planet is also stopped. Metal mine needs energy to operate.",
         long_description:
@@ -37,6 +39,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 30,
         image_src: "/images/buildings/deuterium-refinery-v3.webp",
         upgrade_cost_formula: "225 * 1.5^(level - 1)$75 * 1.5^(level - 1)$0$0",
+        upgrade_time_formula: "5",
         short_description:
           "Deuterium synthesizer provides the extraction of deuterium from the planet. The deuterium production increases as the structure level increases. Once the deuterium tanks are fully filled, deuterium production on the planet is also stopped. Deuterium synthesizer needs energy to operate.",
         long_description:
@@ -49,6 +52,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 40,
         image_src: "/images/buildings/solar-power-plant.webp",
         upgrade_cost_formula: "75 * 1.5^(level - 1)$30 * 1.5^(level - 1)$0$0",
+        upgrade_time_formula: "5",
         short_description:
           "Solar power plants are huge structures that produce energy using solar rays. They contribute to the energy production of the planet and helps the operation of the mines.",
         long_description:
@@ -62,6 +66,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         image_src: "/images/buildings/fusion-reactor.webp",
         upgrade_cost_formula:
           "900 * 1.8^(level - 1)$360 * 1.8^(level - 1)$180 * 1.8^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "Fusion reactors are plants that produce radioactive energy using fusion technology. They contribute to the energy production of the planet and helping the operation of the mines. Fusion reactors need deuterium to work and use some of the deuterium production on the planet.",
         long_description:
@@ -74,6 +79,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 60,
         image_src: "/images/buildings/metal-storage.webp",
         upgrade_cost_formula: "500 * 2^level$0$0$0",
+        upgrade_time_formula: "5",
         short_description:
           "Metal storages are structures used to store metal resources on the planet. Once the metal storages are fully filled, metal production on the planet is also stopped.",
         long_description:
@@ -85,6 +91,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         name: "Crystal Storage",
         list_order: 70,
         upgrade_cost_formula: "500 * 2^level$250 * 2^level$0$0",
+        upgrade_time_formula: "5",
         image_src: "/images/buildings/crystal-storage.webp",
         short_description:
           "Crystal storages are used to store crystal resources on the planet. Once the crystal storages are fully filled, crystal production on the planet is also stopped.",
@@ -98,6 +105,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 80,
         image_src: "/images/buildings/deuterium-tank-v4.webp",
         upgrade_cost_formula: "500 * 2^level$500 * 2^level$0$0",
+        upgrade_time_formula: "5",
         short_description:
           "Deuterium tanks are structures used to store deuterium resources on the planet. Once the deuterium tanks are fully filled, deuterium production on the planet is also stopped.",
         long_description:
@@ -110,6 +118,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 90,
         image_src: "/images/buildings/robot-factory.webp",
         upgrade_cost_formula: "400 * 2^(level - 1)$120 * 2^(level - 1)$200 * 2^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "Robot Factories are facilities that produce construction robots that greatly speed up the upgrade of buildings, facilities, ships, and defenses per level.",
         long_description:
@@ -123,6 +132,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         image_src: "/images/buildings/nanite-factory.webp",
         upgrade_cost_formula:
           "1000000 * 2^(level - 1)$500000 * 2^(level - 1)$100000 * 2^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "Nanite factory; manufactures nanometric robots that helps construction of building, ship and defense units. Each level of this facility increases the production speed of buildings, ships and defense units by 80%.",
         long_description:
@@ -135,6 +145,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 110,
         image_src: "/images/buildings/hangar.webp",
         upgrade_cost_formula: "400 * 2^(level - 1)$200 * 2^(level - 1)$100 * 2^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "Shipyards are facilities where ships and defense units are produced. As the shipyard level increases, the time required to manufacture ships and defense units decreases.",
         long_description:
@@ -147,6 +158,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 120,
         image_src: "/images/buildings/research-lab.webp",
         upgrade_cost_formula: "200 * 2^(level - 1)$400 * 2^(level - 1)$200 * 2^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "With the help of these facilities, the scientific capabilities of the Empire are constantly being improved. Due to the expansion, new opportunities for researching even more complex technologies are constantly being released. As the level of this facility increases, so does the speed of scientific research.",
         long_description:
@@ -159,6 +171,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 130,
         image_src: "/images/buildings/terraformer.webp",
         upgrade_cost_formula: "0$50000 * 2^(level - 1)$100000 * 2^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "Terraformer ensures that unusable lands on the planet are improved and put into use. Each level of this facility opens 6 new areas.",
         long_description:
@@ -172,6 +185,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         image_src: "/images/buildings/missile-silo.webp",
         upgrade_cost_formula:
           "20000 * 2^(level - 1)$20000 * 2^(level - 1)$1000 * 2^(level - 1)$0",
+        upgrade_time_formula: "5",
         short_description:
           "Missile silos are facilities that produce and store interplanetary missiles and interceptors. As the structure level increases, the number of storable missiles increases.",
         long_description:

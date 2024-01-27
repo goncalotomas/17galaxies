@@ -8,7 +8,7 @@ defmodule Galaxies.Accounts do
   alias Galaxies.Repo
 
   alias Galaxies.Accounts.{Player, PlayerToken, PlayerNotifier}
-  alias Galaxies.{Building, PlanetBuilding}
+  alias Galaxies.{Building, PlanetBuilding, Research, PlayerResearch}
 
   require Logger
 
@@ -47,12 +47,10 @@ defmodule Galaxies.Accounts do
             preload: :building
         )
 
-      dbg(planet_building)
-
       if planet_building.current_level == level - 1 do
         {:ok, _} =
           Repo.update(
-            PlanetBuilding.upgrade_planet_building_changeset(planet_building, %{
+            PlanetBuilding.upgrade_changeset(planet_building, %{
               current_level: level
             })
           )
@@ -72,12 +70,10 @@ defmodule Galaxies.Accounts do
 
       building = planet_building.building
 
-      # TODO: check if planet has resources to build the planet
+      # TODO: check if planet has resources to upgrade the building
 
       {metal, crystal, deuterium, energy} =
         Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
-
-      dbg({metal, crystal, deuterium, energy})
 
       cond do
         building.name == "Terraformer" ->
@@ -85,7 +81,7 @@ defmodule Galaxies.Accounts do
 
           {:ok, _} =
             Repo.update(
-              Planet.upgrade_planet_building_changeset(planet, %{
+              Planet.upgrade_building_changeset(planet, %{
                 used_fields: planet.used_fields + 1,
                 total_fields: planet.total_fields + extra_fields,
                 metal_units: planet.metal_units - metal,
@@ -100,7 +96,7 @@ defmodule Galaxies.Accounts do
         planet.used_fields < planet.total_fields ->
           {:ok, _} =
             Repo.update(
-              Planet.upgrade_planet_building_changeset(planet, %{
+              Planet.upgrade_building_changeset(planet, %{
                 used_fields: planet.used_fields + 1,
                 metal_units: planet.metal_units - metal,
                 crystal_units: planet.crystal_units - crystal,
@@ -115,6 +111,67 @@ defmodule Galaxies.Accounts do
           {:error,
            "The planet has no more construction space. Build or upgrade the Terraformer to increase planet fields."}
       end
+    end)
+    |> Repo.transaction()
+    |> then(fn
+      {:ok, result} -> {:ok, result}
+      {:error, _step, error, _partial_changes} -> {:error, error}
+    end)
+  end
+
+  ## Player Researches
+
+  @doc """
+  Upgrades a player's research from a specific planet
+  """
+  def upgrade_player_research(player, planet, research_id, level) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:player_research, fn repo, _changes ->
+      player_research =
+        repo.one!(
+          from pr in PlayerResearch,
+            where: pr.research_id == ^research_id and pr.player_id == ^player.id,
+            preload: :research
+        )
+
+      if player_research.current_level == level - 1 do
+        {:ok, _} =
+          Repo.update(
+            PlayerResearch.upgrade_changeset(player_research, %{
+              current_level: level
+            })
+          )
+
+        {:ok, player_research}
+      else
+        {:error, "Cannot upgrade from level #{player_research.current_level} to #{level}"}
+      end
+    end)
+    |> Ecto.Multi.run(:update_planet, fn repo, %{player_research: player_research} ->
+      planet =
+        repo.one!(
+          from p in Planet,
+            where: p.id == ^planet.id,
+            select: p
+        )
+
+      research = player_research.research
+
+      # TODO: check if planet has resources to upgrade the research
+
+      {metal, crystal, deuterium, _energy} =
+        Galaxies.calc_upgrade_cost(research.upgrade_cost_formula, level)
+
+      {:ok, _} =
+        Repo.update(
+          Planet.upgrade_research_changeset(planet, %{
+            metal_units: planet.metal_units - metal,
+            crystal_units: planet.crystal_units - crystal,
+            deuterium_units: planet.deuterium_units - deuterium
+          })
+        )
+
+      {:ok, planet.used_fields + 1}
     end)
     |> Repo.transaction()
     |> then(fn
@@ -190,6 +247,7 @@ defmodule Galaxies.Accounts do
 
   """
   def register_player(attrs) do
+    now = DateTime.utc_now()
     home_planet_id = Ecto.UUID.generate()
 
     attrs =
@@ -206,6 +264,27 @@ defmodule Galaxies.Accounts do
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:player, player_changeset)
+    |> Ecto.Multi.run(:player_researches, fn repo, %{player: player} ->
+      player_researches =
+        repo.all(from(r in Research))
+        |> Enum.map(fn research ->
+          %{
+            player_id: player.id,
+            research_id: research.id,
+            current_level: 0,
+            inserted_at: now,
+            updated_at: now
+          }
+        end)
+
+      {player_researches, nil} = repo.insert_all(PlayerResearch, player_researches)
+
+      Logger.debug(
+        "inserted #{player_researches} player_researches for player #{player.username}"
+      )
+
+      {:ok, nil}
+    end)
     |> Ecto.Multi.insert(:planet, fn %{player: player} ->
       {galaxy, system, slot} = get_available_planet_slot()
 
@@ -222,8 +301,6 @@ defmodule Galaxies.Accounts do
       })
     end)
     |> Ecto.Multi.run(:planet_buildings, fn repo, %{player: player, planet: planet} ->
-      now = DateTime.utc_now()
-
       planet_buildings =
         repo.all(from(b in Building))
         |> Enum.map(fn building ->
@@ -514,156 +591,25 @@ defmodule Galaxies.Accounts do
 
   @doc """
   Gets the research for a specific player.
-  Currently returning a stubbed response.
   """
-  def get_player_researches(_player) do
-    [
-      %{
-        name: "Spy Technology",
-        image_src: "/images/researches/espionage.webp",
-        description_short:
-          "As the level of this technique increases, more detailed information can be obtained from spying missions, while enemy spy probes can collect less information from your planets.",
-        description_long:
-          "Espionage Technology is, in the first instance, an advancement of sensor technology. The more advanced this technology is, the more information the user receives about activities in his environment. The differences between your own spy level and opposing spy levels is crucial for probes. The more advanced your own espionage technology is, the more information the report can gather and the smaller the chance is that your espionage activities are discovered. The more probes that you send on one mission, the more details they can gather from the target planet. But at the same time it also increases the chance of discovery."
-      },
-      %{
-        name: "Computer Technology",
-        image_src: "/images/researches/computer.webp",
-        description_short: "Increases the maximum fleet slot by 1.",
-        description_long:
-          "Once launched on any mission, fleets are controlled primarily by a series of computers located on the originating planet. These massive computers calculate the exact time of arrival, controls course corrections as needed, calculates trajectories, and regulates flight speeds. With each level researched, the flight computer is upgraded to allow an additional slot to be launched. Computer technology should be continuously developed throughout the building of your empire."
-      },
-      %{
-        name: "Energy Technology",
-        image_src: "/images/researches/energy.webp",
-        description_short: "Increases energy production by 2%.",
-        description_long:
-          "As various fields of research advanced, it was discovered that the current technology of energy distribution was not sufficient enough to begin certain specialized research. With each upgrade of your Energy Technology, new research can be conducted which unlocks development of more sophisticated ships and defences."
-      },
-      %{
-        name: "Laser Technology",
-        image_src: "/images/researches/laser.webp",
-        description_short: "Increases the attack power of laser weapons by 1%.",
-        description_long:
-          "Lasers (light amplification by stimulated emission of radiation) produce an intense, energy rich emission of coherent light. These devices can be used in all sorts of areas, from optical computers to heavy laser weapons, which effortlessly cut through armour technology. The laser technology provides an important basis for research of other weapon technologies."
-      },
-      %{
-        name: "Ion Technology",
-        image_src: "/images/researches/ion.webp",
-        description_short: "Increases the attack power of ion weapons by 1%.",
-        description_long:
-          "Ions can be concentrated and accelerated into a deadly beam. These beams can then inflict enormous damage. Our scientists have also developed a technique that will clearly reduce the deconstruction costs for buildings and systems."
-      },
-      %{
-        name: "Plasma Technology",
-        image_src: "/images/researches/plasma.webp",
-        description_short: "Increases the attack power of plasma weapons by 1%.",
-        description_long:
-          "A further development of ion technology that doesn`t speed up ions but high-energy plasma instead, which can then inflict devastating damage on impact with an object."
-      },
-      %{
-        name: "Graviton Technology",
-        image_src: "/images/researches/graviton.webp",
-        description_short: "Increases the attack power of graviton weapons by 2%.",
-        description_long:
-          "A graviton is an elementary particle that is massless and has no cargo. It determines the gravitational power. By firing a concentrated load of gravitons, an artificial gravitational field can be constructed. Not unlike a black hole, it draws mass into itself. Thus it can destroy ships and even entire moons. To produce a sufficient amount of gravitons, huge amounts of energy are required. Graviton Research is required to construct a destructive Deathstar."
-      },
-      %{
-        name: "Weapons Technology",
-        image_src: "/images/researches/weapons.webp",
-        description_short: "Increases the attack power of all units by 10%.",
-        description_long:
-          "Weapons Technology is a key research technology and is critical to your survival against enemy Empires. With each level of Weapons Technology researched, the weapons systems on ships and your defence mechanisms become increasingly more efficient. Each level increases the base strength of your weapons by 10% of the base value."
-      },
-      %{
-        name: "Shields Technology",
-        image_src: "/images/researches/shield.webp",
-        description_short: "Increases the shield power of all units by 10%.",
-        description_long:
-          "With the invention of the magnetosphere generator, scientists learned that an artificial shield could be produced to protect the crew in space ships not only from the harsh solar radiation environment in deep space, but also provide protection from enemy fire during an attack. Once scientists finally perfected the technology, a magnetosphere generator was installed on all ships and defence systems. As the technology is advanced to each level, the magnetosphere generator is upgraded which provides an additional 10% strength to the shields base value."
-      },
-      %{
-        name: "Armor Technology",
-        image_src: "/images/researches/armor.webp",
-        description_short: "Increases the armor power of all units by 10%.",
-        description_long:
-          "The environment of deep space is harsh. Pilots and crew on various missions not only faced intense solar radiation, they also faced the prospect of being hit by space debris, or destroyed by enemy fire in an attack. With the discovery of an aluminum-lithium titanium carbide alloy, which was found to be both light weight and durable, this afforded the crew a certain degree of protection. With each level of Armour Technology developed, a higher quality alloy is produced, which increases the armours strength by 10%."
-      },
-      %{
-        name: "Hyperspace Technology",
-        image_src: "/images/researches/hyperspace.webp",
-        description_short:
-          "Hyperspace technology increases expedition and asteroid mining gains by 1%.",
-        description_long:
-          "In theory, the idea of hyperspace travel relies on the existence of a separate and adjacent dimension. When activated, a hyperspace drive shunts the starship into this other dimension, where it can cover vast distances in an amount of time greatly reduced from the time it would take in \"normal\" space. Once it reaches the point in hyperspace that corresponds to its destination in real space, it re-emerges."
-      },
-      %{
-        name: "Combustion Engine Technology",
-        image_src: "/images/researches/combustion.webp",
-        description_short: "Increases the speed of all ships using a combustion engine by 10%.",
-        description_long:
-          "The Combustion Drive is the oldest of technologies, but is still in use. With the Combustion Drive, exhaust is formed from propellants carried within the ship prior to use. In a closed chamber, the pressures are equal in each direction and no acceleration occurs. If an opening is provided at the bottom of the chamber then the pressure is no longer opposed on that side. The remaining pressure gives a resultant thrust in the side opposite the opening, which propels the ship forward by expelling the exhaust rearwards at extreme high speed."
-      },
-      %{
-        name: "Impulse Engine Technology",
-        image_src: "/images/researches/impulse.webp",
-        description_short: "Increases the speed of all ships using a impulse engine by 20%.",
-        description_long:
-          "The impulse drive is based on the recoil principle, by which the stimulated emission of radiation is mainly produced as a waste product from the core fusion to gain energy."
-      },
-      %{
-        name: "Hyperspace Engine Technology",
-        image_src: "/images/researches/warp.webp",
-        description_short: "Increases the speed of all ships using a hyperspace engine by 30%.",
-        description_long:
-          "Long distances can be covered very quickly due to the curvature of the immediate vicinity of the ship. The more developed the hyperspace propellant, the greater the curvature of space."
-      },
-      %{
-        name: "Cargo Technology",
-        image_src: "/images/researches/cargo.webp",
-        description_short:
-          "Increases the cargo capacity of Cargo ships by 50% and increases the cargo capacity of all other ships by 5%.",
-        description_long:
-          "As the empire's need for resources grows, shipping costs increase at the same rate. Scientists have been working on reducing resource costs for many years, and eventually they were able to make cargo technology what it is today. Each level of this technology greatly increases the carrying capacity of cargo ships, while increasing the shipping capacity of all other ships."
-      },
-      %{
-        name: "Astrophysics Technology",
-        image_src: "/images/researches/astrophysics.webp",
-        description_short:
-          "This technology allows you to colonize new planets and increase the maximum number of expedition missions.",
-        description_long:
-          "Further findings in the field of astrophysics allow for the construction of laboratories that can be fitted on more and more ships. This makes long expeditions far into unexplored areas of space possible. In addition these advancements can be used to further colonise the universe. For every two levels of this technology an additional planet can be made usable."
-      },
-      %{
-        name: "Intergalactic Research Network",
-        image_src: "/images/researches/intergalactic-research-network.webp",
-        description_short:
-          "Scientific research laboratories on different planets connect to each other and increasing the speed of research.",
-        description_long:
-          "When research is getting more and more complex scientists are revolutionary to connect individual laboratories developed a path: Intergalactic Research Network! Central computers of research stations via this network they connect directly with each other, which speeds up research. A research laboratory is connected for each level researched. Always here laboratories with the highest level are added. The networked lab is should be developed sufficiently to carry out independently. All participating laboratories expansion stages meet in intergalactic research network was introduced."
-        # },
-        # %{
-        #   name: "Mineral Extration Technology",
-        #   image_src: "/images/researches/.webp",
-        #   description_short: "Increases metal mine production on all planets.",
-        #   description_long:
-        #     "Since metal is the most widely used resource in the industry, efforts have been made to increase production power. As a result of using the raw resources processed in metal mines more effectively, metal production power also increases considerably."
-        # },
-        # %{
-        #   name: "Crystallization Technology",
-        #   image_src: "/images/researches/.webp",
-        #   description_short: "Increases crystal mine production on all planets.",
-        #   description_long:
-        #     "Since crystals are frangible, processing and using them require great skill. As the industry's need for crystals increases, efforts are being made to avoid wasting crystals."
-        # },
-        # %{
-        #   name: "Fuel Cell Technology",
-        #   image_src: "/images/researches/.webp",
-        #   description_short: "Increases deuterium production on all planets.",
-        #   description_long:
-        #     "Since Deuterium deposits are mostly under the sea, removing and storing them requires great efforts. Some of the deuterium may become unusable during this process. Scientists are working to use these resources more effectively in many fields. The amount of raw deuterium required decreases as fuel technology improves."
-      }
-    ]
+  def get_player_researches(player) do
+    query =
+      from research in Research,
+        join: player_research in PlayerResearch,
+        on: research.id == player_research.research_id,
+        where: player_research.player_id == ^player.id,
+        select: %{
+          id: research.id,
+          name: research.name,
+          description_short: research.short_description,
+          description_long: research.long_description,
+          image_src: research.image_src,
+          current_level: player_research.current_level,
+          upgrade_cost_formula: research.upgrade_cost_formula
+        },
+        order_by: [research.list_order]
+
+    Repo.all(query)
   end
 
   @doc """
