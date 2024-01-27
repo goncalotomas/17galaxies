@@ -471,7 +471,7 @@ defmodule Galaxies.Accounts do
           current_level: planet_building.current_level,
           upgrade_cost_formula: building.upgrade_cost_formula
         },
-        order_by: [building.id]
+        order_by: [building.list_order]
 
     Repo.all(query)
   end
@@ -495,7 +495,7 @@ defmodule Galaxies.Accounts do
           current_level: planet_building.current_level,
           upgrade_cost_formula: building.upgrade_cost_formula
         },
-        order_by: [building.id]
+        order_by: [building.list_order]
 
     Repo.all(query)
   end

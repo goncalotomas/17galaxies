@@ -53,7 +53,7 @@ defmodule GalaxiesWeb.ResourcesLive do
                     <%= if building.current_level == 0 do %>
                       Build
                     <% else %>
-                      Upgrade to level <%= building.current_level + 1 %>
+                      Upgrade
                     <% end %>
                   </.button>
                 </a>

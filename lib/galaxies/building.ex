@@ -1,12 +1,9 @@
 defmodule Galaxies.Building do
   @moduledoc """
-  Defines the schema for the buildings of the game. We use Ecto.Schema instead
-  of Galaxies.Schema because we want integer IDs and not UUIDs as the primary
-  key. The reason for this is that we want the return order for buildings to be
-  deterministic, and that doesn't happen with standard UUIDv4s.
+  Defines the schema for the buildings of the game.
   """
 
-  use Ecto.Schema
+  use Galaxies.Schema
 
   schema "buildings" do
     field :name, :string
@@ -20,6 +17,8 @@ defmodule Galaxies.Building do
     field :upgrade_cost_formula, :string
     field :production_formula, :string
     field :energy_consumption_formula, :string
+
+    field :list_order, :integer
 
     timestamps(type: :utc_datetime_usec)
   end

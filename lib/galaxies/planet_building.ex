@@ -9,7 +9,7 @@ defmodule Galaxies.PlanetBuilding do
     field :upgrade_finish_time, :utc_datetime
 
     belongs_to :planet, Galaxies.Planet
-    belongs_to :building, Galaxies.Building, type: :integer
+    belongs_to :building, Galaxies.Building
 
     timestamps(type: :utc_datetime_usec)
   end

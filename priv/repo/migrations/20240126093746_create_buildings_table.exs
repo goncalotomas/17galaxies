@@ -2,7 +2,8 @@ defmodule Galaxies.Repo.Migrations.AddBuildings do
   use Ecto.Migration
 
   def change do
-    create table("buildings") do
+    create table("buildings", primary_key: false) do
+      add :id, :binary_id, primary_key: true
       add :name, :string, null: false
 
       add :short_description, :text, null: false
@@ -16,6 +17,8 @@ defmodule Galaxies.Repo.Migrations.AddBuildings do
       add :production_formula, :string
       add :energy_consumption_formula, :string
 
+      add :list_order, :smallint, null: false
+
       timestamps(type: :utc_datetime_usec)
     end
 
@@ -28,7 +31,7 @@ defmodule Galaxies.Repo.Migrations.AddBuildings do
         null: false,
         primary_key: true
 
-      add :building_id, references(:buildings, on_delete: :delete_all),
+      add :building_id, references(:buildings, type: :binary_id, on_delete: :delete_all),
         null: false,
         primary_key: true
 
