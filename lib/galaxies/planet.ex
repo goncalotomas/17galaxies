@@ -41,6 +41,6 @@ defmodule Galaxies.Planet do
 
   def upgrade_planet_building_changeset(planet, attrs) do
     planet
-    |> cast(attrs, [:used_fields])
+    |> cast(attrs, [:used_fields, :total_fields])
   end
 end

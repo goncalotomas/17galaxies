@@ -23,4 +23,7 @@ defmodule Galaxies.Building do
 
     timestamps(type: :utc_datetime_usec)
   end
+
+  def terraformer_extra_fields(level) when rem(level, 2) == 0, do: 6
+  def terraformer_extra_fields(_level), do: 5
 end

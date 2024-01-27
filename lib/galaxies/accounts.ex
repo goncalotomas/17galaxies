@@ -39,13 +39,15 @@ defmodule Galaxies.Accounts do
   """
   def upgrade_planet_building(planet, building_id, level) do
     Ecto.Multi.new()
-    |> Ecto.Multi.run(:update_planet_building, fn repo, _changes ->
+    |> Ecto.Multi.run(:planet_building, fn repo, _changes ->
       planet_building =
         repo.one!(
           from pb in PlanetBuilding,
             where: pb.building_id == ^building_id and pb.planet_id == ^planet.id,
-            select: pb
+            preload: :building
         )
+
+      dbg(planet_building)
 
       if planet_building.current_level == level - 1 do
         {:ok, _} =
@@ -55,12 +57,12 @@ defmodule Galaxies.Accounts do
             })
           )
 
-        {:ok, level}
+        {:ok, planet_building}
       else
-        {:error, "You shouldn't be playing around with my forms..."}
+        {:error, "Cannot upgrade from level #{planet_building.current_level} to #{level}"}
       end
     end)
-    |> Ecto.Multi.run(:update_planet, fn repo, _changes ->
+    |> Ecto.Multi.run(:update_planet, fn repo, %{planet_building: planet_building} ->
       planet =
         repo.one!(
           from p in Planet,
@@ -68,18 +70,38 @@ defmodule Galaxies.Accounts do
             select: p
         )
 
-      if planet.used_fields < planet.total_fields do
-        {:ok, _} =
-          Repo.update(
-            Planet.upgrade_planet_building_changeset(planet, %{
-              used_fields: planet.used_fields + 1
-            })
-          )
+      building = planet_building.building
 
-        {:ok, planet.used_fields + 1}
-      else
-        {:error,
-         "The planet has no more construction space. Build or upgrade the Terraformer to increase planet fields."}
+      # check if planet has resources to build the planet
+      dbg(Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level))
+
+      cond do
+        building.name == "Terraformer" ->
+          extra_fields = Building.terraformer_extra_fields(level)
+
+          {:ok, _} =
+            Repo.update(
+              Planet.upgrade_planet_building_changeset(planet, %{
+                used_fields: planet.used_fields + 1,
+                total_fields: planet.total_fields + extra_fields
+              })
+            )
+
+          {:ok, planet.used_fields + 1}
+
+        planet.used_fields < planet.total_fields ->
+          {:ok, _} =
+            Repo.update(
+              Planet.upgrade_planet_building_changeset(planet, %{
+                used_fields: planet.used_fields + 1
+              })
+            )
+
+          {:ok, planet.used_fields + 1}
+
+        true ->
+          {:error,
+           "The planet has no more construction space. Build or upgrade the Terraformer to increase planet fields."}
       end
     end)
     |> Repo.transaction()
