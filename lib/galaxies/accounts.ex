@@ -4,6 +4,7 @@ defmodule Galaxies.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias Galaxies.Planet
   alias Galaxies.Repo
 
   alias Galaxies.Accounts.{Player, PlayerToken, PlayerNotifier}
@@ -30,6 +31,63 @@ defmodule Galaxies.Accounts do
     "Terraformer",
     "Missile Silo"
   ]
+
+  ## PlanetBuilding operations
+
+  @doc """
+  Tries to upgrade a planet building.
+  """
+  def upgrade_planet_building(planet, building_id, level) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:update_planet_building, fn repo, _changes ->
+      planet_building =
+        repo.one!(
+          from pb in PlanetBuilding,
+            where: pb.building_id == ^building_id and pb.planet_id == ^planet.id,
+            select: pb
+        )
+
+      if planet_building.current_level == level - 1 do
+        {:ok, _} =
+          Repo.update(
+            PlanetBuilding.upgrade_planet_building_changeset(planet_building, %{
+              current_level: level
+            })
+          )
+
+        {:ok, level}
+      else
+        {:error, "You shouldn't be playing around with my forms..."}
+      end
+    end)
+    |> Ecto.Multi.run(:update_planet, fn repo, _changes ->
+      planet =
+        repo.one!(
+          from p in Planet,
+            where: p.id == ^planet.id,
+            select: p
+        )
+
+      if planet.used_fields < planet.total_fields do
+        {:ok, _} =
+          Repo.update(
+            Planet.upgrade_planet_building_changeset(planet, %{
+              used_fields: planet.used_fields + 1
+            })
+          )
+
+        {:ok, planet.used_fields + 1}
+      else
+        {:error,
+         "The planet has no more construction space. Build or upgrade the Terraformer to increase planet fields."}
+      end
+    end)
+    |> Repo.transaction()
+    |> then(fn
+      {:ok, result} -> {:ok, result}
+      {:error, _step, error, _partial_changes} -> {:error, error}
+    end)
+  end
 
   ## Database getters
 

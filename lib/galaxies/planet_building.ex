@@ -1,6 +1,8 @@
 defmodule Galaxies.PlanetBuilding do
   use Galaxies.Schema
 
+  import Ecto.Changeset
+
   schema "planet_buildings" do
     field :current_level, :integer
     field :is_upgrading, :boolean
@@ -10,5 +12,10 @@ defmodule Galaxies.PlanetBuilding do
     belongs_to :building, Galaxies.Building, type: :integer
 
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def upgrade_planet_building_changeset(planet_building, attrs) do
+    planet_building
+    |> cast(attrs, [:current_level])
   end
 end

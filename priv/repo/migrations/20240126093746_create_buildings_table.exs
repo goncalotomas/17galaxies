@@ -1,9 +1,6 @@
 defmodule Galaxies.Repo.Migrations.AddBuildings do
   use Ecto.Migration
 
-  import Ecto.Query
-  alias Galaxies.Repo
-
   def change do
     create table("buildings") do
       add :name, :string, null: false

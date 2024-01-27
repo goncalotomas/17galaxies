@@ -2,12 +2,15 @@ defmodule GalaxiesWeb.ResourcesLive do
   use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
-  require Logger
 
   def mount(_params, _session, socket) do
+    current_planet = Accounts.get_active_planet(socket.assigns.current_player)
+    planet_buildings = Accounts.get_planet_resource_buildings(current_planet)
+
     {:ok,
      socket
-     |> assign(:current_planet, Accounts.get_active_planet(socket.assigns.current_player))}
+     |> assign(:current_planet, current_planet)
+     |> assign(:planet_buildings, planet_buildings)}
   end
 
   def render(assigns) do
@@ -19,10 +22,15 @@ defmodule GalaxiesWeb.ResourcesLive do
         </h3>
       </div>
       <ul role="list" class="divide-y divide-gray-200">
-        <li :for={building <- Accounts.get_planet_resource_buildings(@current_planet)}>
+        <li :for={building <- @planet_buildings}>
           <div class="px-4 py-4 sm:px-6">
             <div class="flex items-center justify-between">
-              <div class="truncate text-sm font-medium text-indigo-600"><%= building.name %></div>
+              <div class="truncate text-sm font-medium text-indigo-600">
+                <%= building.name %>
+                <%= if building.current_level > 0 do %>
+                  ( Level <%= building.current_level %> )
+                <% end %>
+              </div>
             </div>
             <div class="mt-2 flex justify-between">
               <div class="sm:flex">
@@ -60,8 +68,35 @@ defmodule GalaxiesWeb.ResourcesLive do
 
   def handle_event("upgrade:" <> upgrade, _value, socket) do
     [building_id, level] = String.split(upgrade, ":")
-    Logger.debug("upgrading #{building_id} to #{level}")
-    {:noreply, socket}
+    {level, ""} = Integer.parse(level)
+
+    case Accounts.upgrade_planet_building(socket.assigns.current_planet, building_id, level) do
+      {:ok, _} ->
+        building =
+          Enum.find(socket.assigns.planet_buildings, fn building ->
+            "#{building.id}" == building_id
+          end)
+          |> Map.put(:current_level, level)
+
+        planet_buildings = list_replace(socket.assigns.planet_buildings, building)
+
+        {:noreply, assign(socket, :planet_buildings, planet_buildings)}
+
+      {:error, error} ->
+        {:noreply, put_flash(socket, :error, error)}
+    end
+  end
+
+  defp list_replace(list, to_replace, acc \\ [])
+
+  defp list_replace([], _, acc), do: Enum.reverse(acc)
+
+  defp list_replace([h | t], to_replace, acc) do
+    if h.id == to_replace.id do
+      Enum.reverse(acc) ++ [to_replace | t]
+    else
+      list_replace(t, to_replace, [h | acc])
+    end
   end
 
   defp list_upgrade_costs(nil, _current_level), do: nil

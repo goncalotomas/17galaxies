@@ -1,6 +1,8 @@
 defmodule Galaxies.Planet do
   use Galaxies.Schema
 
+  import Ecto.Changeset
+
   schema "planets" do
     field :name, :string
 
@@ -35,5 +37,10 @@ defmodule Galaxies.Planet do
     has_many :buildings, Galaxies.PlanetBuilding
 
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def upgrade_planet_building_changeset(planet, attrs) do
+    planet
+    |> cast(attrs, [:used_fields])
   end
 end
