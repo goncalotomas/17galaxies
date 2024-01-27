@@ -49,11 +49,11 @@ defmodule GalaxiesWeb.FacilitiesLive do
               </div>
               <div class="ml-2 flex items-center text-sm text-indigo-500">
                 <a href="#" class="block hover:bg-gray-50">
-                  <.button phx-click={"upgrade:#{building.id}:#{building.current_level + 1}"}>
+                  <.button phx-click={"upgrade:#{building.id}"}>
                     <%= if building.current_level == 0 do %>
                       Build
                     <% else %>
-                      Upgrade to level <%= building.current_level + 1 %>
+                      Upgrade
                     <% end %>
                   </.button>
                 </a>
@@ -66,24 +66,20 @@ defmodule GalaxiesWeb.FacilitiesLive do
     """
   end
 
-  def handle_event("upgrade:" <> upgrade, _value, socket) do
-    [building_id, level] = String.split(upgrade, ":")
-    {level, ""} = Integer.parse(level)
-    dbg("calling Accounts.upgrade_planet_building(@current_planet, #{building_id}, #{level})")
+  def handle_event("upgrade:" <> building_id, _value, socket) do
+    building =
+      Enum.find(socket.assigns.planet_buildings, fn building ->
+        "#{building.id}" == building_id
+      end)
+
+    level = building.current_level + 1
 
     case Accounts.upgrade_planet_building(socket.assigns.current_planet, building_id, level) do
       {:ok, _} ->
-        dbg("updated to #{level}")
+        updated_building = Map.put(building, :current_level, level)
 
-        building =
-          Enum.find(socket.assigns.planet_buildings, fn building ->
-            "#{building.id}" == building_id
-          end)
-          |> Map.put(:current_level, level)
+        planet_buildings = list_replace(socket.assigns.planet_buildings, updated_building)
 
-        planet_buildings = list_replace(socket.assigns.planet_buildings, building)
-
-        dbg(planet_buildings)
         {:noreply, assign(socket, :planet_buildings, planet_buildings)}
 
       {:error, error} ->
