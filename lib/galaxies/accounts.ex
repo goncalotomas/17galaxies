@@ -72,8 +72,12 @@ defmodule Galaxies.Accounts do
 
       building = planet_building.building
 
-      # check if planet has resources to build the planet
-      dbg(Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level))
+      # TODO: check if planet has resources to build the planet
+
+      {metal, crystal, deuterium, energy} =
+        Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
+
+      dbg({metal, crystal, deuterium, energy})
 
       cond do
         building.name == "Terraformer" ->
@@ -83,7 +87,11 @@ defmodule Galaxies.Accounts do
             Repo.update(
               Planet.upgrade_planet_building_changeset(planet, %{
                 used_fields: planet.used_fields + 1,
-                total_fields: planet.total_fields + extra_fields
+                total_fields: planet.total_fields + extra_fields,
+                metal_units: planet.metal_units - metal,
+                crystal_units: planet.crystal_units - crystal,
+                deuterium_units: planet.deuterium_units - deuterium,
+                available_energy: planet.available_energy - energy
               })
             )
 
@@ -93,7 +101,11 @@ defmodule Galaxies.Accounts do
           {:ok, _} =
             Repo.update(
               Planet.upgrade_planet_building_changeset(planet, %{
-                used_fields: planet.used_fields + 1
+                used_fields: planet.used_fields + 1,
+                metal_units: planet.metal_units - metal,
+                crystal_units: planet.crystal_units - crystal,
+                deuterium_units: planet.deuterium_units - deuterium,
+                available_energy: planet.available_energy - energy
               })
             )
 

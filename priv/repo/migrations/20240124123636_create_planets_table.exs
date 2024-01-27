@@ -1,4 +1,4 @@
-defmodule Galaxies.Repo.Migrations.AddPlayerPlanets do
+defmodule Galaxies.Repo.Migrations.CreatePlanetsTable do
   use Ecto.Migration
 
   def change do

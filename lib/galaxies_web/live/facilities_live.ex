@@ -78,9 +78,22 @@ defmodule GalaxiesWeb.FacilitiesLive do
       {:ok, _} ->
         updated_building = Map.put(building, :current_level, level)
 
+        {metal, crystal, deuterium, energy} =
+          Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
+
+        updated_planet =
+          socket.assigns.current_planet
+          |> Map.put(:metal_units, socket.assigns.current_planet.metal_units - metal)
+          |> Map.put(:crystal_units, socket.assigns.current_planet.crystal_units - crystal)
+          |> Map.put(:deuterium_units, socket.assigns.current_planet.deuterium_units - deuterium)
+          |> Map.put(:available_energy, socket.assigns.current_planet.available_energy - energy)
+
         planet_buildings = list_replace(socket.assigns.planet_buildings, updated_building)
 
-        {:noreply, assign(socket, :planet_buildings, planet_buildings)}
+        {:noreply,
+         socket
+         |> assign(:current_planet, updated_planet)
+         |> assign(:planet_buildings, planet_buildings)}
 
       {:error, error} ->
         {:noreply, put_flash(socket, :error, error)}

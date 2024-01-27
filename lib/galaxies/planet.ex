@@ -41,6 +41,14 @@ defmodule Galaxies.Planet do
 
   def upgrade_planet_building_changeset(planet, attrs) do
     planet
-    |> cast(attrs, [:used_fields, :total_fields])
+    |> cast(attrs, [
+      :used_fields,
+      :total_fields,
+      :metal_units,
+      :crystal_units,
+      :deuterium_units,
+      :available_energy,
+      :total_energy
+    ])
   end
 end
