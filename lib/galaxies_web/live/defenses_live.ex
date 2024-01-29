@@ -4,9 +4,13 @@ defmodule GalaxiesWeb.DefensesLive do
   alias Galaxies.Accounts
 
   def mount(_params, _session, socket) do
+    current_planet = Accounts.get_active_planet(socket.assigns.current_player)
+    planet_defenses = Accounts.get_planet_defense_units(current_planet)
+
     {:ok,
      socket
-     |> assign(:current_planet, Accounts.get_active_planet(socket.assigns.current_player))}
+     |> assign(:current_planet, current_planet)
+     |> assign(:planet_defenses, planet_defenses)}
   end
 
   def render(assigns) do
@@ -18,7 +22,7 @@ defmodule GalaxiesWeb.DefensesLive do
         </h3>
       </div>
       <ul role="list" class="divide-y divide-gray-200">
-        <li :for={defense <- Accounts.get_planet_defense_units(@current_planet)}>
+        <li :for={defense <- @planet_defenses}>
           <div class="px-4 py-4 sm:px-6">
             <div class="flex items-center justify-between">
               <div class="truncate text-sm font-medium text-indigo-600"><%= defense.name %></div>
@@ -37,21 +41,7 @@ defmodule GalaxiesWeb.DefensesLive do
               </div>
               <div class="ml-2 flex items-center text-sm text-gray-500">
                 <a href="#" class="block hover:bg-gray-50">
-                  Upgrade
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                    />
-                  </svg>
+                  Produce
                 </a>
               </div>
             </div>

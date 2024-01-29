@@ -644,7 +644,7 @@ defmodule GalaxiesWeb.CoreComponents do
       %{name: "Resources", url: ~p"/resources"},
       %{name: "Facilities", url: ~p"/facilities"},
       %{name: "Research", url: ~p"/research"},
-      %{name: "Hangar", url: ~p"/hangar"},
+      %{name: "Shipyard", url: ~p"/shipyard"},
       %{name: "Fleet", url: ~p"/fleet"},
       %{name: "Defenses", url: ~p"/defenses"},
       %{name: "Galaxy", url: ~p"/galaxy"},

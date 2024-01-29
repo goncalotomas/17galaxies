@@ -59,6 +59,12 @@ config :galaxies, GalaxiesWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/galaxies_web/(controllers|live|components)/.*(ex|heex)$"
+    ],
+    notify: [
+      live_view: [
+        ~r"lib/galaxies_web/components.ex$",
+        ~r"lib/galaxies_web/live/.*(ex|heex)$"
+      ]
     ]
   ]
 

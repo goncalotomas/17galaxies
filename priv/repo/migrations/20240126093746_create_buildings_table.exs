@@ -18,6 +18,8 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
 
       add :list_order, :smallint, null: false
 
+      add :type, :smallint, null: false
+
       timestamps(type: :utc_datetime_usec)
     end
 
@@ -25,8 +27,6 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
     create index(:buildings, [:name, :list_order])
 
     create table(:planet_buildings, primary_key: false) do
-      add :id, :binary_id, primary_key: true
-
       add :planet_id, references(:planets, type: :binary_id, on_delete: :delete_all),
         null: false,
         primary_key: true

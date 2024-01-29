@@ -11,9 +11,9 @@ defmodule Galaxies.Planet do
     field :system, :integer
     field :slot, :integer
 
-    field :metal_units, :integer
-    field :crystal_units, :integer
-    field :deuterium_units, :integer
+    field :metal_units, :float
+    field :crystal_units, :float
+    field :deuterium_units, :float
 
     field :available_energy, :integer
     field :total_energy, :integer
@@ -53,6 +53,15 @@ defmodule Galaxies.Planet do
   end
 
   def upgrade_research_changeset(planet, attrs) do
+    planet
+    |> cast(attrs, [
+      :metal_units,
+      :crystal_units,
+      :deuterium_units
+    ])
+  end
+
+  def update_resource_count_changeset(planet, attrs) do
     planet
     |> cast(attrs, [
       :metal_units,

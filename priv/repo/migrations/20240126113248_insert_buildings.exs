@@ -10,6 +10,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
     Repo.insert_all(Building, [
       %{
         name: "Metal Mine",
+        type: :resource,
         list_order: 10,
         image_src: "/images/buildings/metal-mine-v3.webp",
         upgrade_cost_formula: "60 * 1.5^(level - 1)$15 * 1.5^(level - 1)$0$0",
@@ -23,6 +24,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Crystal Mine",
+        type: :resource,
         list_order: 20,
         image_src: "/images/buildings/crystal-mine.webp",
         upgrade_cost_formula: "48 * 1.6^(level - 1)$24 * 1.6^(level - 1)$0$0",
@@ -36,6 +38,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Deuterium Refinery",
+        type: :resource,
         list_order: 30,
         image_src: "/images/buildings/deuterium-refinery-v3.webp",
         upgrade_cost_formula: "225 * 1.5^(level - 1)$75 * 1.5^(level - 1)$0$0",
@@ -49,6 +52,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Solar Power Plant",
+        type: :resource,
         list_order: 40,
         image_src: "/images/buildings/solar-power-plant.webp",
         upgrade_cost_formula: "75 * 1.5^(level - 1)$30 * 1.5^(level - 1)$0$0",
@@ -62,6 +66,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Fusion Reactor",
+        type: :resource,
         list_order: 50,
         image_src: "/images/buildings/fusion-reactor.webp",
         upgrade_cost_formula:
@@ -76,6 +81,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Metal Storage",
+        type: :resource,
         list_order: 60,
         image_src: "/images/buildings/metal-storage.webp",
         upgrade_cost_formula: "500 * 2^level$0$0$0",
@@ -89,6 +95,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Crystal Storage",
+        type: :resource,
         list_order: 70,
         upgrade_cost_formula: "500 * 2^level$250 * 2^level$0$0",
         upgrade_time_formula: "5",
@@ -102,6 +109,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Deuterium Tank",
+        type: :resource,
         list_order: 80,
         image_src: "/images/buildings/deuterium-tank-v4.webp",
         upgrade_cost_formula: "500 * 2^level$500 * 2^level$0$0",
@@ -115,6 +123,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Robot Factory",
+        type: :facility,
         list_order: 90,
         image_src: "/images/buildings/robot-factory.webp",
         upgrade_cost_formula: "400 * 2^(level - 1)$120 * 2^(level - 1)$200 * 2^(level - 1)$0",
@@ -128,6 +137,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Nanite Factory",
+        type: :facility,
         list_order: 100,
         image_src: "/images/buildings/nanite-factory.webp",
         upgrade_cost_formula:
@@ -142,6 +152,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Shipyard",
+        type: :facility,
         list_order: 110,
         image_src: "/images/buildings/hangar.webp",
         upgrade_cost_formula: "400 * 2^(level - 1)$200 * 2^(level - 1)$100 * 2^(level - 1)$0",
@@ -155,6 +166,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Research Lab",
+        type: :facility,
         list_order: 120,
         image_src: "/images/buildings/research-lab.webp",
         upgrade_cost_formula: "200 * 2^(level - 1)$400 * 2^(level - 1)$200 * 2^(level - 1)$0",
@@ -168,6 +180,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Terraformer",
+        type: :facility,
         list_order: 130,
         image_src: "/images/buildings/terraformer.webp",
         upgrade_cost_formula: "0$50000 * 2^(level - 1)$100000 * 2^(level - 1)$0",
@@ -181,6 +194,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
       },
       %{
         name: "Missile Silo",
+        type: :facility,
         list_order: 140,
         image_src: "/images/buildings/missile-silo.webp",
         upgrade_cost_formula:

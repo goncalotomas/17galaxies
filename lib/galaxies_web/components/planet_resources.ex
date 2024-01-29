@@ -10,7 +10,7 @@ defmodule GalaxiesWeb.Components.PlanetResources do
           <dt class="text-base font-normal text-gray-900">Metal</dt>
           <dd class="mt-1">
             <div class="text-2xl font-semibold text-indigo-600">
-              <%= @planet.metal_units %>
+              <%= pretty_print(@planet.metal_units) %>
             </div>
           </dd>
         </div>
@@ -19,7 +19,7 @@ defmodule GalaxiesWeb.Components.PlanetResources do
           <dt class="text-base font-normal text-gray-900">Crystal</dt>
           <dd class="mt-1">
             <div class="text-2xl font-semibold text-indigo-600">
-              <%= @planet.crystal_units %>
+              <%= pretty_print(@planet.crystal_units) %>
             </div>
           </dd>
         </div>
@@ -27,7 +27,7 @@ defmodule GalaxiesWeb.Components.PlanetResources do
           <dt class="text-base font-normal text-gray-900">Deuterium</dt>
           <dd class="mt-1">
             <div class="text-2xl font-semibold text-indigo-600">
-              <%= @planet.deuterium_units %>
+              <%= pretty_print(@planet.deuterium_units) %>
             </div>
           </dd>
         </div>
@@ -35,7 +35,7 @@ defmodule GalaxiesWeb.Components.PlanetResources do
           <dt class="text-base font-normal text-gray-900">Energy</dt>
           <dd class="mt-1">
             <div class="text-2xl font-semibold text-indigo-600">
-              <%= @planet.available_energy %>
+              <%= pretty_print(@planet.available_energy) %>
             </div>
           </dd>
         </div>
@@ -52,4 +52,14 @@ defmodule GalaxiesWeb.Components.PlanetResources do
     </div>
     """
   end
+
+  # defp pretty_print(number), do: "#{trunc(number)}"
+  defp pretty_print(number) when number < 100_000, do: "#{trunc(number)}"
+  defp pretty_print(number) when number < 1_000_000, do: "#{Float.floor(number / 1_000, 2)}K"
+
+  defp pretty_print(number) when number < 1_000_000_000,
+    do: "#{Float.floor(number / 1_000_000, 2)}M"
+
+  defp pretty_print(number) when number < 1_000_000_000_000,
+    do: "#{Float.floor(number / 1_000_000_000, 2)}B"
 end

@@ -8,29 +8,9 @@ defmodule Galaxies.Accounts do
   alias Galaxies.Repo
 
   alias Galaxies.Accounts.{Player, PlayerToken, PlayerNotifier}
-  alias Galaxies.{Building, PlanetBuilding, Research, PlayerResearch}
+  alias Galaxies.{Building, PlanetBuilding, PlanetUnit, PlayerResearch, Research, Unit}
 
   require Logger
-
-  @resource_buildings [
-    "Metal Mine",
-    "Crystal Mine",
-    "Deuterium Refinery",
-    "Solar Power Plant",
-    "Fusion Reactor",
-    "Metal Storage",
-    "Crystal Storage",
-    "Deuterium Tank"
-  ]
-
-  @facility_buildings [
-    "Robot Factory",
-    "Nanite Factory",
-    "Shipyard",
-    "Research Lab",
-    "Terraformer",
-    "Missile Silo"
-  ]
 
   ## PlanetBuilding operations
 
@@ -70,12 +50,14 @@ defmodule Galaxies.Accounts do
 
       building = planet_building.building
 
-      # TODO: check if planet has resources to upgrade the building
-
       {metal, crystal, deuterium, energy} =
         Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
 
       cond do
+        planet.metal_units < metal or planet.crystal_units < crystal or
+          planet.deuterium_units < deuterium or planet.total_energy < energy ->
+          {:error, "Not enough resources on #{planet.name} to build #{building.name}"}
+
         building.name == "Terraformer" ->
           extra_fields = Building.terraformer_extra_fields(level)
 
@@ -297,7 +279,9 @@ defmodule Galaxies.Accounts do
         slot: slot,
         min_temperature: -40,
         max_temperature: 40,
-        image_id: 1
+        image_id: 1,
+        metal_units: 500.0,
+        crystal_units: 500.0
       })
     end)
     |> Ecto.Multi.run(:planet_buildings, fn repo, %{player: player, planet: planet} ->
@@ -317,6 +301,27 @@ defmodule Galaxies.Accounts do
 
       Logger.debug(
         "inserted #{building_count} planet_buildings for planet #{planet.name} of #{player.username}"
+      )
+
+      {:ok, nil}
+    end)
+    |> Ecto.Multi.run(:planet_units, fn repo, %{player: player, planet: planet} ->
+      planet_units =
+        repo.all(from(u in Unit))
+        |> Enum.map(fn unit ->
+          %{
+            planet_id: planet.id,
+            unit_id: unit.id,
+            amount: 0,
+            inserted_at: now,
+            updated_at: now
+          }
+        end)
+
+      {unit_count, nil} = repo.insert_all(PlanetUnit, planet_units)
+
+      Logger.debug(
+        "inserted #{unit_count} planet_units for planet #{planet.name} of #{player.username}"
       )
 
       {:ok, nil}
@@ -536,8 +541,62 @@ defmodule Galaxies.Accounts do
   Gets the current active planet for a given player.
   """
   def get_active_planet(player) do
-    {:ok, query} = Player.get_active_planet_query(player)
-    Repo.one(query)
+    now = DateTime.now!("Etc/UTC")
+
+    Planet
+    |> where([p], p.id == ^player.current_planet_id)
+    |> update([p],
+      set: [
+        metal_units:
+          fragment(
+            "? + EXTRACT(EPOCH FROM (? - ?)) * ? / 3600",
+            p.metal_units,
+            ^now,
+            p.updated_at,
+            p.metal_growth_rate
+          ),
+        crystal_units:
+          fragment(
+            "? + EXTRACT(EPOCH FROM (? - ?)) * ? / 3600",
+            p.crystal_units,
+            ^now,
+            p.updated_at,
+            p.crystal_growth_rate
+          ),
+        deuterium_units:
+          fragment(
+            "? + EXTRACT(EPOCH FROM (? - ?)) * ? / 3600",
+            p.deuterium_units,
+            ^now,
+            p.updated_at,
+            p.deuterium_growth_rate
+          ),
+        updated_at: ^now
+      ]
+    )
+    |> select([p], p)
+    |> Repo.update_all([])
+    |> then(fn {1, [planet]} -> planet end)
+  end
+
+  @doc """
+  Returns the galaxy view for a particular galaxy solar system.
+  Currently returning a stubbed response.
+  """
+  def get_galaxy_view(_galaxy, _system) do
+    [
+      %Planet{galaxy: 1, system: 1, slot: 1, name: "Alpha", player: %Player{username: "legor"}},
+      %Planet{
+        galaxy: 1,
+        system: 1,
+        slot: 15,
+        name: "Beta",
+        player: %Player{username: "Svlaadaaaak"}
+      },
+      %Planet{galaxy: 1, system: 1, slot: 6, name: "Charlie", player: %Player{username: "legor"}},
+      %Planet{galaxy: 1, system: 1, slot: 7, name: "Delta", player: %Player{username: "legor"}},
+      %Planet{galaxy: 1, system: 1, slot: 8, name: "Echo", player: %Player{username: "Kriptonis"}}
+    ]
   end
 
   @doc """
@@ -547,7 +606,7 @@ defmodule Galaxies.Accounts do
   def get_planet_resource_buildings(planet) do
     query =
       from building in Building,
-        where: building.name in @resource_buildings,
+        where: building.type == :resource,
         join: planet_building in PlanetBuilding,
         on: building.id == planet_building.building_id,
         where: planet_building.planet_id == ^planet.id,
@@ -571,7 +630,7 @@ defmodule Galaxies.Accounts do
   def get_planet_facilities_buildings(planet) do
     query =
       from building in Building,
-        where: building.name in @facility_buildings,
+        where: building.type == :facility,
         join: planet_building in PlanetBuilding,
         on: building.id == planet_building.building_id,
         where: planet_building.planet_id == ^planet.id,
@@ -616,388 +675,54 @@ defmodule Galaxies.Accounts do
   Gets the ship units for a specific planet.
   Currently returning a stubbed response.
   """
-  def get_planet_ship_units(_planet) do
-    [
-      %{
-        name: "Light Fighter",
-        image_src: "/images/units/light-fighter.webp",
-        description_short:
-          "They are the most primitive warships of an empire. But when their number increases, they can easily destroy even huge ships.",
-        description_long:
-          "Light fighters are the most primitive warships of an empire. In large numbers, however, they manage to successfully confront even fleets composed of larger ships. Their low cost allows empires to create gigantic amounts of light fighters.",
-        type: "ship",
-        attack_value: 50,
-        shield_value: 10,
-        hit_points: 400
-      },
-      %{
-        name: "Heavy Fighter",
-        image_src: "/images/units/heavy-fighter.webp",
-        description_short:
-          "The constant further development of the light fighters finally made the production of the much more stable heavy fighters possible.",
-        description_long:
-          "The constant further development of the light fighters finally made it possible to produce significantly more stable ships. Due to the high proportion of crystals in development and a significant increase in fuel consumption, there are many empires that still cling to light fighters.",
-        type: "ship",
-        attack_value: 150,
-        shield_value: 25,
-        hit_points: 1000
-      },
-      %{
-        name: "Cruiser",
-        image_src: "/images/units/cruiser.webp",
-        description_short:
-          "Due to their maneuverability and high speed, cruisers are a major challenge for enemy fleets and defenses.",
-        description_long:
-          "With further research into impulse engines, it was possible to far surpass the speed of the light and heavy fighters. It was time to declare war on the dominant fleets of fighters. Cruisers were therefore equipped with special ion cannons that could target multiple light fighters at the same time. Even in highly developed civilizations, cruisers are often used ships due to their maneuverability and high speed. They continue to pose a major challenge to enemy fighter fleets.",
-        type: "ship",
-        attack_value: 400,
-        shield_value: 50,
-        hit_points: 2700
-      },
-      %{
-        name: "Battleship",
-        image_src: "/images/units/battleship.webp",
-        description_short:
-          "Battleships are the backbone for early fleets, providing a high resistance to ships designed to overpower defenses during the first stages of new empires.",
-        description_long:
-          "Battleships are the backbone for early fleets, providing a high resistance to ships designed to overpower defenses during the first stages of new empires. Battleships have ample storage capacity making them the preferred choice for bringing back raw materials that have been plundered.",
-        type: "ship",
-        attack_value: 1000,
-        shield_value: 200,
-        hit_points: 6000
-      },
-      %{
-        name: "Interceptor",
-        image_src: "/images/units/interceptor.webp",
-        description_short:
-          "Interceptors are very agile ships with sophisticated weapon systems. They were designed to counterbalance the prevailing battleships.",
-        description_long:
-          "Battlecruisers are very agile ships with sophisticated weapon systems. They were designed to counterbalance the prevailing battleships. However, their cargo space and fuel consumption are significantly smaller due to the revised design.",
-        type: "ship",
-        attack_value: 700,
-        shield_value: 400,
-        hit_points: 7000
-      },
-      %{
-        name: "Bomber",
-        image_src: "/images/units/bombardier.webp",
-        description_short:
-          "Bombers are designed to destroy the enemy's defense line. Their concentrated bombardments are very strong against defensive units.",
-        description_long:
-          "It could be observed that some empires bunkered huge deposits of resources behind their defenses. Thanks to specialized plasma bombardments, even previously impregnable strongholds could be knocked out with almost no casualties. However, the heavy combat systems made the bomber very slow at the same time. Its weapon systems are designed to destroy geostationary guns, so that fights against other warships are mostly hopeless.",
-        type: "ship",
-        attack_value: 1000,
-        shield_value: 500,
-        hit_points: 7500
-      },
-      %{
-        name: "Destroyer",
-        image_src: "/images/units/dreadnaught.webp",
-        description_short:
-          "Destroyers are the most fearful of middle class warships due to their high shield strength and damage ability.",
-        description_long:
-          "Further exploration of hyperspace allowed empires to integrate entire arsenals into spaceships. These flying battle bases can only be stopped effectively by significantly larger ships. Due to their sheer size, the fuel consumption is double that of battleships. Due to the large number of weapon systems, the effective cargo hold has become even smaller at the same time. Destroyers are the most dangerous mid-tier warships due to their high shield strength and damage ability.",
-        type: "ship",
-        attack_value: 2000,
-        shield_value: 500,
-        hit_points: 11_000
-      },
-      %{
-        name: "Reaper",
-        image_src: "/images/units/battleship-v3.webp",
-        description_short:
-          "The ability to collect debris fields immediately after battle has made this warship one of the most popular in the universe! They can directly collect a maximum of 40% of the total debris.",
-        description_long:
-          "The constant further development of the destroyers represented a change in the previous warfare. Reapers were not only clearly superior to previous ships in terms of their combat values. The integration of recycler technology also made it possible, to fill the generously dimensioned cargo hold directly after the battle with debris fields that had been created (up to 40% for own attacks / up to 100% for expedition-fights). Of course, this technology led to a sustained increase in numbers of these ships.",
-        type: "ship",
-        attack_value: 2800,
-        shield_value: 700,
-        hit_points: 14_000
-      },
-      %{
-        name: "Deathstar",
-        image_src: "/images/units/juggernaut.webp",
-        description_short:
-          "The destructive power of Death Stars is unmatched. By focusing huge amounts of energy, the gigantic gravitational cannon can even destroy entire moons.",
-        description_long:
-          "The destructive power of Death Stars is unmatched. By focusing huge amounts of energy, the gigantic gravitational cannon can even destroy entire moons. However, there are rumors of imploding Death Stars, which can be traced back to overstressing the gravity cannon on moons that are too large. It's up to every empires leader to use this technology wisely. Their sheer size also makes the Death Stars very slow.",
-        type: "ship",
-        attack_value: 12_000,
-        shield_value: 16_000,
-        hit_points: 900_000
-      },
-      %{
-        name: "Solar Satellite",
-        image_src: "/images/units/solar-satellite.webp",
-        description_short:
-          "Solar satellites are launched directly into the orbit of the respective planet. The satellites collect the sun's energy and contribute to the planet's energy production.",
-        description_long:
-          "Solar satellites are a crucial factor in supplying a planet with energy. Some empires rely entirely on the use of solar energy because it does not take up precious space on the planet. Of course, proximity to the sun is critical to this strategy. Since the satellites have no weapons and defense mechanisms, they must be supported with defense units.",
-        type: "planet_ship",
-        attack_value: 0,
-        shield_value: 1,
-        hit_points: 200
-      },
-      %{
-        name: "Crawler",
-        image_src: "/images/units/crawler.webp",
-        description_short:
-          "These units can only move on the surface of the planet. They contribute to the production of metal, crystal and deuterium on the planet. These units cannot be given fleet orders and cannot leave their planet.",
-        description_long:
-          "These units contribute significantly to the planet's metal, crystal, and deuterium production. The laser beams that support the ressource dismantling require a high level of energy, which the planet's infrastructure must first ensure. They are easy targets when attacked. Collectors move automatically on resource fields. They can therefore not be given any fleet orders.",
-        type: "planet_ship",
-        attack_value: 0,
-        shield_value: 1,
-        hit_points: 5000
-      },
-      %{
-        name: "Spy Probe",
-        image_src: "/images/units/espionage-probe.webp",
-        description_short:
-          "Spy probes are built to collect information about enemy planets. They are very small and enormously fast units.",
-        description_long:
-          "Spy probes are built to collect information about enemy planets. They are very small and enormously fast units.",
-        type: "ship",
-        attack_value: 0,
-        shield_value: 1,
-        hit_points: 100
-      },
-      %{
-        name: "Small Cargo Ship",
-        image_src: "/images/units/light-cargo.webp",
-        description_short:
-          "These small ships were designed purely for carrying raw materials, allowing quick allocation of resources between colonies. Their enormous maneuverability means that today they represent an elementary part of the goods traffic of every empire.",
-        description_long:
-          "With the expansion of the first colonies, there was an increasing need for fast deliveries of goods from the home planet. Mastering the less complex combustion engines was enough to build these versatile ships. Once the engineers develop the impulse engine at level 22, these ships will be equipped with the significantly faster impulse engine. With hyperspace engine at level 22, the speed of the ships can be significantly increased again! Attention: In the event of a combat mission, heavy losses are to be expected due to the low armor values.",
-        type: "ship",
-        attack_value: 5,
-        shield_value: 5,
-        hit_points: 400
-      },
-      %{
-        name: "Large Cargo Ship",
-        image_src: "/images/units/large-cargo.webp",
-        description_short:
-          "With around five times the cargo capacity of small transporters, large transporters offer an efficient way of loading huge amounts of resources efficiently. However, their disadvantage is that they are a bit slower than small transporters.",
-        description_long:
-          "As the demands for the rapid transfer of huge amounts of resources grew, it was time to find an alternative to the previous transporters. Through further research into the combustion engine, it was possible to significantly increase the size of the transporter. However, since the manoeuvrable transporters from the pre-series were still in high demand, the decision was made to use small and large transporters in separate areas of application. Once the engineers develop the impulse engine at level 22, these ships will be equipped with the impulse engine. With hyperspace engine at level 22, the speed of the ships can even more be significantly increased.",
-        type: "ship",
-        attack_value: 10,
-        shield_value: 15,
-        hit_points: 1200
-      },
-      %{
-        name: "Recycler",
-        image_src: "/images/units/large-cargo-v2.webp",
-        description_short:
-          "These ships can collect floating resources (known as debris fields) in space and bring them back to the Empire for re-use.",
-        description_long:
-          "Using a highly developed gill trap, these ships can filter raw materials floating in space. Due to the complicated technology and their large cargo space, recyclers are relatively slow. They are also not intended for combat use and therefore have little shield or weapon systems to speak of. With the development of the impulse engine at level 22, the ships will be equipped with this significantly faster engine. When researching hyperspace engine at level 22, an upgrade can be integrated again.",
-        type: "ship",
-        attack_value: 5,
-        shield_value: 10,
-        hit_points: 1600
-      },
-      %{
-        name: "Colonizer",
-        image_src: "/images/units/colony.webp",
-        description_short: "These ships are specially designed to colonize new planets.",
-        description_long:
-          "These ships are specially designed to colonize new planets. Even if they move slowly in space, it doesn't in the least diminish the settlers' joy in colonizing new planets. To not disappoint their hopes, but to make their new life as smooth as possible, colony ships will be loaded with resources far beyond their usual capacity limits when colonizing new planets.",
-        type: "ship",
-        attack_value: 10,
-        shield_value: 25,
-        hit_points: 3000
-      },
-      %{
-        name: "Asteroid Miner",
-        image_src: "/images/units/asteroid-miner.webp",
-        description_short:
-          "Asteroid miners are ships specially designed to collect resources from asteroid surfaces.",
-        description_long:
-          "Asteroid miners are ships specially designed to collect resources from asteroid surfaces.",
-        type: "ship",
-        attack_value: 20,
-        shield_value: 200,
-        hit_points: 6000
-      }
-    ]
+  def get_planet_ship_units(planet) do
+    query =
+      from unit in Unit,
+        where: unit.type in [:ship, :planet_ship],
+        join: planet_unit in PlanetUnit,
+        on: unit.id == planet_unit.unit_id,
+        where: planet_unit.planet_id == ^planet.id,
+        select: %{
+          id: unit.id,
+          name: unit.name,
+          description_short: unit.short_description,
+          description_long: unit.long_description,
+          image_src: unit.image_src,
+          amount: planet_unit.amount,
+          unit_cost_metal: unit.unit_cost_metal,
+          unit_cost_crystal: unit.unit_cost_crystal,
+          unit_cost_deuterium: unit.unit_cost_deuterium
+        },
+        order_by: [unit.list_order]
+
+    Repo.all(query)
   end
 
   @doc """
   Gets the defense units for a specific planet.
   Currently returning a stubbed response.
   """
-  def get_planet_defense_units(_planet) do
-    [
-      %{
-        name: "Missile Launcher",
-        image_src: "/images/units/missile-launcher.webp",
-        description_short:
-          "Rocket launchers are a relic of the past, yet prove that in large numbers they are a cheap and effective defense mechanism.",
-        description_long:
-          "Rocket launchers are a relic of the past, yet prove that in large numbers they are a cheap and effective defense mechanism. The mechanism consists of simple ballistic projectiles, which can be fired by means of an ignition reaction.",
-        type: "defense",
-        attack_value: 80,
-        shield_value: 20,
-        hit_points: 200
-      },
-      %{
-        name: "Light Laser Turret",
-        image_src: "/images/units/light-laser-turret.webp",
-        description_short:
-          "These underdeveloped turrets prove that simple technology can be devastating when multiple lasers combine their power. Due to their very low overall cost, many empires' defenses consist primarily of these turrets.",
-        description_long:
-          "Due to the energy fed in, atoms in the laser are shifted from lower energy levels to energetically higher (excited) states. By supplying a photon, the laser acts as a light amplifier, so excited atoms can be stimulated to emit in a chain reaction. These underdeveloped guns prove that simple technology can have devastating effects when multiple lasers combine their power. Due to their very low overall cost, many empires' defenses consist primarily of these guns.",
-        type: "defense",
-        attack_value: 100,
-        shield_value: 25,
-        hit_points: 200
-      },
-      %{
-        name: "Heavy Laser Turret",
-        image_src: "/images/units/heavy-laser-turret.webp",
-        description_short:
-          "Through further research into laser technology, much larger guns with higher penetrating power could soon be built.",
-        description_long:
-          "Further research into laser technology soon made it possible to build significantly larger guns with greater penetrating power. A heavy laser cannon is around four times the size of a light laser cannon and offers around 2.5 times the firepower.",
-        type: "defense",
-        attack_value: 250,
-        shield_value: 100,
-        hit_points: 800
-      },
-      %{
-        name: "Ion Cannon",
-        image_src: "/images/units/ion-cannon.webp",
-        description_short:
-          "Ion cannons accelerate small particles to such high speeds that they damage the attacking fleet's electronics and navigational equipment.",
-        description_long:
-          "Ion cannons accelerate small particles to such high speeds that they damage the attacking fleet's electronics and navigational equipment. Since the deployed ions can also be used as shields by reversing their direction, the shield values of these units are very high.",
-        type: "defense",
-        attack_value: 150,
-        shield_value: 500,
-        hit_points: 800
-      },
-      %{
-        name: "Gauss Cannon",
-        image_src: "/images/units/gauss-cannon.webp",
-        description_short:
-          "The penetrating power of the huge projectiles in this gun can be further increased by ferromagnetic acceleration.",
-        description_long:
-          "The penetrating power of the huge projectiles could be increased again by ferromagnetic acceleration. Their drive essentially consists of magnetism, just as it is used in the force fields of magnetic levitation. The naming is based on the German physicist Carl Gauss and his discovered unit of magnetic flux density named after him.",
-        type: "defense",
-        attack_value: 1100,
-        shield_value: 200,
-        hit_points: 3500
-      },
-      %{
-        name: "Plasma Cannon",
-        image_src: "/images/units/plasma-cannon.webp",
-        description_short:
-          "When it hits enemy weapons and navigation systems, the electrical conductivity of plasma will bypass circuits for truly devastating damage regarding maneuverability.",
-        description_long:
-          "Plasma has a truly destructive power due to its ability to store large amounts of energy. In combination with laser and ion technology, the plasma could be stabilized for the first time and thus fired at targets using high-kinetic launchers. When it hits enemy weapons and navigation systems, the electrical conductivity of plasma will bypass circuits for truly devastating damage regarding maneuverability. A failure of the electrical systems renders enemy ships completely unusable and steers around in space as unmaneuverable space debris.",
-        type: "defense",
-        attack_value: 3000,
-        shield_value: 300,
-        hit_points: 10_000
-      },
-      # %{
-      #   name: "Fortress",
-      #   image_src: "/images/units/.webp",
-      #   description_short:
-      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks.",
-      #   description_long:
-      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks. The construction of the complex is reminiscent of long-forgotten civilizations, that tried to protect their cities from invaders with stone walls. Of course, the materials used are not in the least comparable. In addition to protecting the infrastructure, the highly developed weapon systems can simultaneously defend entire cities by opening fire on the attacker at the same time. With every unit the thickness of fortress is being increased.",
-      #   type: "defense",
-      #   attack_value: 10_800,
-      #   shield_value: 20_000,
-      #   hit_points: 960_000
-      # },
-      # %{
-      #   name: "Doom Cannon",
-      #   image_src: "/images/units/.webp",
-      #   description_short:
-      #     "The doom cannon's massive blasts of energy can even hit multiple Death Stars and Avatars at once with their unimaginable level of destructive power.",
-      #   description_long:
-      #     "During the first test attempts by scientists, there was a short-term power failure when the cannons were used. Due to the total darkness combined with the rumbling sound, the inhabitants thought the planet was about to collapse. Since then, the huge cannons have been called \"Cannons of Doom\". Inside these cannons, graviton and plasma articles are first fused in a nuclear fusion. However, the unstable mixture implodes after a short time, so that the outer shells only have the purpose of directing the projectile in the approximate direction of the attacker. The enormous bursts of energy from the plasma-graviton-cannon can even hit several Death Stars and Avatars at once due to their unimaginable degree of destructive power.",
-      #   type: "defense",
-      #   attack_value: 20_000,
-      #   shield_value: 120_000,
-      #   hit_points: 3_600_000
-      # },
-      # %{
-      #   name: "Orbital Defense Platform",
-      #   image_src: "/images/units/.webp",
-      #   description_short:
-      #     "This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
-      #   description_long:
-      #     "Due to the technological advancement of warships there was much need for a new defence system to counter massive enemy fleets. This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
-      #   type: "defense",
-      #   attack_value: 96_000,
-      #   shield_value: 1_000_000,
-      #   hit_points: 22_400_000
-      # },
-      %{
-        name: "Small Shield Dome",
-        image_src: "/images/units/small-shield.webp",
-        description_short:
-          "The small shield dome covers the defense units and ships with a protective energy shield using a generator. This can absorb additional energy from the outside and is still permeable enough to let your own defenses fire.",
-        description_long:
-          "The small shield dome covers facilities and units with a protective energy shield using a generator. This can absorb additional energy from the outside and is still permeable enough to let own defense systems fire. Due to the high energy voltage required, only a limited number of shield domes can be built per planet. This amount can be increased by the ongoing progress of the empire.",
-        type: "defense",
-        attack_value: 0,
-        shield_value: 2000,
-        hit_points: 4000
-      },
-      %{
-        name: "Large Shield Dome",
-        image_src: "/images/units/large-shield.webp",
-        description_short:
-          "Further research into shield technologies has significantly improved the resilience of small shield domes. Large shield domes thus cover a much larger area of the planet, which means that its facilities and units can be protected much more efficiently.",
-        description_long:
-          "Further research into shield technologies has significantly improved the resilience of small shield domes. Large shield domes thus cover a much larger area of the planet, which means that more facilities and units can be protected more efficiently. Due to the high energy voltage required, only a limited number of shield domes can be built per planet. That number can be increased by ongoing progress of the empire.",
-        type: "defense",
-        attack_value: 0,
-        shield_value: 10_000,
-        hit_points: 20_000
-      },
-      # %{
-      #   name: "Atmospheric Shield",
-      #   image_src: "/images/units/.webp",
-      #   description_short:
-      #     "These vast energy shields reinforce a planet's natural atmosphere. They span the entire planet and, in conjunction with other defense systems, make it possible to withstand even major attacks without damage.",
-      #   description_long:
-      #     "These vast energy shields reinforce a planet's natural atmosphere. They span the entire planet and, in conjunction with other defense systems, make it possible to withstand even major attacks without damage. Due to the high energy voltage required, only a limited number of atmospheric shields can be built per planet.",
-      #   type: "defense",
-      #   attack_value: 0,
-      #   shield_value: 2_000_000,
-      #   hit_points: 4_000_000
-      # },
-      %{
-        name: "Interceptor Missile",
-        image_src: "/images/units/interceptor-missile.webp",
-        description_short:
-          "With this anti-ballistic missile defense system, incoming interplanetary missiles can be successfully shot down in the stratosphere.",
-        description_long: "TBD",
-        type: "missile",
-        attack_value: 0,
-        shield_value: 0,
-        hit_points: 6500
-      },
-      %{
-        name: "Interplanetary Missile",
-        image_src: "/images/units/interplanetary-missile.webp",
-        description_short:
-          "The plasma warheads used by the interplanetary missiles cause devastating damage to enemy defense systems - if they are not protected by interceptor missiles. Defenses destroyed by missiles are not restored.",
-        description_long:
-          "Interplanetary missiles represent the further development of long-distance missiles already known from the 20th century. However, escaping the atmosphere of a planet without triggering the sensitive explosive device posed a challenge for the developers for a long time. By exploiting robotic and nanite technology, the interplanetary missiles can now be mass-produced. The main costs are related to the filling of the huge deuterium tanks, which are required for the launch of the missiles. The detonating plasma warheads lead to devastating damage to enemy defense systems - if they are not protected by interceptor missiles. Defenses destroyed by missiles are not restored.",
-        type: "missile",
-        attack_value: 15_000,
-        shield_value: 0,
-        hit_points: 12_500
-      }
-    ]
+  def get_planet_defense_units(planet) do
+    query =
+      from unit in Unit,
+        where: unit.type in [:defense, :missile],
+        join: planet_unit in PlanetUnit,
+        on: unit.id == planet_unit.unit_id,
+        where: planet_unit.planet_id == ^planet.id,
+        select: %{
+          id: unit.id,
+          name: unit.name,
+          description_short: unit.short_description,
+          description_long: unit.long_description,
+          image_src: unit.image_src,
+          amount: planet_unit.amount,
+          unit_cost_metal: unit.unit_cost_metal,
+          unit_cost_crystal: unit.unit_cost_crystal,
+          unit_cost_deuterium: unit.unit_cost_deuterium
+        },
+        order_by: [unit.list_order]
+
+    Repo.all(query)
   end
 
   @doc """

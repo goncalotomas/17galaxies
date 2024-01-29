@@ -73,7 +73,7 @@ defmodule GalaxiesWeb.Router do
       live "/resources", ResourcesLive
       live "/facilities", FacilitiesLive
       live "/research", ResearchLive
-      live "/hangar", HangarLive
+      live "/shipyard", ShipyardLive
       live "/fleet", FleetLive
       live "/defenses", DefensesLive
       live "/galaxy", GalaxyLive

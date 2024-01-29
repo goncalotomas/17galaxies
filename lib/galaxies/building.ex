@@ -8,6 +8,8 @@ defmodule Galaxies.Building do
   schema "buildings" do
     field :name, :string
 
+    field :type, Ecto.Enum, values: [resource: 1, facility: 2], null: false
+
     field :short_description, :string
     field :long_description, :string
 
