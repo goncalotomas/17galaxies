@@ -21,8 +21,7 @@ defmodule Galaxies.Repo.Migrations.CreateResearchesTable do
       timestamps(type: :utc_datetime_usec)
     end
 
-    create index(:researches, [:name])
-    create index(:researches, [:name, :list_order])
+    create index(:researches, [:list_order])
 
     create table(:player_researches, primary_key: false) do
       add :id, :binary_id, primary_key: true
@@ -37,7 +36,7 @@ defmodule Galaxies.Repo.Migrations.CreateResearchesTable do
 
       add :current_level, :integer, default: 0
       add :is_upgrading, :boolean, default: false
-      add :upgrade_finish_time, :utc_datetime
+      add :upgrade_finished_at, :utc_datetime_usec
 
       timestamps(type: :utc_datetime_usec)
     end

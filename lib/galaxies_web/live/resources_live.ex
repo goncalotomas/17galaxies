@@ -2,15 +2,18 @@ defmodule GalaxiesWeb.ResourcesLive do
   use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
+  alias Galaxies.Planets
 
   def mount(_params, _session, socket) do
     current_planet = Accounts.get_active_planet(socket.assigns.current_player)
+    _ = Planets.process_planet_events(current_planet.id)
     planet_buildings = Accounts.get_planet_resource_buildings(current_planet)
 
     {:ok,
      socket
      |> assign(:current_planet, current_planet)
-     |> assign(:planet_buildings, planet_buildings)}
+     |> assign(:planet_buildings, planet_buildings)
+     |> assign(:building_timers, %{})}
   end
 
   def render(assigns) do
@@ -48,15 +51,17 @@ defmodule GalaxiesWeb.ResourcesLive do
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-indigo-500">
-                <a href="#" class="block hover:bg-gray-50">
-                  <.button phx-click={"upgrade:#{building.id}"}>
+                <%= if building.is_upgrading do %>
+                  <%= format_timer(@building_timers[building.id]) %>
+                <% else %>
+                  <.button type="button" phx-click={"upgrade:#{building.id}"}>
                     <%= if building.current_level == 0 do %>
                       Build
                     <% else %>
                       Upgrade
                     <% end %>
                   </.button>
-                </a>
+                <% end %>
               </div>
             </div>
           </div>
@@ -64,6 +69,37 @@ defmodule GalaxiesWeb.ResourcesLive do
       </ul>
     </div>
     """
+  end
+
+  def handle_info(:update_timers, socket) do
+    num_timers = Enum.count(socket.assigns.building_timers)
+
+    building_timers =
+      socket.assigns.building_timers
+      |> Enum.reduce(%{}, fn
+        {_building_id, 1}, acc ->
+          acc
+
+        {building_id, seconds}, acc ->
+          Map.put(acc, building_id, seconds - 1)
+      end)
+
+    unless Enum.empty?(building_timers) do
+      schedule_next_timer_update(1000)
+    end
+
+    resp =
+      if Enum.count(building_timers) != num_timers do
+        _ = Planets.process_planet_events(socket.assigns.current_planet.id)
+        socket
+        |> assign(:building_timers, building_timers)
+        |> assign(:planet_buildings, Accounts.get_planet_resource_buildings(socket.assigns.current_planet))
+      else
+        socket
+        |> assign(:building_timers, building_timers)
+      end
+
+    {:noreply, resp}
   end
 
   def handle_event("upgrade:" <> building_id, _value, socket) do
@@ -75,10 +111,13 @@ defmodule GalaxiesWeb.ResourcesLive do
     level = building.current_level + 1
 
     case Accounts.upgrade_planet_building(socket.assigns.current_planet, building_id, level) do
-      {:ok, _} ->
-        updated_building = Map.put(building, :current_level, level)
+      {:ok, completed_at} ->
+        updated_building =
+          building
+          |> Map.put(:is_upgrading, true)
+          |> Map.put(:upgrade_finished_at, completed_at)
 
-        {metal, crystal, deuterium, energy} =
+        {metal, crystal, deuterium, _energy} =
           Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
 
         updated_planet =
@@ -86,18 +125,30 @@ defmodule GalaxiesWeb.ResourcesLive do
           |> Map.put(:metal_units, socket.assigns.current_planet.metal_units - metal)
           |> Map.put(:crystal_units, socket.assigns.current_planet.crystal_units - crystal)
           |> Map.put(:deuterium_units, socket.assigns.current_planet.deuterium_units - deuterium)
-          |> Map.put(:available_energy, socket.assigns.current_planet.available_energy - energy)
 
         planet_buildings = list_replace(socket.assigns.planet_buildings, updated_building)
+
+        building_timers = socket.assigns.building_timers
+
+        unless Enum.empty?(building_timers) do
+          schedule_next_timer_update(1000)
+        end
+
+        building_timers = Map.put(building_timers, building_id, DateTime.diff(completed_at, DateTime.utc_now(), :second) + 1)
 
         {:noreply,
          socket
          |> assign(:current_planet, updated_planet)
-         |> assign(:planet_buildings, planet_buildings)}
+         |> assign(:planet_buildings, planet_buildings)
+         |> assign(:building_timers, building_timers)}
 
       {:error, error} ->
         {:noreply, put_flash(socket, :error, error)}
     end
+  end
+
+  defp schedule_next_timer_update(milliseconds) do
+    :erlang.send_after(milliseconds, self(), :update_timers)
   end
 
   defp list_replace(list, to_replace, acc \\ [])
@@ -134,6 +185,12 @@ defmodule GalaxiesWeb.ResourcesLive do
     <% end %>
     """
   end
+
+  defp format_timer(nil), do: ""
+  defp format_timer(seconds) when seconds < 60, do: "#{seconds}s"
+  defp format_timer(seconds) when seconds < 3600, do: "#{div(seconds, 60)}m#{rem(seconds, 60)}s"
+  defp format_timer(seconds) when seconds < 86400, do: "#{div(seconds, 3600)}h#{div(rem(seconds, 3600), 60)}m#{rem(seconds, 60)}s"
+  defp format_timer(seconds), do: "#{div(seconds, 86400)}d#{div(rem(seconds, 86400), 3600)}h#{rem(seconds, 3600)}m#{rem(seconds, 60)}s"
 
   defp format_number(number) when number < 1000, do: "#{number}"
 

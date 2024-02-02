@@ -7,7 +7,7 @@ defmodule Galaxies.PlanetBuilding do
   schema "planet_buildings" do
     field :current_level, :integer
     field :is_upgrading, :boolean
-    field :upgrade_finish_time, :utc_datetime
+    field :upgrade_finished_at, :utc_datetime_usec
 
     belongs_to :planet, Galaxies.Planet, primary_key: true
     belongs_to :building, Galaxies.Building, primary_key: true
@@ -15,8 +15,13 @@ defmodule Galaxies.PlanetBuilding do
     timestamps(type: :utc_datetime_usec)
   end
 
-  def upgrade_changeset(planet_building, attrs) do
+  def enqueue_upgrade_changeset(planet_building, attrs) do
     planet_building
-    |> cast(attrs, [:current_level])
+    |> cast(attrs, [:is_upgrading, :upgrade_finished_at])
+  end
+
+  def complete_upgrade_changeset(planet_building, attrs) do
+    planet_building
+    |> cast(attrs, [:current_level, :is_upgrading, :upgrade_finished_at])
   end
 end

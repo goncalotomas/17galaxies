@@ -34,9 +34,22 @@ defmodule Galaxies.Planet do
     field :image_id, :integer
 
     belongs_to :player, Galaxies.Accounts.Player
+
     has_many :buildings, Galaxies.PlanetBuilding
+    has_many :units, Galaxies.PlanetUnit
 
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def building_construction_complete_changeset(planet, attrs) do
+    planet
+    |> cast(attrs, [
+      :used_fields,
+      :total_fields,
+      :metal_units,
+      :crystal_units,
+      :deuterium_units
+    ])
   end
 
   def upgrade_building_changeset(planet, attrs) do
@@ -46,9 +59,7 @@ defmodule Galaxies.Planet do
       :total_fields,
       :metal_units,
       :crystal_units,
-      :deuterium_units,
-      :available_energy,
-      :total_energy
+      :deuterium_units
     ])
   end
 

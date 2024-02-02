@@ -12,3 +12,5 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 ## Findings
 
 - Erlang 26 and TLS changes has somewhat broken SMTP connection or made it significantly difficult
+- The game needs a server to process events and Oban is sadly not a good fit for processing the game's events
+- Processing game events asynchronously without a classic game's closed loop of while(true) update_state is so weird and quirky
