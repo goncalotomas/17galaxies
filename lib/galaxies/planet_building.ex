@@ -6,8 +6,6 @@ defmodule Galaxies.PlanetBuilding do
   @primary_key false
   schema "planet_buildings" do
     field :current_level, :integer
-    field :is_upgrading, :boolean
-    field :upgrade_finished_at, :utc_datetime_usec
 
     belongs_to :planet, Galaxies.Planet, primary_key: true
     belongs_to :building, Galaxies.Building, primary_key: true

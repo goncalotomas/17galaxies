@@ -179,6 +179,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: "fe80d118-99fa-4792-8d27-1053d2960a94",
         name: "Terraformer",
         type: :facility,
         list_order: 130,

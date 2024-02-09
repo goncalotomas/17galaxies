@@ -10,13 +10,9 @@ defmodule Galaxies.Repo.Migrations.CreatePlanetsTable do
       add :system, :smallint, null: false
       add :slot, :smallint, null: false
 
-      add :metal_units, :float, default: 0.0
-      add :crystal_units, :float, default: 0.0
-      add :deuterium_units, :float, default: 0.0
-
-      add :metal_growth_rate, :float, default: 0.0
-      add :crystal_growth_rate, :float, default: 0.0
-      add :deuterium_growth_rate, :float, default: 0.0
+      add :metal_units, :float, default: 0.0, null: false
+      add :crystal_units, :float, default: 0.0, null: false
+      add :deuterium_units, :float, default: 0.0, null: false
 
       add :min_temperature, :integer, null: false
       add :max_temperature, :integer, null: false

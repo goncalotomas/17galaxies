@@ -36,8 +36,6 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
         primary_key: true
 
       add :current_level, :integer, default: 0
-      add :is_upgrading, :boolean, default: false
-      add :upgrade_finished_at, :utc_datetime_usec
 
       timestamps(type: :utc_datetime_usec)
     end

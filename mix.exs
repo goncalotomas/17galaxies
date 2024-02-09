@@ -34,6 +34,7 @@ defmodule Galaxies.MixProject do
     [
       # actual project dependencies
       {:abacus, "~> 2.0"},
+      {:ex_machina, "~> 2.7.0", only: :test},
       # phoenix dependencies
       {:argon2_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.10"},

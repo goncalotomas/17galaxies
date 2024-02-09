@@ -4,6 +4,7 @@ defmodule Galaxies.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias Galaxies.Planets
   alias Galaxies.Planet
   alias Galaxies.Repo
 
@@ -12,83 +13,19 @@ defmodule Galaxies.Accounts do
 
   require Logger
 
-  @universe_speed 100
-  @base_metal_production 30 * @universe_speed
-  @base_crystal_production 15 * @universe_speed
-
   ## PlanetBuilding operations
 
   @doc """
   Tries to upgrade a planet building.
   """
   def upgrade_planet_building(planet, building_id, level) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.run(:planet_building, fn repo, _changes ->
-      planet_building =
-        repo.one!(
-          from pb in PlanetBuilding,
-            where: pb.building_id == ^building_id and pb.planet_id == ^planet.id,
-            preload: :building
-        )
+    # TODO maybe wrap in transaction
+    now = DateTime.utc_now()
 
-      building = planet_building.building
-
-      {metal, crystal, deuterium, energy} =
-        Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
-
-      cond do
-        planet_building.is_upgrading ->
-          {:error, "#{building.name} upgrade is already in progress"}
-
-        planet_building.current_level != level - 1 ->
-          {:error, "Cannot upgrade from level #{planet_building.current_level} to #{level}"}
-
-        planet.metal_units < metal or planet.crystal_units < crystal or
-          planet.deuterium_units < deuterium or planet.total_energy < energy ->
-          {:error, "Not enough resources on #{planet.name} to build #{building.name}"}
-
-        planet.used_fields < planet.total_fields or building.name == "Terraformer" ->
-          # TODO count buildings in progress?
-          completed_at = DateTime.add(DateTime.utc_now(:second), 2*level)
-
-          Repo.update!(
-            PlanetBuilding.enqueue_upgrade_changeset(planet_building, %{
-              is_upgrading: true,
-              upgrade_finished_at: completed_at
-            })
-          )
-
-          # subtract building resources
-          Repo.update!(
-            Planet.upgrade_building_changeset(planet, %{
-              metal_units: planet.metal_units - metal,
-              crystal_units: planet.crystal_units - crystal,
-              deuterium_units: planet.deuterium_units - deuterium
-            })
-          )
-
-          Repo.insert!(%Galaxies.Planets.PlanetEvent{
-            planet_id: planet.id,
-            type: :building_construction_complete,
-            data: %{
-              building_id: building_id,
-              level: level
-            },
-            completed_at: completed_at
-          })
-
-          {:ok, completed_at}
-
-        true ->
-          {:error,
-           "The planet has no more construction space. Build or upgrade the Terraformer to increase planet fields."}
-      end
-    end)
-    |> Repo.transaction()
-    |> then(fn
-      {:ok, %{planet_building: completed_at}} -> {:ok, completed_at}
-      {:error, _step, error, _partial_changes} -> {:error, error}
-    end)
+    with :ok <- Planets.enqueue_building(planet.id, building_id, level),
+         :ok <- Planets.process_planet_events(planet.id, now) do
+      :ok
+    end
   end
 
   ## Player Researches
@@ -534,44 +471,10 @@ defmodule Galaxies.Accounts do
   Gets the current active planet for a given player.
   """
   def get_active_planet(player) do
-    now = DateTime.now!("Etc/UTC")
-
     Planet
     |> where([p], p.id == ^player.current_planet_id)
-    |> update([p],
-      set: [
-        metal_units:
-          fragment(
-            "? + EXTRACT(EPOCH FROM (? - ?)) * (?+?) / 3600",
-            p.metal_units,
-            ^now,
-            p.updated_at,
-            p.metal_growth_rate,
-            @base_metal_production
-          ),
-        crystal_units:
-          fragment(
-            "? + EXTRACT(EPOCH FROM (? - ?)) * (?+?) / 3600",
-            p.crystal_units,
-            ^now,
-            p.updated_at,
-            p.crystal_growth_rate,
-            @base_crystal_production
-          ),
-        deuterium_units:
-          fragment(
-            "? + EXTRACT(EPOCH FROM (? - ?)) * ? / 3600",
-            p.deuterium_units,
-            ^now,
-            p.updated_at,
-            p.deuterium_growth_rate
-          ),
-        updated_at: ^now
-      ]
-    )
     |> select([p], p)
-    |> Repo.update_all([])
-    |> then(fn {1, [planet]} -> planet end)
+    |> Repo.one!()
   end
 
   @doc """
@@ -612,9 +515,7 @@ defmodule Galaxies.Accounts do
           description_long: building.long_description,
           image_src: building.image_src,
           current_level: planet_building.current_level,
-          upgrade_cost_formula: building.upgrade_cost_formula,
-          is_upgrading: planet_building.is_upgrading,
-          upgrade_finished_at: planet_building.upgrade_finished_at
+          upgrade_cost_formula: building.upgrade_cost_formula
         },
         order_by: [building.list_order]
 
@@ -638,9 +539,7 @@ defmodule Galaxies.Accounts do
           description_long: building.long_description,
           image_src: building.image_src,
           current_level: planet_building.current_level,
-          upgrade_cost_formula: building.upgrade_cost_formula,
-          is_upgrading: planet_building.is_upgrading,
-          upgrade_finished_at: planet_building.upgrade_finished_at
+          upgrade_cost_formula: building.upgrade_cost_formula
         },
         order_by: [building.list_order]
 
