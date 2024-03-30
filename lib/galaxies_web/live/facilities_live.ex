@@ -38,8 +38,11 @@ defmodule GalaxiesWeb.FacilitiesLive do
           Facilities — <%= @current_planet.name %>
         </h3>
       </div>
-      <div :if={not Enum.empty?(@build_queue)} class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-white">
-      <%!-- <div class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-white"> --%>
+      <div
+        :if={not Enum.empty?(@build_queue)}
+        class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-white"
+      >
+        <%!-- <div class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-white"> --%>
         <div class="">
           <h4 class="text-base font-medium leading-4 text-gray-800">
             Active Build Queue
@@ -137,14 +140,14 @@ defmodule GalaxiesWeb.FacilitiesLive do
                 <%!-- Should I move this logic out of the template? Probably. --%>
                 <.link class="px-2 py-2" phx-click={"upgrade:#{building.id}"}>
                   <p class="my-auto">
-                  <%= case Enum.empty?(@build_queue) do  %>
-                  <% false -> %>
-                    Add to Queue
-                  <% true when building.current_level == 0 -> %>
-                    Build
-                  <% true -> %>
-                    Upgrade
-                  <% end %>
+                    <%= case Enum.empty?(@build_queue) do %>
+                      <% false -> %>
+                        Add to Queue
+                      <% true when building.current_level == 0 -> %>
+                        Build
+                      <% true -> %>
+                        Upgrade
+                    <% end %>
                   </p>
                 </.link>
               </div>

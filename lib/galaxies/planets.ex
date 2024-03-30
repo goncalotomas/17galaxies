@@ -213,13 +213,19 @@ defmodule Galaxies.Planets do
       if Enum.empty?(events) do
         now_before_producing = DateTime.utc_now(:millisecond)
         produce_resources(planet, until)
-        ms_elapsed = DateTime.diff(DateTime.utc_now(:millisecond), now_before_producing, :millisecond)
+
+        ms_elapsed =
+          DateTime.diff(DateTime.utc_now(:millisecond), now_before_producing, :millisecond)
+
         Logger.debug("produced resources in #{ms_elapsed}ms for planet #{planet.id}")
         {:ok, nil}
       else
         now_before_processing = DateTime.utc_now(:millisecond)
         {event_count, planet} = process_events(planet, events, until)
-        ms_elapsed = DateTime.diff(DateTime.utc_now(:millisecond), now_before_processing, :millisecond)
+
+        ms_elapsed =
+          DateTime.diff(DateTime.utc_now(:millisecond), now_before_processing, :millisecond)
+
         Logger.info("processed #{event_count} events in #{ms_elapsed}ms for planet #{planet.id}")
         {:ok, planet}
       end
