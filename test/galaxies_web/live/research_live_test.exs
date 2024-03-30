@@ -1,4 +1,4 @@
-defmodule GalaxiesWeb.ResourcesLiveTest do
+defmodule GalaxiesWeb.ResearchLiveTest do
   use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
@@ -8,7 +8,7 @@ defmodule GalaxiesWeb.ResourcesLiveTest do
     test "redirects to login page", %{conn: conn} do
       result =
         conn
-        |> live(~p"/resources")
+        |> live(~p"/research")
         |> follow_redirect(conn, "/players/log_in")
 
       assert {:ok, _conn} = result
@@ -26,7 +26,7 @@ defmodule GalaxiesWeb.ResourcesLiveTest do
     end
 
     test "displays current planet resources", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/resources")
+      {:ok, view, _html} = live(conn, ~p"/research")
 
       metal = element(view, "#planet_resources", "Metal")
       crystal = element(view, "#planet_resources", "Crystal")
@@ -39,26 +39,24 @@ defmodule GalaxiesWeb.ResourcesLiveTest do
       assert has_element?(energy)
     end
 
-    test "displays planet's resource buildings", %{conn: conn} do
-      {:ok, _view, html} = live(conn, ~p"/resources")
+    test "displays player researches", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/research")
 
-      assert html =~ "Metal Mine"
-      assert html =~ "Crystal Mine"
-      assert html =~ "Deuterium Synthesizer"
-      assert html =~ "Solar Power Plant"
-      assert html =~ "Fusion Reactor"
-      assert html =~ "Metal Storage"
-      assert html =~ "Crystal Storage"
-      assert html =~ "Deuterium Tank"
-
-      # ensure facility buildings don't show up
-      refute html =~ "Robot Factory"
-      refute html =~ "Nanite Factory"
-      # Can't refute on the string Shipyard since it shows up in user navigation.
-      # refute html =~ "Shipyard"
-      refute html =~ "Research Lab"
-      refute html =~ "Terraformer"
-      refute html =~ "Missile Silo"
+      assert html =~ "Espionage Technology"
+      assert html =~ "Computer Technology"
+      assert html =~ "Energy Technology"
+      assert html =~ "Laser Technology"
+      assert html =~ "Ion Technology"
+      assert html =~ "Plasma Technology"
+      assert html =~ "Graviton Technology"
+      assert html =~ "Weapons Technology"
+      assert html =~ "Shields Technology"
+      assert html =~ "Armor Technology"
+      assert html =~ "Hyperspace Technology"
+      assert html =~ "Combustion Engine Technology"
+      assert html =~ "Hyperspace Engine Technology"
+      assert html =~ "Astrophysics Technology"
+      assert html =~ "Intergalactic Research Network"
     end
   end
 end

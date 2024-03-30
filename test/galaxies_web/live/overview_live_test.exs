@@ -19,6 +19,7 @@ defmodule GalaxiesWeb.OverviewLiveTest do
     setup %{conn: conn} do
       player = player_fixture()
       planet = Galaxies.Accounts.get_active_planet(player)
+
       [
         conn: log_in_player(conn, player),
         planet: planet,

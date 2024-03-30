@@ -1,4 +1,4 @@
-defmodule GalaxiesWeb.ResourcesLiveTest do
+defmodule GalaxiesWeb.FacilitiesLiveTest do
   use GalaxiesWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
@@ -8,7 +8,7 @@ defmodule GalaxiesWeb.ResourcesLiveTest do
     test "redirects to login page", %{conn: conn} do
       result =
         conn
-        |> live(~p"/resources")
+        |> live(~p"/facilities")
         |> follow_redirect(conn, "/players/log_in")
 
       assert {:ok, _conn} = result
@@ -26,7 +26,7 @@ defmodule GalaxiesWeb.ResourcesLiveTest do
     end
 
     test "displays current planet resources", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/resources")
+      {:ok, view, _html} = live(conn, ~p"/facilities")
 
       metal = element(view, "#planet_resources", "Metal")
       crystal = element(view, "#planet_resources", "Crystal")
@@ -39,26 +39,26 @@ defmodule GalaxiesWeb.ResourcesLiveTest do
       assert has_element?(energy)
     end
 
-    test "displays planet's resource buildings", %{conn: conn} do
-      {:ok, _view, html} = live(conn, ~p"/resources")
+    test "displays planet's facilities buildings", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/facilities")
 
-      assert html =~ "Metal Mine"
-      assert html =~ "Crystal Mine"
-      assert html =~ "Deuterium Synthesizer"
-      assert html =~ "Solar Power Plant"
-      assert html =~ "Fusion Reactor"
-      assert html =~ "Metal Storage"
-      assert html =~ "Crystal Storage"
-      assert html =~ "Deuterium Tank"
+      refute html =~ "Metal Mine"
+      refute html =~ "Crystal Mine"
+      refute html =~ "Deuterium Synthesizer"
+      refute html =~ "Solar Power Plant"
+      refute html =~ "Fusion Reactor"
+      refute html =~ "Metal Storage"
+      refute html =~ "Crystal Storage"
+      refute html =~ "Deuterium Tank"
 
       # ensure facility buildings don't show up
-      refute html =~ "Robot Factory"
-      refute html =~ "Nanite Factory"
-      # Can't refute on the string Shipyard since it shows up in user navigation.
-      # refute html =~ "Shipyard"
-      refute html =~ "Research Lab"
-      refute html =~ "Terraformer"
-      refute html =~ "Missile Silo"
+      assert html =~ "Robot Factory"
+      assert html =~ "Nanite Factory"
+      # shipyard assertion will always pass due to this string being in the user navigation.
+      assert html =~ "Shipyard"
+      assert html =~ "Research Lab"
+      assert html =~ "Terraformer"
+      assert html =~ "Missile Silo"
     end
   end
 end
