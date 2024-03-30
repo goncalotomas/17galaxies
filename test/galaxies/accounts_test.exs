@@ -1,5 +1,5 @@
 defmodule Galaxies.AccountsTest do
-  use Galaxies.DataCase
+  use Galaxies.DataCase, async: true
 
   alias Galaxies.Accounts
 

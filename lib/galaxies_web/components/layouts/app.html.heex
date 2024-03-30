@@ -1,7 +1,7 @@
 <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
   <%= if @current_player do %>
     <li class="text-[0.8125rem] leading-6 text-white">
-      <%= @current_player.username %>
+      Player: <strong><%= @current_player.username %></strong>
     </li>
     <li>
       <.link
@@ -168,32 +168,32 @@
           <h1 class="text-2xl font-semibold text-gray-900">@page_title</h1>
         </div> --%>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-          <div class="mx-auto max-w-xl">
-            <.live_component
-              class="max-w-2xl"
-              module={GalaxiesWeb.Components.PlanetResources}
-              id="hero"
-              planet={@current_planet}
+          <div id="planet_resources" class="mx-auto">
+            <.planet_resources
+              metal={@current_planet.metal_units}
+              crystal={@current_planet.crystal_units}
+              deuterium={@current_planet.deuterium_units}
+              energy={@current_planet.available_energy}
             />
           </div>
 
           <%!-- <ul>
-            <%= if @current_user do %>
+            <%= if @current_player do %>
               <li>
-                <%= @current_user.email %>
+                <%= @current_player.email %>
               </li>
               <li>
-                <.link href={~p"/users/settings"}>Settings</.link>
+                <.link href={~p"/players/settings"}>Settings</.link>
               </li>
               <li>
-                <.link href={~p"/users/log_out"} method="delete">Log out</.link>
+                <.link href={~p"/players/log_out"} method="delete">Log out</.link>
               </li>
             <% else %>
               <li>
-                <.link href={~p"/users/register"}>Register</.link>
+                <.link href={~p"/players/register"}>Register</.link>
               </li>
               <li>
-                <.link href={~p"/users/log_in"}>Log in</.link>
+                <.link href={~p"/players/log_in"}>Log in</.link>
               </li>
             <% end %>
           </ul> --%>

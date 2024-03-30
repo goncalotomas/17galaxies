@@ -28,7 +28,7 @@ defmodule Galaxies.Planets.Production do
       planet_building.building.name == "Crystal Mine" ->
         mine_levels({m, planet_building.current_level, d}, t)
 
-      planet_building.building.name == "Deuterium Refinery" ->
+      planet_building.building.name == "Deuterium Synthesizer" ->
         mine_levels({m, c, planet_building.current_level}, t)
 
       true ->

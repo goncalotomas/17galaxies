@@ -272,15 +272,15 @@ defmodule GalaxiesWeb.ResourcesLive do
   end
 
   defp format_timer(nil), do: ""
-  defp format_timer(seconds) when seconds > 0 and seconds < 60, do: "#{seconds}s"
+  defp format_timer(seconds) when seconds >= 0 and seconds < 60, do: "#{seconds}s"
 
-  defp format_timer(seconds) when seconds > 0 and seconds < 3600,
+  defp format_timer(seconds) when seconds >= 0 and seconds < 3600,
     do: "#{div(seconds, 60)}m#{rem(seconds, 60)}s"
 
-  defp format_timer(seconds) when seconds > 0 and seconds < 86400,
+  defp format_timer(seconds) when seconds >= 0 and seconds < 86400,
     do: "#{div(seconds, 3600)}h#{div(rem(seconds, 3600), 60)}m#{rem(seconds, 60)}s"
 
-  defp format_timer(seconds) when seconds > 0,
+  defp format_timer(seconds) when seconds >= 0,
     do:
       "#{div(seconds, 86400)}d#{div(rem(seconds, 86400), 3600)}h#{rem(seconds, 3600)}m#{rem(seconds, 60)}s"
 
