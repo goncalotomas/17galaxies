@@ -37,7 +37,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
-        name: "Deuterium Refinery",
+        name: "Deuterium Synthesizer",
         type: :resource,
         list_order: 30,
         image_src: "/images/buildings/deuterium-refinery-v3.webp",
