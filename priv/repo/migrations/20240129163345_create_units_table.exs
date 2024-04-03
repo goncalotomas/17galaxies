@@ -2,8 +2,7 @@ defmodule Galaxies.Repo.Migrations.CreateUnitsTable do
   use Ecto.Migration
 
   def change do
-    create table(:units, primary_key: false) do
-      add :id, :binary_id, primary_key: true
+    create table(:units) do
       add :name, :string, null: false
 
       add :short_description, :text, null: false
@@ -37,7 +36,7 @@ defmodule Galaxies.Repo.Migrations.CreateUnitsTable do
         null: false,
         primary_key: true
 
-      add :unit_id, references(:units, type: :binary_id, on_delete: :delete_all),
+      add :unit_id, references(:units, on_delete: :delete_all),
         null: false,
         primary_key: true
 

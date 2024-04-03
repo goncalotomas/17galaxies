@@ -40,6 +40,7 @@ defmodule Galaxies.Planets do
           )
 
         planet_building = Enum.find(planet_buildings, fn pb -> pb.building_id == building_id end)
+        dbg(planet_building)
 
         {cost_metal, cost_crystal, cost_deuterium, _energy} =
           Galaxies.calc_upgrade_cost(planet_building.building.upgrade_cost_formula, level)

@@ -8,7 +8,7 @@ defmodule Galaxies.PlanetBuilding do
     field :current_level, :integer
 
     belongs_to :planet, Galaxies.Planet, primary_key: true
-    belongs_to :building, Galaxies.Building, primary_key: true
+    belongs_to :building, Galaxies.Building, primary_key: true, type: :integer
 
     timestamps(type: :utc_datetime_usec)
   end

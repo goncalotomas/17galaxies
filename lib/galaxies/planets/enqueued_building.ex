@@ -17,7 +17,7 @@ defmodule Galaxies.Planets.EnqueuedBuilding do
     field :started_at, :utc_datetime
     field :completed_at, :utc_datetime
 
-    belongs_to :building, Galaxies.Building
+    belongs_to :building, Galaxies.Building, type: :integer
     belongs_to :planet, Galaxies.Planet
 
     timestamps(type: :utc_datetime_usec)

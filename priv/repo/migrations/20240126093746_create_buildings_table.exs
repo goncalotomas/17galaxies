@@ -3,7 +3,6 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
 
   def change do
     create table(:buildings) do
-      # add :id, :binary_id, primary_key: true
       add :name, :string, null: false
 
       add :short_description, :text, null: false

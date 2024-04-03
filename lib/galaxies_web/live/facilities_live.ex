@@ -208,7 +208,11 @@ defmodule GalaxiesWeb.FacilitiesLive do
 
     level = building.current_level + 1
 
-    case Accounts.upgrade_planet_building(socket.assigns.current_planet, building_id, level) do
+    case Accounts.upgrade_planet_building(
+           socket.assigns.current_planet,
+           String.to_integer(building_id),
+           level
+         ) do
       :ok ->
         # TODO: doing the same as mount seems a bit too much, try to optimize
         current_planet = Accounts.get_active_planet(socket.assigns.current_player)

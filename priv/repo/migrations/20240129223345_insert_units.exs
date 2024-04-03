@@ -8,6 +8,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
 
     Repo.insert_all(Galaxies.Unit, [
       %{
+        id: 101,
         name: "Light Fighter",
         list_order: 10,
         image_src: "/images/units/light-fighter.webp",
@@ -23,6 +24,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 102,
         name: "Heavy Fighter",
         list_order: 20,
         image_src: "/images/units/heavy-fighter.webp",
@@ -38,6 +40,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 103,
         name: "Cruiser",
         list_order: 10,
         image_src: "/images/units/cruiser.webp",
@@ -53,6 +56,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 104,
         name: "Battleship",
         list_order: 10,
         image_src: "/images/units/battleship.webp",
@@ -68,6 +72,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 105,
         name: "Interceptor",
         list_order: 10,
         image_src: "/images/units/interceptor.webp",
@@ -83,6 +88,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 106,
         name: "Bomber",
         list_order: 10,
         image_src: "/images/units/bombardier.webp",
@@ -98,6 +104,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 107,
         name: "Destroyer",
         list_order: 10,
         image_src: "/images/units/dreadnaught.webp",
@@ -113,6 +120,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 108,
         name: "Reaper",
         list_order: 10,
         image_src: "/images/units/battleship-v3.webp",
@@ -128,6 +136,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 109,
         name: "Deathstar",
         list_order: 10,
         image_src: "/images/units/juggernaut.webp",
@@ -143,6 +152,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 201,
         name: "Solar Satellite",
         list_order: 10,
         image_src: "/images/units/solar-satellite.webp",
@@ -158,6 +168,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 202,
         name: "Crawler",
         list_order: 10,
         image_src: "/images/units/crawler.webp",
@@ -173,6 +184,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 301,
         name: "Spy Probe",
         list_order: 10,
         image_src: "/images/units/espionage-probe.webp",
@@ -188,6 +200,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 401,
         name: "Small Cargo Ship",
         list_order: 10,
         image_src: "/images/units/small-cargo.webp",
@@ -203,6 +216,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 402,
         name: "Large Cargo Ship",
         list_order: 10,
         image_src: "/images/units/large-cargo.webp",
@@ -218,6 +232,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 403,
         name: "Recycler",
         list_order: 10,
         image_src: "/images/units/large-cargo-v2.webp",
@@ -233,6 +248,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 404,
         name: "Colonizer",
         list_order: 10,
         image_src: "/images/units/colony.webp",
@@ -247,6 +263,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 405,
         name: "Asteroid Miner",
         list_order: 10,
         image_src: "/images/units/asteroid-miner.webp",
@@ -262,6 +279,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 501,
         name: "Missile Launcher",
         list_order: 10,
         image_src: "/images/units/missile-launcher.webp",
@@ -277,6 +295,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 502,
         name: "Light Laser Turret",
         list_order: 10,
         image_src: "/images/units/light-laser.webp",
@@ -292,6 +311,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 503,
         name: "Heavy Laser Turret",
         list_order: 10,
         image_src: "/images/units/heavy-laser.webp",
@@ -307,6 +327,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 504,
         name: "Ion Cannon",
         list_order: 10,
         image_src: "/images/units/ion-cannon.webp",
@@ -322,6 +343,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 505,
         name: "Gauss Cannon",
         list_order: 10,
         image_src: "/images/units/gauss-cannon.webp",
@@ -337,6 +359,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 506,
         name: "Plasma Cannon",
         list_order: 10,
         image_src: "/images/units/plasma-cannon.webp",
@@ -351,43 +374,8 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         inserted_at: now,
         updated_at: now
       },
-      # %{
-      #   name: "Fortress",
-      #   image_src: "/images/units/.webp",
-      #   short_description:
-      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks.",
-      #   long_description:
-      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks. The construction of the complex is reminiscent of long-forgotten civilizations, that tried to protect their cities from invaders with stone walls. Of course, the materials used are not in the least comparable. In addition to protecting the infrastructure, the highly developed weapon systems can simultaneously defend entire cities by opening fire on the attacker at the same time. With every unit the thickness of fortress is being increased.",
-      #   type: :defense,
-      #   weapon_points: 10_800,
-      #   shield_points: 20_000,
-      #   hull_points: 960_000
-      # },
-      # %{
-      #   name: "Doom Cannon",
-      #   image_src: "/images/units/.webp",
-      #   short_description:
-      #     "The doom cannon's massive blasts of energy can even hit multiple Death Stars and Avatars at once with their unimaginable level of destructive power.",
-      #   long_description:
-      #     "During the first test attempts by scientists, there was a short-term power failure when the cannons were used. Due to the total darkness combined with the rumbling sound, the inhabitants thought the planet was about to collapse. Since then, the huge cannons have been called \"Cannons of Doom\". Inside these cannons, graviton and plasma articles are first fused in a nuclear fusion. However, the unstable mixture implodes after a short time, so that the outer shells only have the purpose of directing the projectile in the approximate direction of the attacker. The enormous bursts of energy from the plasma-graviton-cannon can even hit several Death Stars and Avatars at once due to their unimaginable degree of destructive power.",
-      #   type: :defense,
-      #   weapon_points: 20_000,
-      #   shield_points: 120_000,
-      #   hull_points: 3_600_000
-      # },
-      # %{
-      #   name: "Orbital Defense Platform",
-      #   image_src: "/images/units/.webp",
-      #   short_description:
-      #     "This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
-      #   long_description:
-      #     "Due to the technological advancement of warships there was much need for a new defence system to counter massive enemy fleets. This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
-      #   type: :defense,
-      #   weapon_points: 96_000,
-      #   shield_points: 1_000_000,
-      #   hull_points: 22_400_000
-      # },
       %{
+        id: 507,
         name: "Small Shield Dome",
         list_order: 10,
         image_src: "/images/units/small-shield.webp",
@@ -403,6 +391,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 508,
         name: "Large Shield Dome",
         list_order: 10,
         image_src: "/images/units/large-shield.webp",
@@ -418,6 +407,46 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       # %{
+      #   id: 509,
+      #   name: "Fortress",
+      #   image_src: "/images/units/.webp",
+      #   short_description:
+      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks.",
+      #   long_description:
+      #     "These massive defense rings are built around the planet's buildings and facilities. Due to their high durability, they drastically reduce the effectiveness of enemy attacks. The construction of the complex is reminiscent of long-forgotten civilizations, that tried to protect their cities from invaders with stone walls. Of course, the materials used are not in the least comparable. In addition to protecting the infrastructure, the highly developed weapon systems can simultaneously defend entire cities by opening fire on the attacker at the same time. With every unit the thickness of fortress is being increased.",
+      #   type: :defense,
+      #   weapon_points: 10_800,
+      #   shield_points: 20_000,
+      #   hull_points: 960_000
+      # },
+      # %{
+      #   id: 510,
+      #   name: "Doom Cannon",
+      #   image_src: "/images/units/.webp",
+      #   short_description:
+      #     "The doom cannon's massive blasts of energy can even hit multiple Death Stars and Avatars at once with their unimaginable level of destructive power.",
+      #   long_description:
+      #     "During the first test attempts by scientists, there was a short-term power failure when the cannons were used. Due to the total darkness combined with the rumbling sound, the inhabitants thought the planet was about to collapse. Since then, the huge cannons have been called \"Cannons of Doom\". Inside these cannons, graviton and plasma articles are first fused in a nuclear fusion. However, the unstable mixture implodes after a short time, so that the outer shells only have the purpose of directing the projectile in the approximate direction of the attacker. The enormous bursts of energy from the plasma-graviton-cannon can even hit several Death Stars and Avatars at once due to their unimaginable degree of destructive power.",
+      #   type: :defense,
+      #   weapon_points: 20_000,
+      #   shield_points: 120_000,
+      #   hull_points: 3_600_000
+      # },
+      # %{
+      #   id: 511,
+      #   name: "Orbital Defense Platform",
+      #   image_src: "/images/units/.webp",
+      #   short_description:
+      #     "This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
+      #   long_description:
+      #     "Due to the technological advancement of warships there was much need for a new defence system to counter massive enemy fleets. This massive defense system is integrated into the planet's orbit. Simultaneously firing at devastating proportions, she can destroy entire enemy fleets in one salvo.",
+      #   type: :defense,
+      #   weapon_points: 96_000,
+      #   shield_points: 1_000_000,
+      #   hull_points: 22_400_000
+      # },
+      # %{
+      #   id: 512,
       #   name: "Atmospheric Shield",
       #   image_src: "/images/units/.webp",
       #   short_description:
@@ -430,6 +459,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       #   hull_points: 4_000_000
       # },
       %{
+        id: 601,
         name: "Interceptor Missile",
         list_order: 10,
         image_src: "/images/units/interceptor-missile.webp",
@@ -444,6 +474,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
         updated_at: now
       },
       %{
+        id: 602,
         name: "Interplanetary Missile",
         list_order: 10,
         image_src: "/images/units/interplanetary-missile.webp",
