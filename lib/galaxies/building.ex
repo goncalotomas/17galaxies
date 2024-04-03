@@ -1,9 +1,10 @@
 defmodule Galaxies.Building do
   @moduledoc """
   Defines the schema for the buildings of the game.
+  Uses integer IDs for simplicity.
   """
 
-  use Galaxies.Schema
+  use Ecto.Schema
 
   schema "buildings" do
     field :name, :string

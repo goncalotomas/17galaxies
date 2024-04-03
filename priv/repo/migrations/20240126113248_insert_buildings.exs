@@ -1,4 +1,7 @@
 defmodule Galaxies.Repo.Migrations.InsertBuildings do
+  @moduledoc """
+  Inserts the main building entities for the game.
+  """
   use Ecto.Migration
 
   alias Galaxies.Repo
@@ -9,6 +12,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
 
     Repo.insert_all(Building, [
       %{
+        id: 1,
         name: "Metal Mine",
         type: :resource,
         list_order: 10,
@@ -23,6 +27,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 2,
         name: "Crystal Mine",
         type: :resource,
         list_order: 20,
@@ -37,6 +42,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 3,
         name: "Deuterium Synthesizer",
         type: :resource,
         list_order: 30,
@@ -51,6 +57,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 4,
         name: "Solar Power Plant",
         type: :resource,
         list_order: 40,
@@ -65,6 +72,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 5,
         name: "Fusion Reactor",
         type: :resource,
         list_order: 50,
@@ -80,6 +88,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 6,
         name: "Metal Storage",
         type: :resource,
         list_order: 60,
@@ -94,6 +103,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 7,
         name: "Crystal Storage",
         type: :resource,
         list_order: 70,
@@ -108,6 +118,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 8,
         name: "Deuterium Tank",
         type: :resource,
         list_order: 80,
@@ -122,6 +133,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 9,
         name: "Robot Factory",
         type: :facility,
         list_order: 90,
@@ -136,6 +148,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 10,
         name: "Nanite Factory",
         type: :facility,
         list_order: 100,
@@ -151,6 +164,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 11,
         name: "Shipyard",
         type: :facility,
         list_order: 110,
@@ -165,6 +179,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 12,
         name: "Research Lab",
         type: :facility,
         list_order: 120,
@@ -179,7 +194,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
-        id: "fe80d118-99fa-4792-8d27-1053d2960a94",
+        id: 13,
         name: "Terraformer",
         type: :facility,
         list_order: 130,
@@ -194,6 +209,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         updated_at: now
       },
       %{
+        id: 14,
         name: "Missile Silo",
         type: :facility,
         list_order: 140,

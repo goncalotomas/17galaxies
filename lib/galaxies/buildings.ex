@@ -4,7 +4,7 @@ defmodule Galaxies.Buildings do
   """
 
   # TODO: Maybe read hardcoded IDs from file or Application.compile_env?
-  @terraformer_id "fe80d118-99fa-4792-8d27-1053d2960a94"
+  @terraformer_building_id 13
 
   @doc """
   Determines the increase in used fields when upgrading a building.
@@ -21,7 +21,7 @@ defmodule Galaxies.Buildings do
   """
   def total_fields_increase(_building_id, _level, true), do: 0
 
-  def total_fields_increase(@terraformer_id, level, _demolish) do
+  def total_fields_increase(@terraformer_building_id, level, _demolish) do
     if rem(level, 2) == 0 do
       6
     else

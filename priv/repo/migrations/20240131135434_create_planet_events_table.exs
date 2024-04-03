@@ -33,8 +33,7 @@ defmodule Galaxies.Repo.Migrations.CreateEventQueueTables do
       add :id, :binary_id, primary_key: true
       add :planet_id, references(:planets, type: :binary_id, on_delete: :delete_all), null: false
 
-      add :building_id, references(:buildings, type: :binary_id, on_delete: :delete_all),
-        null: false
+      add :building_id, references(:buildings, on_delete: :delete_all), null: false
 
       add :level, :integer, null: false
       add :list_order, :integer, null: false
