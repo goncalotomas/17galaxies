@@ -19,6 +19,7 @@ defmodule Galaxies.Planets do
 
   @doc """
   Enqueues the construction of a building on a planet.
+  Checks if the user has the prerequisites to enqueue the building.
   If the building queue for that planet is empty, resources are subtracted from the planet.
   Otherwise just inserts a new planet event
   """
@@ -40,7 +41,6 @@ defmodule Galaxies.Planets do
           )
 
         planet_building = Enum.find(planet_buildings, fn pb -> pb.building_id == building_id end)
-        dbg(planet_building)
 
         {cost_metal, cost_crystal, cost_deuterium, _energy} =
           Galaxies.calc_upgrade_cost(planet_building.building.upgrade_cost_formula, level)

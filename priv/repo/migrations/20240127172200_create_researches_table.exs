@@ -2,8 +2,7 @@ defmodule Galaxies.Repo.Migrations.CreateResearchesTable do
   use Ecto.Migration
 
   def change do
-    create table(:researches, primary_key: false) do
-      add :id, :binary_id, primary_key: true
+    create table(:researches) do
       add :name, :string, null: false
 
       add :short_description, :text, null: false
@@ -30,7 +29,7 @@ defmodule Galaxies.Repo.Migrations.CreateResearchesTable do
         null: false,
         primary_key: true
 
-      add :research_id, references(:researches, type: :binary_id, on_delete: :delete_all),
+      add :research_id, references(:researches, on_delete: :delete_all),
         null: false,
         primary_key: true
 

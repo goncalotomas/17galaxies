@@ -11,6 +11,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
       Research,
       [
         %{
+          id: 1,
           name: "Espionage Technology",
           list_order: 10,
           image_src: "/images/researches/espionage.webp",
@@ -24,6 +25,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 2,
           name: "Computer Technology",
           list_order: 20,
           image_src: "/images/researches/computer.webp",
@@ -36,6 +38,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 3,
           name: "Energy Technology",
           list_order: 30,
           image_src: "/images/researches/energy.webp",
@@ -48,6 +51,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 4,
           name: "Laser Technology",
           list_order: 40,
           image_src: "/images/researches/laser.webp",
@@ -60,6 +64,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 5,
           name: "Ion Technology",
           list_order: 50,
           image_src: "/images/researches/ion.webp",
@@ -72,6 +77,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 6,
           name: "Plasma Technology",
           list_order: 60,
           image_src: "/images/researches/plasma.webp",
@@ -85,6 +91,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 7,
           name: "Graviton Technology",
           list_order: 70,
           image_src: "/images/researches/graviton.webp",
@@ -97,6 +104,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 8,
           name: "Weapons Technology",
           list_order: 80,
           image_src: "/images/researches/weapons.webp",
@@ -109,6 +117,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 9,
           name: "Shields Technology",
           list_order: 90,
           image_src: "/images/researches/shield.webp",
@@ -121,6 +130,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 10,
           name: "Armor Technology",
           list_order: 100,
           image_src: "/images/researches/armor.webp",
@@ -133,6 +143,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 11,
           name: "Hyperspace Technology",
           list_order: 110,
           image_src: "/images/researches/hyperspace.webp",
@@ -146,6 +157,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 12,
           name: "Combustion Engine Technology",
           list_order: 120,
           image_src: "/images/researches/combustion.webp",
@@ -158,6 +170,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 13,
           name: "Impulse Engine Technology",
           list_order: 130,
           image_src: "/images/researches/impulse.webp",
@@ -170,6 +183,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 14,
           name: "Hyperspace Engine Technology",
           list_order: 140,
           image_src: "/images/researches/warp.webp",
@@ -183,6 +197,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         # %{
+        #   id: 15,
         #   name: "Cargo Technology",
         #   list_order: 150,
         #   image_src: "/images/researches/cargo.webp",
@@ -196,6 +211,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
         #   updated_at: now
         # },
         %{
+          id: 15,
           name: "Astrophysics Technology",
           list_order: 160,
           image_src: "/images/researches/astrophysics.webp",
@@ -210,6 +226,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
         },
         %{
+          id: 16,
           name: "Intergalactic Research Network",
           list_order: 170,
           image_src: "/images/researches/intergalactic-research-network.webp",
@@ -224,6 +241,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           updated_at: now
           # },
           # %{
+          #   id: 17,
           #   name: "Mineral Extration Technology",
           #   image_src: "/images/researches/.webp",
           #   short_description: "Increases metal mine production on all planets.",
@@ -231,6 +249,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           #     "Since metal is the most widely used resource in the industry, efforts have been made to increase production power. As a result of using the raw resources processed in metal mines more effectively, metal production power also increases considerably."
           # },
           # %{
+          #   id: 17,
           #   name: "Crystallization Technology",
           #   image_src: "/images/researches/.webp",
           #   short_description: "Increases crystal mine production on all planets.",
@@ -238,6 +257,7 @@ defmodule Galaxies.Repo.Migrations.InsertResearches do
           #     "Since crystals are frangible, processing and using them require great skill. As the industry's need for crystals increases, efforts are being made to avoid wasting crystals."
           # },
           # %{
+          #   id: 18,
           #   name: "Fuel Cell Technology",
           #   image_src: "/images/researches/.webp",
           #   short_description: "Increases deuterium production on all planets.",

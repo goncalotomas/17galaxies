@@ -185,7 +185,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       },
       %{
         id: 301,
-        name: "Spy Probe",
+        name: "Espionage Probe",
         list_order: 10,
         image_src: "/images/units/espionage-probe.webp",
         short_description:
@@ -249,7 +249,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       },
       %{
         id: 404,
-        name: "Colonizer",
+        name: "Colony Ship",
         list_order: 10,
         image_src: "/images/units/colony.webp",
         short_description: "These ships are specially designed to colonize new planets.",
@@ -280,7 +280,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       },
       %{
         id: 501,
-        name: "Missile Launcher",
+        name: "Rocket Launcher",
         list_order: 10,
         image_src: "/images/units/missile-launcher.webp",
         short_description:

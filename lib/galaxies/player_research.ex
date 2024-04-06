@@ -9,7 +9,7 @@ defmodule Galaxies.PlayerResearch do
     field :upgrade_finished_at, :utc_datetime_usec
 
     belongs_to :player, Galaxies.Accounts.Player
-    belongs_to :research, Galaxies.Research
+    belongs_to :research, Galaxies.Research, type: :integer
 
     timestamps(type: :utc_datetime_usec)
   end

@@ -1,9 +1,10 @@
 defmodule Galaxies.Research do
   @moduledoc """
   Defines the schema for the researches of the game.
+  Uses integer IDs for simplicity.
   """
 
-  use Galaxies.Schema
+  use Ecto.Schema
 
   schema "researches" do
     field :name, :string
