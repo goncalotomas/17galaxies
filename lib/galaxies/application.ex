@@ -14,6 +14,8 @@ defmodule Galaxies.Application do
       {Phoenix.PubSub, name: Galaxies.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Galaxies.Finch},
+      # Start a one-off task for loading game entity prerequisites
+      {Task, &Galaxies.Prerequisites.load_static_prerequisites/0},
       # Start a worker by calling: Galaxies.Worker.start_link(arg)
       # {Galaxies.Worker, arg},
       # Start to serve requests, typically the last entry
