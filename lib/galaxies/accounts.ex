@@ -210,8 +210,9 @@ defmodule Galaxies.Accounts do
         min_temperature: -40,
         max_temperature: 40,
         image_id: 1,
-        metal_units: 500.0,
-        crystal_units: 500.0
+        metal_units: 5_000.0,
+        crystal_units: 5_000.0,
+        deuterium_units: 500.0
       })
     end)
     |> Ecto.Multi.run(:planet_buildings, fn repo, %{player: player, planet: planet} ->

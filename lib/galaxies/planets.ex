@@ -6,9 +6,11 @@ defmodule Galaxies.Planets do
   import Ecto.Query
 
   require Logger
+  alias Galaxies.PlayerResearch
   alias Galaxies.Planets.EnqueuedBuilding
   alias Galaxies.Planets.Production
   alias Galaxies.PlanetBuilding
+  alias Galaxies.Prerequisites
   alias Galaxies.Repo
   alias Galaxies.{Planet}
   alias Galaxies.Planets.PlanetEvent
@@ -312,5 +314,66 @@ defmodule Galaxies.Planets do
       from p in Planet,
         where: p.id == ^planet_id
     )
+  end
+
+  @doc """
+  Checks whether a building can be built on a specific location
+  taking only into consideration the prerequisites for that building
+  (i.e. does not do any checks for available fields)
+  """
+  def can_build_building?(planet, building_id) do
+    prereqs = Prerequisites.get_building_prerequisites(building_id)
+    # currently only buildings have the possibility of not having prerequisites.
+    if prereqs == [] do
+      true
+    else
+      player_researches =
+        Repo.all(from pr in PlayerResearch, where: pr.player_id == ^planet.player_id)
+
+      planet_buildings = Repo.all(from pb in PlanetBuilding, where: pb.planet_id == ^planet.id)
+      check_prerequisites(prereqs, player_researches, planet_buildings)
+    end
+  end
+
+  @doc """
+  Checks whether a research can be built on a specific location
+  taking only into consideration the prerequisites for that research
+  """
+  def can_build_research?(planet, research_id) do
+    prereqs = Prerequisites.get_research_prerequisites(research_id)
+    player_researches =
+      Repo.all(from pr in PlayerResearch, where: pr.player_id == ^planet.player_id)
+
+    planet_buildings = Repo.all(from pb in PlanetBuilding, where: pb.planet_id == ^planet.id)
+    check_prerequisites(prereqs, player_researches, planet_buildings)
+  end
+
+  @doc """
+  Checks whether a unit can be built on a specific location
+  taking only into consideration the prerequisites for that unit
+  """
+  def can_build_unit?(planet, unit_id) do
+    prereqs = Prerequisites.get_unit_prerequisites(unit_id)
+    player_researches =
+      Repo.all(from pr in PlayerResearch, where: pr.player_id == ^planet.player_id)
+
+    planet_buildings = Repo.all(from pb in PlanetBuilding, where: pb.planet_id == ^planet.id)
+    check_prerequisites(prereqs, player_researches, planet_buildings)
+  end
+
+  defp check_prerequisites([], _player_researches, _planet_buildings), do: true
+
+  defp check_prerequisites([{:building, id, level} | t], player_researches, planet_buildings) do
+    planet_building = Enum.find(planet_buildings, fn pb -> pb.building_id == id end)
+
+    planet_building.current_level >= level and
+      check_prerequisites(t, player_researches, planet_buildings)
+  end
+
+  defp check_prerequisites([{:research, id, level} | t], player_researches, planet_buildings) do
+    player_research = Enum.find(player_researches, fn pr -> pr.research_id == id end)
+
+    player_research.current_level >= level and
+      check_prerequisites(t, player_researches, planet_buildings)
   end
 end
