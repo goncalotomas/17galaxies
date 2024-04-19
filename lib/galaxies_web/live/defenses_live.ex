@@ -4,13 +4,10 @@ defmodule GalaxiesWeb.DefensesLive do
   alias Galaxies.Accounts
 
   def mount(_params, _session, socket) do
-    current_planet = Accounts.get_active_planet(socket.assigns.current_player)
-    planet_defenses = Accounts.get_planet_defense_units(current_planet)
+    socket = GalaxiesWeb.Common.mount_live_context(socket)
+    planet_defenses = Accounts.get_planet_defense_units(socket.assigns.current_planet)
 
-    {:ok,
-     socket
-     |> assign(:current_planet, current_planet)
-     |> assign(:planet_defenses, planet_defenses)}
+    {:ok, assign(socket, :planet_defenses, planet_defenses)}
   end
 
   def render(assigns) do

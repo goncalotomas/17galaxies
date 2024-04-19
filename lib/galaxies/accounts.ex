@@ -7,6 +7,7 @@ defmodule Galaxies.Accounts do
   alias Galaxies.Planets
   alias Galaxies.Planet
   alias Galaxies.Repo
+  alias Galaxies.Planets.PlanetEvent
 
   alias Galaxies.Accounts.{Player, PlayerToken, PlayerNotifier}
   alias Galaxies.{Building, PlanetBuilding, PlanetUnit, PlayerResearch, Research, Unit}
@@ -108,6 +109,14 @@ defmodule Galaxies.Accounts do
   """
   def get_player_by_email(email) when is_binary(email) do
     Repo.get_by(Player, email: email)
+  end
+
+  def get_fleet_events(player_id) do
+    Repo.all(
+      from pe in PlanetEvent,
+        join: p in Planet,
+        on: pe.planet_id == p.id and p.player_id == ^player_id
+    )
   end
 
   @doc """
@@ -482,20 +491,14 @@ defmodule Galaxies.Accounts do
   Returns the galaxy view for a particular galaxy solar system.
   Currently returning a stubbed response.
   """
-  def get_galaxy_view(_galaxy, _system) do
-    [
-      %Planet{galaxy: 1, system: 1, slot: 1, name: "Alpha", player: %Player{username: "legor"}},
-      %Planet{
-        galaxy: 1,
-        system: 1,
-        slot: 15,
-        name: "Beta",
-        player: %Player{username: "Svlaadaaaak"}
-      },
-      %Planet{galaxy: 1, system: 1, slot: 6, name: "Charlie", player: %Player{username: "legor"}},
-      %Planet{galaxy: 1, system: 1, slot: 7, name: "Delta", player: %Player{username: "legor"}},
-      %Planet{galaxy: 1, system: 1, slot: 8, name: "Echo", player: %Player{username: "Kriptonis"}}
-    ]
+  def get_galaxy_view(galaxy, system) do
+    # TODO clear out resources from results or use a different schema for galaxy-view Planets.
+    # Same for the Player information returned in this query.
+    Repo.all(
+      from p in Planet,
+        where: p.galaxy == ^galaxy and p.system == ^system,
+        preload: [:player]
+    )
   end
 
   @doc """

@@ -200,8 +200,12 @@ defmodule Galaxies.PlanetsTest do
       # astrophysics requires level 3 research lab, level 4 espionage tech, level 3 impulse drive
       research_lab = Repo.one!(from b in Building, where: b.name == "Research Lab")
       espionage_tech = Repo.one!(from r in Research, where: r.name == "Espionage Technology")
-      impulse_drive_tech = Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
-      astrophysics_tech = Repo.one!(from r in Research, where: r.name == "Astrophysics Technology")
+
+      impulse_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
+
+      astrophysics_tech =
+        Repo.one!(from r in Research, where: r.name == "Astrophysics Technology")
 
       refute Planets.can_build_research?(planet, astrophysics_tech.id)
 
@@ -218,7 +222,9 @@ defmodule Galaxies.PlanetsTest do
       research_lab = Repo.one!(from b in Building, where: b.name == "Research Lab")
       computer_tech = Repo.one!(from r in Research, where: r.name == "Computer Technology")
       hyperspace_tech = Repo.one!(from r in Research, where: r.name == "Hyperspace Technology")
-      research_network_tech = Repo.one!(from r in Research, where: r.name == "Intergalactic Research Network")
+
+      research_network_tech =
+        Repo.one!(from r in Research, where: r.name == "Intergalactic Research Network")
 
       refute Planets.can_build_research?(planet, research_network_tech.id)
 
@@ -271,7 +277,10 @@ defmodule Galaxies.PlanetsTest do
     test "returns false when there are multiple missing prerequisites", %{planet: planet} do
       # battleship requires lvl 7 shipyard, lvl 4 hyperspace drive
       battleship = Repo.one!(from u in Unit, where: u.name == "Battleship")
-      hyperspace_drive_tech = Repo.one!(from r in Research, where: r.name == "Hyperspace Engine Technology")
+
+      hyperspace_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Hyperspace Engine Technology")
+
       shipyard = Repo.one!(from b in Building, where: b.name == "Shipyard")
 
       # no requirements are met
@@ -284,7 +293,10 @@ defmodule Galaxies.PlanetsTest do
     test "returns false when there are missing prerequisites (research)", %{planet: planet} do
       # cruiser requires lvl 5 shipyard, lvl 4 impulse drive, lvl 2 ion tech
       cruiser = Repo.one!(from u in Unit, where: u.name == "Cruiser")
-      impulse_drive_tech = Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
+
+      impulse_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
+
       ion_tech = Repo.one!(from r in Research, where: r.name == "Ion Technology")
       shipyard = Repo.one!(from b in Building, where: b.name == "Shipyard")
 
@@ -299,7 +311,10 @@ defmodule Galaxies.PlanetsTest do
     test "returns false when there are missing prerequisites (buildings)", %{planet: planet} do
       # recycler requires lvl 4 shipyard, lvl 6 combustion drive, lvl 2 shield tech
       recycler = Repo.one!(from u in Unit, where: u.name == "Recycler")
-      combustion_drive_tech = Repo.one!(from r in Research, where: r.name == "Combustion Engine Technology")
+
+      combustion_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Combustion Engine Technology")
+
       shields_tech = Repo.one!(from r in Research, where: r.name == "Shields Technology")
       shipyard = Repo.one!(from b in Building, where: b.name == "Shipyard")
 
@@ -334,7 +349,10 @@ defmodule Galaxies.PlanetsTest do
       # heavy fighter requires lvl 3 shipyard, lvl 2 armor tech, lvl 2 impulse drive
       heavy_fighter = Repo.one!(from u in Unit, where: u.name == "Heavy Fighter")
       shipyard = Repo.one!(from b in Building, where: b.name == "Shipyard")
-      impulse_drive_tech = Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
+
+      impulse_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
+
       armor_tech = Repo.one!(from r in Research, where: r.name == "Armor Technology")
 
       refute Planets.can_build_unit?(planet, heavy_fighter.id)
@@ -352,7 +370,10 @@ defmodule Galaxies.PlanetsTest do
       deathstar = Repo.one!(from u in Unit, where: u.name == "Deathstar")
       shipyard = Repo.one!(from b in Building, where: b.name == "Shipyard")
       graviton_tech = Repo.one!(from r in Research, where: r.name == "Graviton Technology")
-      hyperspace_drive_tech = Repo.one!(from r in Research, where: r.name == "Hyperspace Engine Technology")
+
+      hyperspace_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Hyperspace Engine Technology")
+
       hyperspace_tech = Repo.one!(from r in Research, where: r.name == "Hyperspace Technology")
 
       refute Planets.can_build_unit?(planet, deathstar.id)
@@ -368,10 +389,14 @@ defmodule Galaxies.PlanetsTest do
 
     test "returns true when research prerequisites are more than met (case 2)", %{planet: planet} do
       # interplanetary missile requires lvl 1 shipyard, lvl 4 missile silo, lvl 1 impulse drive
-      interplanetary_missile = Repo.one!(from u in Unit, where: u.name == "Interplanetary Missile")
+      interplanetary_missile =
+        Repo.one!(from u in Unit, where: u.name == "Interplanetary Missile")
+
       shipyard = Repo.one!(from b in Building, where: b.name == "Shipyard")
       missile_silo = Repo.one!(from b in Building, where: b.name == "Missile Silo")
-      impulse_drive_tech = Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
+
+      impulse_drive_tech =
+        Repo.one!(from r in Research, where: r.name == "Impulse Engine Technology")
 
       refute Planets.can_build_unit?(planet, interplanetary_missile.id)
 
@@ -385,7 +410,7 @@ defmodule Galaxies.PlanetsTest do
   end
 
   defp set_planet_building_level(planet_id, building_id, level) do
-      from(pb in PlanetBuilding,
+    from(pb in PlanetBuilding,
       where: pb.planet_id == ^planet_id and pb.building_id == ^building_id,
       update: [set: [current_level: ^level]]
     )

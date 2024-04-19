@@ -341,6 +341,7 @@ defmodule Galaxies.Planets do
   """
   def can_build_research?(planet, research_id) do
     prereqs = Prerequisites.get_research_prerequisites(research_id)
+
     player_researches =
       Repo.all(from pr in PlayerResearch, where: pr.player_id == ^planet.player_id)
 
@@ -354,6 +355,7 @@ defmodule Galaxies.Planets do
   """
   def can_build_unit?(planet, unit_id) do
     prereqs = Prerequisites.get_unit_prerequisites(unit_id)
+
     player_researches =
       Repo.all(from pr in PlayerResearch, where: pr.player_id == ^planet.player_id)
 

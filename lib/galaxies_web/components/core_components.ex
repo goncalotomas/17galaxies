@@ -656,6 +656,22 @@ defmodule GalaxiesWeb.CoreComponents do
     ]
   end
 
+  attr :events, :list, required: true
+
+  def fleet_events(assigns) do
+    ~H"""
+    <ul>
+      <%= if not Enum.empty?(@events) do %>
+        <li :for={event <- @events}>
+          Event
+        </li>
+      <% else %>
+        <li>No fleet events scheduled.</li>
+      <% end %>
+    </ul>
+    """
+  end
+
   attr :metal, :integer, required: true
   attr :crystal, :integer, required: true
   attr :deuterium, :integer, required: true

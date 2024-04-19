@@ -2,12 +2,35 @@ defmodule GalaxiesWeb.GalaxyLive do
   use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
+  alias Galaxies.Planet
+  alias Galaxies.Accounts.Player
 
   def mount(_params, _session, socket) do
+    socket = GalaxiesWeb.Common.mount_live_context(socket)
+
+    current_system =
+      Accounts.get_galaxy_view(
+        socket.assigns.current_planet.galaxy,
+        socket.assigns.current_planet.system
+      )
+
+    slots =
+      Enum.reduce(1..15, [], fn slot, acc ->
+        planet = Enum.find(current_system, fn planet -> planet.slot == slot end)
+
+        current_slot =
+          if planet do
+            {slot, planet, planet.player, possible_actions(socket.assigns.current_player, planet)}
+          else
+            {slot, nil, nil, [action(:colonize)]}
+          end
+
+        acc ++ [current_slot]
+      end)
+
     {:ok,
      socket
-     |> assign(:current_planet, Accounts.get_active_planet(socket.assigns.current_player))
-     |> assign(:current_system, Accounts.get_galaxy_view(1, 2))
+     |> assign(:slots, slots)
      |> assign(:actions, [
        "Spy",
        "Attack",
@@ -26,14 +49,9 @@ defmodule GalaxiesWeb.GalaxyLive do
             <h1 class="text-base font-semibold leading-6 text-white">
               Galaxy — <%= @current_planet.name %>
             </h1>
-          </div>
-          <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <button
-              type="button"
-              class="block rounded-md bg-indigo-500 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-            >
-              Add user
-            </button>
+            <h5>
+              Galaxy <%= @current_planet.galaxy %>, Solar System no. <%= @current_planet.system %>
+            </h5>
           </div>
         </div>
         <div class="mt-8 flow-root">
@@ -69,26 +87,26 @@ defmodule GalaxiesWeb.GalaxyLive do
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-800">
-                  <tr :for={slot <- 1..15}>
+                  <tr :for={{slot, planet, player, actions} <- @slots}>
                     <td class="whitespace-nowrap py-1 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
                       <%= slot %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-300">
-                      <%= Enum.find(@current_system, %{}, fn planet -> planet.slot == slot end)
-                      |> Map.get(:name) %>
+                      <%= if planet do %>
+                        <%= planet.name %>
+                      <% end %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-300">
-                      <%= Enum.find(@current_system, %{}, fn planet -> planet.slot == slot end)
-                      |> Map.get(:player)
-                      |> then(fn
-                        nil -> nil
-                        player -> player.username
-                      end) %>
+                      <%= if player do %>
+                        <%= player.username %>
+                      <% end %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-300">
-                      <%= for action <- @actions do %>
-                        <a href="#" class="text-indigo-400 hover:text-indigo-300">
-                          <%= action %><span class="sr-only">, <%= slot %></span>
+                      <%= for action <- actions do %>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-300 text-xs px-1">
+                          <%!-- <.icon name="hero-globe-alt" /> --%>
+                          <.icon name={action.icon_name} />
+                          <%= action.name %>
                         </a>
                       <% end %>
                     </td>
@@ -104,5 +122,51 @@ defmodule GalaxiesWeb.GalaxyLive do
       </div>
     </div>
     """
+  end
+
+  defp possible_actions(%Player{id: id, current_planet_id: planet_id}, %Planet{
+         id: planet_id,
+         player: %Player{id: id}
+       }) do
+    # planet is the currently active planet.
+    []
+  end
+
+  defp possible_actions(%Player{id: id}, %Planet{player: %Player{id: id}}) do
+    # other planet from the same player
+    [action(:transport)]
+  end
+
+  defp possible_actions(_player, _planet) do
+    # other planet from another player
+    [action(:spy), action(:attack), action(:transport)]
+  end
+
+  defp action(:transport) do
+    %{
+      icon_name: "hero-banknotes",
+      name: "Transport"
+    }
+  end
+
+  defp action(:attack) do
+    %{
+      icon_name: "hero-viewfinder-circle",
+      name: "Attack"
+    }
+  end
+
+  defp action(:spy) do
+    %{
+      icon_name: "hero-eye",
+      name: "Spy"
+    }
+  end
+
+  defp action(:colonize) do
+    %{
+      icon_name: "hero-globe-alt",
+      name: "Colonize"
+    }
   end
 end

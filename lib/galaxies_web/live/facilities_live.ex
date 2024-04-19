@@ -7,16 +7,17 @@ defmodule GalaxiesWeb.FacilitiesLive do
   @timer_update_interval 1000
 
   def mount(_params, _session, socket) do
-    current_planet = Accounts.get_active_planet(socket.assigns.current_player)
-    _ = Planets.process_planet_events(current_planet.id)
-    build_queue = Planets.get_building_queue(current_planet.id)
-    planet_buildings = Accounts.get_planet_facilities_buildings(current_planet)
+    socket = GalaxiesWeb.Common.mount_live_context(socket)
+    _ = Planets.process_planet_events(socket.assigns.current_planet.id)
+    build_queue = Planets.get_building_queue(socket.assigns.current_planet.id)
+    planet_buildings = Accounts.get_planet_facilities_buildings(socket.assigns.current_planet)
     building_timers = timers_from_build_queue(build_queue)
     schedule_next_timer_update()
 
+    dbg(build_queue)
+
     {:ok,
      socket
-     |> assign(:current_planet, current_planet)
      |> assign(:build_queue, build_queue)
      |> assign(:planet_buildings, planet_buildings)
      |> assign(:building_timers, building_timers)}

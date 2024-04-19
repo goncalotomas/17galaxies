@@ -4,10 +4,14 @@ defmodule GalaxiesWeb.ResearchLive do
   alias Galaxies.Accounts
 
   def mount(_params, _session, socket) do
+    socket = GalaxiesWeb.Common.mount_live_context(socket)
+
     {:ok,
-     socket
-     |> assign(:current_planet, Accounts.get_active_planet(socket.assigns.current_player))
-     |> assign(:player_researches, Accounts.get_player_researches(socket.assigns.current_player))}
+     assign(
+       socket,
+       :player_researches,
+       Accounts.get_player_researches(socket.assigns.current_player)
+     )}
   end
 
   def render(assigns) do

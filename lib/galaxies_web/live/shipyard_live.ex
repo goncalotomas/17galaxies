@@ -4,13 +4,10 @@ defmodule GalaxiesWeb.ShipyardLive do
   alias Galaxies.Accounts
 
   def mount(_params, _session, socket) do
-    current_planet = Accounts.get_active_planet(socket.assigns.current_player)
-    planet_ships = Accounts.get_planet_ship_units(current_planet)
+    socket = GalaxiesWeb.Common.mount_live_context(socket)
+    planet_ships = Accounts.get_planet_ship_units(socket.assigns.current_planet)
 
-    {:ok,
-     socket
-     |> assign(:current_planet, current_planet)
-     |> assign(:planet_ships, planet_ships)}
+    {:ok, assign(socket, :planet_ships, planet_ships)}
   end
 
   def render(assigns) do
