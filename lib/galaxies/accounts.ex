@@ -23,9 +23,14 @@ defmodule Galaxies.Accounts do
     # TODO maybe wrap in transaction
     now = DateTime.utc_now()
 
-    with :ok <- Planets.enqueue_building(planet.id, building_id, level),
+    with {:prerequisites_ok, true} <-
+           {:prerequisites_ok, Planets.can_build_building?(planet, building_id)},
+         :ok <- Planets.enqueue_building(planet.id, building_id, level),
          :ok <- Planets.process_planet_events(planet.id, now) do
       :ok
+    else
+      {:prerequisites_ok, false} ->
+        {:error, :unmet_prerequisites}
     end
   end
 
@@ -484,6 +489,7 @@ defmodule Galaxies.Accounts do
     Planet
     |> where([p], p.id == ^player.current_planet_id)
     |> select([p], p)
+    |> preload([p], [:buildings])
     |> Repo.one!()
   end
 
@@ -593,6 +599,7 @@ defmodule Galaxies.Accounts do
           description_long: unit.long_description,
           image_src: unit.image_src,
           amount: planet_unit.amount,
+          list_order: unit.list_order,
           unit_cost_metal: unit.unit_cost_metal,
           unit_cost_crystal: unit.unit_cost_crystal,
           unit_cost_deuterium: unit.unit_cost_deuterium

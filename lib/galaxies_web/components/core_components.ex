@@ -293,9 +293,11 @@ defmodule GalaxiesWeb.CoreComponents do
   slot :inner_block
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
+
     assigns
     |> assign(field: nil, id: assigns.id || field.id)
-    |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+    |> assign(:errors, Enum.map(errors, &translate_error(&1)))
     |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
     |> assign_new(:value, fn -> field.value end)
     |> input()
@@ -308,7 +310,7 @@ defmodule GalaxiesWeb.CoreComponents do
       end)
 
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div>
       <label class="flex items-center gap-4 text-sm leading-6 text-zinc-200">
         <input type="hidden" name={@name} value="false" />
         <input
@@ -329,7 +331,7 @@ defmodule GalaxiesWeb.CoreComponents do
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div>
       <.label for={@id}><%= @label %></.label>
       <select
         id={@id}
@@ -348,14 +350,13 @@ defmodule GalaxiesWeb.CoreComponents do
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div>
       <.label for={@id}><%= @label %></.label>
       <textarea
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
@@ -369,7 +370,7 @@ defmodule GalaxiesWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div>
       <.label for={@id}><%= @label %></.label>
       <input
         type={@type}
@@ -378,7 +379,6 @@ defmodule GalaxiesWeb.CoreComponents do
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
           "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
@@ -410,7 +410,7 @@ defmodule GalaxiesWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600 phx-no-feedback:hidden">
+    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600">
       <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
       <%= render_slot(@inner_block) %>
     </p>
@@ -662,7 +662,7 @@ defmodule GalaxiesWeb.CoreComponents do
     ~H"""
     <ul>
       <%= if not Enum.empty?(@events) do %>
-        <li :for={event <- @events}>
+        <li :for={_event <- @events}>
           Event
         </li>
       <% else %>
@@ -680,50 +680,49 @@ defmodule GalaxiesWeb.CoreComponents do
   def planet_resources(assigns) do
     ~H"""
     <div>
-      <%!-- swap md:grid-cols-4 for md:grid-cols-5 when adding dark matter --%>
-      <dl class="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-4 md:divide-y-0 md:divide-x">
-        <div class="px-2 py-2 sm:p-6">
-          <dt class="text-base font-normal text-gray-900">Metal</dt>
+      <dl class="grid grid-cols-7 overflow-hidden rounded-lg shadow">
+        <div class="px-2 py-2 sm:px-6 col-start-2">
+          <dt class="text-center font-normal text-white text-sm">Metal</dt>
           <dd class="mt-1">
-            <div id="planet_metal" class="text-2xl font-semibold text-indigo-600">
+            <div id="planet_metal" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@metal) %>
             </div>
           </dd>
         </div>
 
-        <div class="px-4 py-5 sm:p-6">
-          <dt class="text-base font-normal text-gray-900">Crystal</dt>
+        <div class="px-2 py-2 sm:px-6">
+          <dt class="text-center font-normal text-white text-sm">Crystal</dt>
           <dd class="mt-1">
-            <div id="planet_crystal" class="text-2xl font-semibold text-indigo-600">
+            <div id="planet_crystal" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@crystal) %>
             </div>
           </dd>
         </div>
-        <div class="px-4 py-5 sm:p-6">
-          <dt class="text-base font-normal text-gray-900">Deuterium</dt>
+        <div class="px-2 py-2 sm:px-6">
+          <dt class="text-center font-normal text-white text-sm">Deuterium</dt>
           <dd class="mt-1">
-            <div id="planet_deuterium" class="text-2xl font-semibold text-indigo-600">
+            <div id="planet_deuterium" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@deuterium) %>
             </div>
           </dd>
         </div>
-        <div class="px-4 py-5 sm:p-6">
-          <dt class="text-base font-normal text-gray-900">Energy</dt>
+        <div class="px-2 py-2 sm:px-6">
+          <dt class="text-center font-normal text-white text-sm">Energy</dt>
           <dd class="mt-1">
-            <div id="planet_energy" class="text-2xl font-semibold text-indigo-600">
+            <div id="planet_energy" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@energy) %>
             </div>
           </dd>
         </div>
 
-        <%!-- <div class="px-4 py-5 sm:p-6">
-          <dt class="text-base font-normal text-gray-900">Dark Matter</dt>
+        <div class="px-2 py-2 sm:px-6">
+          <dt class="text-center font-normal text-white text-sm">Dark Matter</dt>
           <dd class="mt-1">
-            <div id="account_dark_matter" class="text-2xl font-semibold text-indigo-600">
-              <%= pretty_print(@dark_matter) %>
+            <div id="account_dark_matter" class="text-lg text-center font-semibold text-indigo-50">
+              <%!-- replace with dark matter --%> 0
             </div>
           </dd>
-        </div> --%>
+        </div>
       </dl>
     </div>
     """

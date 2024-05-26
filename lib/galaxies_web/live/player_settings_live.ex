@@ -99,10 +99,14 @@ defmodule GalaxiesWeb.PlayerSettingsLive do
     socket =
       case Accounts.update_player_email(socket.assigns.current_player, token) do
         :ok ->
-          put_flash(socket, :info, "Email changed successfully.")
+          socket
+          |> GalaxiesWeb.Common.mount_live_context()
+          |> put_flash(:info, "Email changed successfully.")
 
         :error ->
-          put_flash(socket, :error, "Email change link is invalid or it has expired.")
+          socket
+          |> GalaxiesWeb.Common.mount_live_context()
+          |> put_flash(:error, "Email change link is invalid or it has expired.")
       end
 
     {:ok, push_navigate(socket, to: ~p"/players/settings")}
@@ -115,7 +119,7 @@ defmodule GalaxiesWeb.PlayerSettingsLive do
     password_changeset = Accounts.change_player_password(player)
 
     socket =
-      socket
+      GalaxiesWeb.Common.mount_live_context(socket)
       |> assign(:current_planet, Accounts.get_active_planet(socket.assigns.current_player))
       |> assign(:current_password, nil)
       |> assign(:email_form_current_password, nil)

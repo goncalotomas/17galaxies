@@ -6,6 +6,8 @@ defmodule GalaxiesWeb.ShipyardLive do
   def mount(_params, _session, socket) do
     socket = GalaxiesWeb.Common.mount_live_context(socket)
     planet_ships = Accounts.get_planet_ship_units(socket.assigns.current_planet)
+    dbg(Enum.map(planet_ships, &Galaxies.Prerequisites.get_unit_prerequisites(&1.id)))
+    # dbg(planet_ships)
 
     {:ok, assign(socket, :planet_ships, planet_ships)}
   end
@@ -44,22 +46,10 @@ defmodule GalaxiesWeb.ShipyardLive do
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-gray-500">
-                <%!-- <.simple_form for={@email_form} id="email_form" phx-submit="update_email">
-                  <.input field={@email_form[:email]} type="number" label="Amount" required />
-                  <.input
-                    field={@email_form[:current_password]}
-                    name="current_password"
-                    id="current_password_for_email"
-                    type="password"
-                    label="Current password"
-                    value={@email_form_current_password}
-                    required
-                  />
-                  <:actions>
-                    <.button phx-disable-with="Producing...">Produce</.button>
-                  </:actions>
-                </.simple_form> --%>
-                Produce
+                <form phx-submit={"produce-#{ship.id}"}>
+                  <input type="number" placeholder="0" name="amount" />
+                  <button>Produce</button>
+                </form>
               </div>
             </div>
           </div>

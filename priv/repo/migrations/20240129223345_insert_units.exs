@@ -42,7 +42,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 103,
         name: "Cruiser",
-        list_order: 10,
+        list_order: 30,
         image_src: "/images/units/cruiser.webp",
         short_description:
           "Due to their maneuverability and high speed, cruisers are a major challenge for enemy fleets and defenses.",
@@ -58,7 +58,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 104,
         name: "Battleship",
-        list_order: 10,
+        list_order: 40,
         image_src: "/images/units/battleship.webp",
         short_description:
           "Battleships are the backbone for early fleets, providing a high resistance to ships designed to overpower defenses during the first stages of new empires.",
@@ -74,7 +74,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 105,
         name: "Interceptor",
-        list_order: 10,
+        list_order: 50,
         image_src: "/images/units/interceptor.webp",
         short_description:
           "Interceptors are very agile ships with sophisticated weapon systems. They were designed to counterbalance the prevailing battleships.",
@@ -90,7 +90,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 106,
         name: "Bomber",
-        list_order: 10,
+        list_order: 60,
         image_src: "/images/units/bombardier.webp",
         short_description:
           "Bombers are designed to destroy the enemy's defense line. Their concentrated bombardments are very strong against defensive units.",
@@ -106,7 +106,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 107,
         name: "Destroyer",
-        list_order: 10,
+        list_order: 70,
         image_src: "/images/units/dreadnaught.webp",
         short_description:
           "Destroyers are the most fearful of middle class warships due to their high shield strength and damage ability.",
@@ -122,7 +122,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 108,
         name: "Reaper",
-        list_order: 10,
+        list_order: 80,
         image_src: "/images/units/battleship-v3.webp",
         short_description:
           "The ability to collect debris fields immediately after battle has made this warship one of the most popular in the universe! They can directly collect a maximum of 40% of the total debris.",
@@ -138,7 +138,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 109,
         name: "Deathstar",
-        list_order: 10,
+        list_order: 90,
         image_src: "/images/units/juggernaut.webp",
         short_description:
           "The destructive power of Death Stars is unmatched. By focusing huge amounts of energy, the gigantic gravitational cannon can even destroy entire moons.",
@@ -154,7 +154,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 201,
         name: "Solar Satellite",
-        list_order: 10,
+        list_order: 100,
         image_src: "/images/units/solar-satellite.webp",
         short_description:
           "Solar satellites are launched directly into the orbit of the respective planet. The satellites collect the sun's energy and contribute to the planet's energy production.",
@@ -170,7 +170,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 202,
         name: "Crawler",
-        list_order: 10,
+        list_order: 110,
         image_src: "/images/units/crawler.webp",
         short_description:
           "These units can only move on the surface of the planet. They contribute to the production of metal, crystal and deuterium on the planet. These units cannot be given fleet orders and cannot leave their planet.",
@@ -186,7 +186,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 301,
         name: "Espionage Probe",
-        list_order: 10,
+        list_order: 120,
         image_src: "/images/units/espionage-probe.webp",
         short_description:
           "Spy probes are built to collect information about enemy planets. They are very small and enormously fast units.",
@@ -202,7 +202,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 401,
         name: "Small Cargo Ship",
-        list_order: 10,
+        list_order: 130,
         image_src: "/images/units/small-cargo.webp",
         short_description:
           "These small ships were designed purely for carrying raw materials, allowing quick allocation of resources between colonies. Their enormous maneuverability means that today they represent an elementary part of the goods traffic of every empire.",
@@ -218,7 +218,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 402,
         name: "Large Cargo Ship",
-        list_order: 10,
+        list_order: 140,
         image_src: "/images/units/large-cargo.webp",
         short_description:
           "With around five times the cargo capacity of small transporters, large transporters offer an efficient way of loading huge amounts of resources efficiently. However, their disadvantage is that they are a bit slower than small transporters.",
@@ -234,7 +234,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 403,
         name: "Recycler",
-        list_order: 10,
+        list_order: 150,
         image_src: "/images/units/large-cargo-v2.webp",
         short_description:
           "These ships can collect floating resources (known as debris fields) in space and bring them back to the Empire for re-use.",
@@ -250,7 +250,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 404,
         name: "Colony Ship",
-        list_order: 10,
+        list_order: 160,
         image_src: "/images/units/colony.webp",
         short_description: "These ships are specially designed to colonize new planets.",
         long_description:
@@ -265,7 +265,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 405,
         name: "Asteroid Miner",
-        list_order: 10,
+        list_order: 170,
         image_src: "/images/units/asteroid-miner.webp",
         short_description:
           "Asteroid miners are ships specially designed to collect resources from asteroid surfaces.",
@@ -281,7 +281,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 501,
         name: "Rocket Launcher",
-        list_order: 10,
+        list_order: 200,
         image_src: "/images/units/missile-launcher.webp",
         short_description:
           "Rocket launchers are a relic of the past, yet prove that in large numbers they are a cheap and effective defense mechanism.",
@@ -297,7 +297,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 502,
         name: "Light Laser Turret",
-        list_order: 10,
+        list_order: 210,
         image_src: "/images/units/light-laser.webp",
         short_description:
           "These underdeveloped turrets prove that simple technology can be devastating when multiple lasers combine their power. Due to their very low overall cost, many empires' defenses consist primarily of these turrets.",
@@ -313,7 +313,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 503,
         name: "Heavy Laser Turret",
-        list_order: 10,
+        list_order: 220,
         image_src: "/images/units/heavy-laser.webp",
         short_description:
           "Through further research into laser technology, much larger guns with higher penetrating power could soon be built.",
@@ -329,7 +329,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 504,
         name: "Ion Cannon",
-        list_order: 10,
+        list_order: 230,
         image_src: "/images/units/ion-cannon.webp",
         short_description:
           "Ion cannons accelerate small particles to such high speeds that they damage the attacking fleet's electronics and navigational equipment.",
@@ -345,7 +345,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 505,
         name: "Gauss Cannon",
-        list_order: 10,
+        list_order: 240,
         image_src: "/images/units/gauss-cannon.webp",
         short_description:
           "The penetrating power of the huge projectiles in this gun can be further increased by ferromagnetic acceleration.",
@@ -361,7 +361,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 506,
         name: "Plasma Cannon",
-        list_order: 10,
+        list_order: 250,
         image_src: "/images/units/plasma-cannon.webp",
         short_description:
           "When it hits enemy weapons and navigation systems, the electrical conductivity of plasma will bypass circuits for truly devastating damage regarding maneuverability.",
@@ -377,7 +377,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 507,
         name: "Small Shield Dome",
-        list_order: 10,
+        list_order: 260,
         image_src: "/images/units/small-shield.webp",
         short_description:
           "The small shield dome covers the defense units and ships with a protective energy shield using a generator. This can absorb additional energy from the outside and is still permeable enough to let your own defenses fire.",
@@ -393,7 +393,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 508,
         name: "Large Shield Dome",
-        list_order: 10,
+        list_order: 270,
         image_src: "/images/units/large-shield.webp",
         short_description:
           "Further research into shield technologies has significantly improved the resilience of small shield domes. Large shield domes thus cover a much larger area of the planet, which means that its facilities and units can be protected much more efficiently.",
@@ -461,7 +461,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 601,
         name: "Interceptor Missile",
-        list_order: 10,
+        list_order: 280,
         image_src: "/images/units/interceptor-missile.webp",
         short_description:
           "With this anti-ballistic missile defense system, incoming interplanetary missiles can be successfully shot down in the stratosphere.",
@@ -476,7 +476,7 @@ defmodule Galaxies.Repo.Migrations.InsertUnits do
       %{
         id: 602,
         name: "Interplanetary Missile",
-        list_order: 10,
+        list_order: 290,
         image_src: "/images/units/interplanetary-missile.webp",
         short_description:
           "The plasma warheads used by the interplanetary missiles cause devastating damage to enemy defense systems - if they are not protected by interceptor missiles. Defenses destroyed by missiles are not restored.",

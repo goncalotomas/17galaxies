@@ -330,7 +330,12 @@ defmodule Galaxies.Planets do
       player_researches =
         Repo.all(from pr in PlayerResearch, where: pr.player_id == ^planet.player_id)
 
-      planet_buildings = Repo.all(from pb in PlanetBuilding, where: pb.planet_id == ^planet.id)
+      planet_buildings =
+        if Ecto.assoc_loaded?(planet.buildings) do
+          planet.buildings
+        else
+          Repo.all(from pb in PlanetBuilding, where: pb.planet_id == ^planet.id)
+        end
       check_prerequisites(prereqs, player_researches, planet_buildings)
     end
   end

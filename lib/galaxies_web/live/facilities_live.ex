@@ -14,8 +14,6 @@ defmodule GalaxiesWeb.FacilitiesLive do
     building_timers = timers_from_build_queue(build_queue)
     schedule_next_timer_update()
 
-    dbg(build_queue)
-
     {:ok,
      socket
      |> assign(:build_queue, build_queue)
