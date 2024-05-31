@@ -47,7 +47,7 @@ defmodule GalaxiesWeb.ShipyardLive do
               </div>
               <div class="ml-2 flex items-center text-sm text-gray-500">
                 <form phx-submit={"produce-#{ship.id}"}>
-                  <input type="number" placeholder="0" name="amount" />
+                  <input type="number" placeholder="0" name="amount" min="0" />
                   <button>Produce</button>
                 </form>
               </div>

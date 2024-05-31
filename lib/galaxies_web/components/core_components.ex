@@ -682,7 +682,9 @@ defmodule GalaxiesWeb.CoreComponents do
     <div>
       <dl class="grid grid-cols-7 overflow-hidden rounded-lg shadow">
         <div class="px-2 py-2 sm:px-6 col-start-2">
-          <dt class="text-center font-normal text-white text-sm">Metal</dt>
+          <dt class="text-center font-normal text-white text-sm">
+            <p><img class="inline-block w-8" src={~p"/images/icons/metal-128.webp"} /> Metal</p>
+          </dt>
           <dd class="mt-1">
             <div id="planet_metal" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@metal) %>
@@ -691,7 +693,9 @@ defmodule GalaxiesWeb.CoreComponents do
         </div>
 
         <div class="px-2 py-2 sm:px-6">
-          <dt class="text-center font-normal text-white text-sm">Crystal</dt>
+          <dt class="text-center font-normal text-white text-sm">
+            <p><img class="inline-block w-8" src={~p"/images/icons/crystal-128.webp"} /> Crystal</p>
+          </dt>
           <dd class="mt-1">
             <div id="planet_crystal" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@crystal) %>
@@ -699,7 +703,11 @@ defmodule GalaxiesWeb.CoreComponents do
           </dd>
         </div>
         <div class="px-2 py-2 sm:px-6">
-          <dt class="text-center font-normal text-white text-sm">Deuterium</dt>
+          <dt class="text-center font-normal text-white text-sm">
+            <p>
+              <img class="inline-block w-8" src={~p"/images/icons/deuterium-128.webp"} /> Deuterium
+            </p>
+          </dt>
           <dd class="mt-1">
             <div id="planet_deuterium" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@deuterium) %>
@@ -707,7 +715,9 @@ defmodule GalaxiesWeb.CoreComponents do
           </dd>
         </div>
         <div class="px-2 py-2 sm:px-6">
-          <dt class="text-center font-normal text-white text-sm">Energy</dt>
+          <dt class="text-center font-normal text-white text-sm">
+            <p><img class="inline-block w-8" src={~p"/images/icons/energy-128.webp"} /> Energy</p>
+          </dt>
           <dd class="mt-1">
             <div id="planet_energy" class="text-lg text-center font-semibold text-indigo-50">
               <%= pretty_print(@energy) %>
@@ -716,7 +726,12 @@ defmodule GalaxiesWeb.CoreComponents do
         </div>
 
         <div class="px-2 py-2 sm:px-6">
-          <dt class="text-center font-normal text-white text-sm">Dark Matter</dt>
+          <dt class="text-center font-normal text-white text-sm">
+            <p>
+              <img class="inline-block w-8" src={~p"/images/icons/dark-matter-128.webp"} />
+              Dark Matter
+            </p>
+          </dt>
           <dd class="mt-1">
             <div id="account_dark_matter" class="text-lg text-center font-semibold text-indigo-50">
               <%!-- replace with dark matter --%> 0

@@ -8,9 +8,10 @@ A clone of [OGame](https://lobby.ogame.gameforge.com/) built using Phoenix LiveV
 > 17 Galaxies is an early stage project meant as a demo of what Phoenix and LiveView can do.
 > Expect bugs, features missing and other issues.
 
-## Why?
+### Features
 
-The idea came to me as a way to do project based learning for learning Phoenix LiveView in a way I found to be fun and engaging.
+- LiveView 1.0
+- Phoenix PubSub
 
 ## Trying it out
 

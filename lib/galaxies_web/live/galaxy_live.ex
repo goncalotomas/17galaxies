@@ -126,7 +126,7 @@ defmodule GalaxiesWeb.GalaxyLive do
                 aria-label="Pagination"
               >
                 <.link
-                  :if={@options.galaxy > 1}
+                  style={unless @options.galaxy > 1, do: "pointer-events: none;"}
                   patch={
                     ~p"/galaxy?#{query_param_keyword_list(%{@options | galaxy: @options.galaxy - 1})}"
                   }
@@ -154,7 +154,7 @@ defmodule GalaxiesWeb.GalaxyLive do
                   />
                 </form>
                 <.link
-                  :if={@options.galaxy < 17}
+                  style={unless @options.galaxy < 17, do: "pointer-events: none;"}
                   patch={
                     ~p"/galaxy?#{query_param_keyword_list(%{@options | galaxy: @options.galaxy + 1})}"
                   }
@@ -178,7 +178,7 @@ defmodule GalaxiesWeb.GalaxyLive do
                 aria-label="Pagination"
               >
                 <.link
-                  :if={@options.system > 1}
+                  style={unless @options.system > 1, do: "pointer-events: none;"}
                   patch={
                     ~p"/galaxy?#{query_param_keyword_list(%{@options | system: @options.system - 1})}"
                   }
@@ -208,7 +208,7 @@ defmodule GalaxiesWeb.GalaxyLive do
                 </form>
 
                 <.link
-                  :if={@options.system < 1500}
+                  style={unless @options.system + 1 < 1500, do: "pointer-events: none;"}
                   patch={
                     ~p"/galaxy?#{query_param_keyword_list(%{@options | system: @options.system + 1})}"
                   }
