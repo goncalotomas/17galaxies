@@ -262,16 +262,16 @@ defmodule GalaxiesWeb.GalaxyLive do
                 <tbody class="divide-y divide-gray-800">
                   <tr :for={{slot, planet, player, actions} <- @slots}>
                     <td class="whitespace-nowrap py-1 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
-                      <%= slot %>
+                      {slot}
                     </td>
                     <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-300">
                       <%= if planet do %>
-                        <%= planet.name %>
+                        {planet.name}
                       <% end %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-300">
                       <%= if player do %>
-                        <%= player.username %>
+                        {player.username}
                       <% end %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-1 text-sm text-gray-300">
@@ -282,14 +282,14 @@ defmodule GalaxiesWeb.GalaxyLive do
                             class="text-indigo-400 hover:text-indigo-300 text-xs px-1"
                           >
                             <.icon name={action.icon_name} />
-                            <%= action.name %>
+                            {action.name}
                           </.link>
                         <% else %>
                           <.fleet_action_link params={
                             fleet_link_query_params(@options, slot, action.id)
                           }>
                             <.icon name={action.icon_name} />
-                            <%= action.name %>
+                            {action.name}
                           </.fleet_action_link>
                         <% end %>
                       <% end %>
@@ -314,7 +314,7 @@ defmodule GalaxiesWeb.GalaxyLive do
   def fleet_action_link(assigns) do
     ~H"""
     <.link navigate={~p"/fleet?#{@params}"} class="text-indigo-400 hover:text-indigo-300 text-xs px-1">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end

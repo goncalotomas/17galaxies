@@ -17,7 +17,7 @@ defmodule GalaxiesWeb.ShipyardLive do
     <div class="overflow-hidden bg-white sm:rounded-lg sm:shadow">
       <div class="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
         <h3 class="text-base font-semibold leading-6 text-gray-900">
-          Shipyard — <%= @current_planet.name %>
+          Shipyard — {@current_planet.name}
         </h3>
       </div>
       <ul role="list" class="divide-y divide-gray-200">
@@ -26,9 +26,9 @@ defmodule GalaxiesWeb.ShipyardLive do
             <div class="flex items-center justify-between">
               <div class="truncate text-sm font-medium text-indigo-600">
                 <p>
-                  <%= ship.name %>
+                  {ship.name}
                   <%= if ship.amount > 0 do %>
-                    ( <%= ship.amount %> Available )
+                    ( {ship.amount} Available )
                   <% end %>
                 </p>
               </div>
@@ -42,7 +42,7 @@ defmodule GalaxiesWeb.ShipyardLive do
                     style="object-fit: cover;"
                     src={ship.image_src}
                   />
-                  <%= ship.description_short %>
+                  {ship.description_short}
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-gray-500">

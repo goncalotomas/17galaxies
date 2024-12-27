@@ -19,7 +19,7 @@ defmodule GalaxiesWeb.ResearchLive do
     <div class="overflow-hidden bg-white sm:rounded-lg sm:shadow">
       <div class="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
         <h3 class="text-base font-semibold leading-6 text-gray-900">
-          Research — <%= @current_planet.name %>
+          Research — {@current_planet.name}
         </h3>
       </div>
       <ul role="list" class="divide-y divide-gray-200">
@@ -27,9 +27,9 @@ defmodule GalaxiesWeb.ResearchLive do
           <div class="px-4 py-4 sm:px-6">
             <div class="flex items-center justify-between">
               <div class="truncate text-sm font-medium text-indigo-600">
-                <%= research.name %>
+                {research.name}
                 <%= if research.current_level > 0 do %>
-                  ( Level <%= research.current_level %> )
+                  ( Level {research.current_level} )
                 <% end %>
               </div>
             </div>
@@ -43,8 +43,8 @@ defmodule GalaxiesWeb.ResearchLive do
                     src={research.image_src}
                   />
                   <p>
-                    <%= research.description_short %><br />
-                    <%= list_upgrade_costs(research.upgrade_cost_formula, research.current_level + 1) %>
+                    {research.description_short}<br />
+                    {list_upgrade_costs(research.upgrade_cost_formula, research.current_level + 1)}
                   </p>
                 </div>
               </div>
@@ -126,16 +126,16 @@ defmodule GalaxiesWeb.ResearchLive do
     ~H"""
     Requirements:
     <%= if @metal > 0 do %>
-      Metal: <strong><%= format_number(@metal) %></strong>
+      Metal: <strong>{format_number(@metal)}</strong>
     <% end %>
     <%= if @crystal > 0 do %>
-      Crystal: <strong><%= format_number(@crystal) %></strong>
+      Crystal: <strong>{format_number(@crystal)}</strong>
     <% end %>
     <%= if @deuterium > 0 do %>
-      Deuterium: <strong><%= format_number(@deuterium) %></strong>
+      Deuterium: <strong>{format_number(@deuterium)}</strong>
     <% end %>
     <%= if @energy > 0 do %>
-      Energy: <strong><%= format_number(@energy) %></strong>
+      Energy: <strong>{format_number(@energy)}</strong>
     <% end %>
     """
   end

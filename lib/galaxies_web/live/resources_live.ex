@@ -18,7 +18,8 @@ defmodule GalaxiesWeb.ResourcesLive do
      socket
      |> assign(:build_queue, build_queue)
      |> assign(:planet_buildings, planet_buildings)
-     |> assign(:building_timers, building_timers)}
+     |> assign(:building_timers, building_timers)
+     |> dbg()}
   end
 
   defp timers_from_build_queue([]), do: %{}
@@ -31,10 +32,11 @@ defmodule GalaxiesWeb.ResourcesLive do
 
   def render(assigns) do
     ~H"""
+    <h1>Hello</h1>
     <div class="overflow-hidden bg-white sm:rounded-lg sm:shadow">
       <div class="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
         <h3 class="text-base font-semibold leading-6 text-gray-900">
-          Resources — <%= @current_planet.name %>
+          Resources — {@current_planet.name}
         </h3>
       </div>
       <div
@@ -73,33 +75,33 @@ defmodule GalaxiesWeb.ResourcesLive do
                 <tbody class="divide-y divide-gray-200">
                   <tr>
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 sm:pl-6 lg:pl-8">
-                      <%= hd(@build_queue).building.name %>
+                      {hd(@build_queue).building.name}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= hd(@build_queue).level %>
+                      {hd(@build_queue).level}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= format_timer(@building_timers[hd(@build_queue).building_id]) %>
+                      {format_timer(@building_timers[hd(@build_queue).building_id])}
                     </td>
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
                       <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                        Cancel<span class="sr-only">, <%= hd(@build_queue).building.name %></span>
+                        Cancel<span class="sr-only">, {hd(@build_queue).building.name}</span>
                       </a>
                     </td>
                   </tr>
                   <tr :for={queued <- tl(@build_queue)}>
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 sm:pl-6 lg:pl-8">
-                      <%= queued.building.name %>
+                      {queued.building.name}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= queued.level %>
+                      {queued.level}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       -
                     </td>
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
                       <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                        Cancel<span class="sr-only">, <%= queued.building.name %></span>
+                        Cancel<span class="sr-only">, {queued.building.name}</span>
                       </a>
                     </td>
                   </tr>
@@ -114,9 +116,9 @@ defmodule GalaxiesWeb.ResourcesLive do
           <div class="px-4 py-4 sm:px-6">
             <div class="flex items-center justify-between">
               <div class="truncate text-sm font-medium text-indigo-600">
-                <%= building.name %>
+                {building.name}
                 <%= if building.current_level > 0 do %>
-                  ( Level <%= building.current_level %> )
+                  ( Level {building.current_level} )
                 <% end %>
               </div>
             </div>
@@ -130,8 +132,8 @@ defmodule GalaxiesWeb.ResourcesLive do
                     src={building.image_src}
                   />
                   <p>
-                    <%= building.description_short %><br />
-                    <%= list_upgrade_costs(building.upgrade_cost_formula, building.current_level + 1) %>
+                    {building.description_short}<br />
+                    {list_upgrade_costs(building.upgrade_cost_formula, building.current_level + 1)}
                   </p>
                 </div>
               </div>
@@ -263,16 +265,16 @@ defmodule GalaxiesWeb.ResourcesLive do
     ~H"""
     Requirements:
     <%= if @metal > 0 do %>
-      Metal: <strong><%= format_number(@metal) %></strong>
+      Metal: <strong>{format_number(@metal)}</strong>
     <% end %>
     <%= if @crystal > 0 do %>
-      Crystal: <strong><%= format_number(@crystal) %></strong>
+      Crystal: <strong>{format_number(@crystal)}</strong>
     <% end %>
     <%= if @deuterium > 0 do %>
-      Deuterium: <strong><%= format_number(@deuterium) %></strong>
+      Deuterium: <strong>{format_number(@deuterium)}</strong>
     <% end %>
     <%= if @energy > 0 do %>
-      Energy: <strong><%= format_number(@energy) %></strong>
+      Energy: <strong>{format_number(@energy)}</strong>
     <% end %>
     """
   end

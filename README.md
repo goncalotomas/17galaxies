@@ -1,6 +1,6 @@
 # 17 Galaxies
 
-A clone of [OGame](https://lobby.ogame.gameforge.com/) built using Phoenix LiveView.
+A Proof of Concept for a clone of [OGame](https://lobby.ogame.gameforge.com/) built using Phoenix LiveView.
 
 > [!NOTE]
 > This is an work in progress.

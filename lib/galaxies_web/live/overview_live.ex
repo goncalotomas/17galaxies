@@ -16,18 +16,18 @@ defmodule GalaxiesWeb.OverviewLive do
         />
         <div class="flex-auto">
           <h3 class="text-base font-semibold leading-6 text-gray-900">
-            Overview — <%= @current_planet.name %>
+            Overview — {@current_planet.name}
           </h3>
           <p class="mt-1 text-sm text-gray-500">
             <span class="text-gray-800">Temperature:</span>
-            between <%= @current_planet.min_temperature %>°C and <%= @current_planet.max_temperature %>°C
+            between {@current_planet.min_temperature}°C and {@current_planet.max_temperature}°C
           </p>
           <p class="mt-1 text-sm text-gray-500">
-            <span class="text-gray-800">Diameter:</span> <%= @current_planet.total_fields * 54 %>km ( <%= @current_planet.used_fields %> / <%= @current_planet.total_fields %> fields )
+            <span class="text-gray-800">Diameter:</span> {@current_planet.total_fields * 54}km ( {@current_planet.used_fields} / {@current_planet.total_fields} fields )
           </p>
           <p class="mt-1 text-sm text-gray-500">
             <span class="text-gray-800">Coordinates:</span>
-            [<%= @current_planet.galaxy %>:<%= @current_planet.system %>:<%= @current_planet.slot %>]
+            [{@current_planet.galaxy}:{@current_planet.system}:{@current_planet.slot}]
           </p>
         </div>
       </div>
