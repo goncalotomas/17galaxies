@@ -68,7 +68,7 @@ defmodule GalaxiesWeb.PlayerSettingsLive do
           <input
             name={@password_form[:email].name}
             type="hidden"
-            id="hidden_players_email"
+            id="hidden_player_email"
             value={@current_email}
           />
           <.input field={@password_form[:password]} type="password" label="New password" required />
