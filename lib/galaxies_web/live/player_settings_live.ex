@@ -65,10 +65,10 @@ defmodule GalaxiesWeb.PlayerSettingsLive do
           phx-submit="update_password"
           phx-trigger-action={@trigger_submit}
         >
-          <.input
-            field={@password_form[:email]}
+          <input
+            name={@password_form[:email].name}
             type="hidden"
-            id="hidden_player_email"
+            id="hidden_players_email"
             value={@current_email}
           />
           <.input field={@password_form[:password]} type="password" label="New password" required />

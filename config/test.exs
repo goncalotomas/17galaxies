@@ -23,10 +23,10 @@ config :galaxies, GalaxiesWeb.Endpoint,
   secret_key_base: "lCGqGgsenSupke9immF7BXSQoTjQVdbNvJBWIM4noyg4Ll+vP5W/CSCya4dcWXlw",
   server: false
 
-# In test we don't send emails.
+# In test we don't send emails
 config :galaxies, Galaxies.Mailer, adapter: Swoosh.Adapters.Test
 
-# Disable swoosh api client as it is only required for production adapters.
+# Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
 # Print only warnings and errors during test
@@ -34,3 +34,7 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Enable helpful, but potentially expensive runtime checks
+config :phoenix_live_view,
+  enable_expensive_runtime_checks: true
