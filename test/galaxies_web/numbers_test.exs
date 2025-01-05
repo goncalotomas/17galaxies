@@ -31,4 +31,17 @@ defmodule GalaxiesWeb.NumbersTest do
       assert GalaxiesWeb.Numbers.format_countdown(172_799) == "1d 23h 59m 59s"
     end
   end
+
+  describe "format_number/1" do
+    test "when number is less than 1000" do
+      assert GalaxiesWeb.Numbers.format_number(0) == "0"
+      assert GalaxiesWeb.Numbers.format_number(999) == "999"
+    end
+
+    test "when number is greater than 1000" do
+      assert GalaxiesWeb.Numbers.format_number(1_000) == "1.000"
+      assert GalaxiesWeb.Numbers.format_number(1_000_000) == "1.000.000"
+      assert GalaxiesWeb.Numbers.format_number(1_000_000_000) == "1.000.000.000"
+    end
+  end
 end

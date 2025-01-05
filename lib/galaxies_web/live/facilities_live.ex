@@ -1,4 +1,5 @@
 defmodule GalaxiesWeb.FacilitiesLive do
+  alias GalaxiesWeb.Numbers
   alias GalaxiesWeb.CommonComponents
   use GalaxiesWeb, :live_view
 
@@ -122,29 +123,17 @@ defmodule GalaxiesWeb.FacilitiesLive do
     ~H"""
     Requirements:
     <%= if @metal > 0 do %>
-      Metal: <strong>{format_number(@metal)}</strong>
+      Metal: <strong>{Numbers.format_number(@metal)}</strong>
     <% end %>
     <%= if @crystal > 0 do %>
-      Crystal: <strong>{format_number(@crystal)}</strong>
+      Crystal: <strong>{Numbers.format_number(@crystal)}</strong>
     <% end %>
     <%= if @deuterium > 0 do %>
-      Deuterium: <strong>{format_number(@deuterium)}</strong>
+      Deuterium: <strong>{Numbers.format_number(@deuterium)}</strong>
     <% end %>
     <%= if @energy > 0 do %>
-      Energy: <strong>{format_number(@energy)}</strong>
+      Energy: <strong>{Numbers.format_number(@energy)}</strong>
     <% end %>
     """
-  end
-
-  defp format_number(number) when number < 1000, do: "#{number}"
-
-  defp format_number(number) do
-    number
-    |> Kernel.to_string()
-    |> String.reverse()
-    |> String.split("", trim: true)
-    |> Enum.chunk_every(3)
-    |> Enum.join(".")
-    |> String.reverse()
   end
 end

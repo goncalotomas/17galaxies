@@ -31,4 +31,19 @@ defmodule GalaxiesWeb.Numbers do
         "#{seconds}s"
     end
   end
+
+  @doc """
+  Formats a number by separating thousands with a dot.
+  """
+  def format_number(number) when number < 1000, do: to_string(number)
+
+  def format_number(number) do
+    number
+    |> Kernel.to_string()
+    |> String.reverse()
+    |> String.split("", trim: true)
+    |> Enum.chunk_every(3)
+    |> Enum.join(".")
+    |> String.reverse()
+  end
 end
