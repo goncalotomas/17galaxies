@@ -1,32 +1,20 @@
 defmodule GalaxiesWeb.FacilitiesLive do
+  alias GalaxiesWeb.CommonComponents
   use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
   alias Galaxies.Planets
 
-  @timer_update_interval 1000
+  import CommonComponents
 
   def mount(_params, _session, socket) do
-    socket = GalaxiesWeb.Common.mount_live_context(socket)
-    _ = Planets.process_planet_events(socket.assigns.current_planet.id)
-    build_queue = Planets.get_building_queue(socket.assigns.current_planet.id)
-    planet_buildings = Accounts.get_planet_facilities_buildings(socket.assigns.current_planet)
-    building_timers = timers_from_build_queue(build_queue)
-    schedule_next_timer_update()
+    socket =
+      socket
+      |> GalaxiesWeb.Common.mount_live_context()
+      |> load_build_queue()
+      |> assign(page_title: "Facilities")
 
-    {:ok,
-     socket
-     |> assign(:build_queue, build_queue)
-     |> assign(:planet_buildings, planet_buildings)
-     |> assign(:building_timers, building_timers)}
-  end
-
-  defp timers_from_build_queue([]), do: %{}
-
-  defp timers_from_build_queue([building | _queue]) do
-    %{
-      building.building_id => DateTime.diff(building.completed_at, DateTime.utc_now(:second)) + 1
-    }
+    {:ok, socket}
   end
 
   def render(assigns) do
@@ -41,73 +29,7 @@ defmodule GalaxiesWeb.FacilitiesLive do
         :if={not Enum.empty?(@build_queue)}
         class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-white"
       >
-        <%!-- <div class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-white"> --%>
-        <div class="">
-          <h4 class="text-base font-medium leading-4 text-gray-800">
-            Active Build Queue
-          </h4>
-        </div>
-        <div class="mt-2 flow-root">
-          <div class="mx-4 my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div class="inline-block min-w-full py-2 align-middle">
-              <table class="min-w-full divide-y divide-gray-300">
-                <thead>
-                  <tr>
-                    <th
-                      scope="col"
-                      class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 lg:pl-8"
-                    >
-                      Building
-                    </th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Level
-                    </th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Time to Complete
-                    </th>
-                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
-                      <span class="sr-only">Cancel</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                  <tr>
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 sm:pl-6 lg:pl-8">
-                      {hd(@build_queue).building.name}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {hd(@build_queue).level}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {format_timer(@building_timers[hd(@build_queue).building_id])}
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                      <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                        Cancel<span class="sr-only">, {hd(@build_queue).building.name}</span>
-                      </a>
-                    </td>
-                  </tr>
-                  <tr :for={queued <- tl(@build_queue)}>
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 sm:pl-6 lg:pl-8">
-                      {queued.building.name}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {queued.level}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      -
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                      <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                        Cancel<span class="sr-only">, {queued.building.name}</span>
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <.build_queue events={@build_queue} />
       </div>
       <ul role="list" class="divide-y divide-gray-200">
         <li :for={building <- @planet_buildings}>
@@ -158,47 +80,6 @@ defmodule GalaxiesWeb.FacilitiesLive do
     """
   end
 
-  def handle_info(:update_timers, socket) do
-    num_timers = Enum.count(socket.assigns.building_timers)
-
-    building_timers =
-      socket.assigns.building_timers
-      |> Enum.reduce(%{}, fn
-        {_building_id, secs}, acc when secs <= 1 ->
-          acc
-
-        {building_id, seconds}, acc ->
-          Map.put(acc, building_id, seconds - 1)
-      end)
-
-    socket =
-      if Enum.count(building_timers) != num_timers do
-        # building timer reached zero, meaning some building was upgraded
-        # re-fetch planet_buildings building queue and update building timers
-        current_planet = socket.assigns.current_planet
-        _ = Planets.process_planet_events(current_planet.id)
-        build_queue = Planets.get_building_queue(current_planet.id)
-        planet_buildings = Accounts.get_planet_facilities_buildings(current_planet)
-
-        building_timers = timers_from_build_queue(build_queue)
-
-        socket
-        |> assign(:build_queue, build_queue)
-        |> assign(:building_timers, building_timers)
-        |> assign(:planet_buildings, planet_buildings)
-      else
-        socket
-        |> assign(:building_timers, building_timers)
-      end
-
-    # no need for periodic ticks if the current building timers Map is empty
-    unless Enum.empty?(socket.assigns.building_timers) do
-      schedule_next_timer_update()
-    end
-
-    {:noreply, socket}
-  end
-
   def handle_event("upgrade:" <> building_id, _value, socket) do
     building =
       Enum.find(socket.assigns.planet_buildings, fn building ->
@@ -213,46 +94,24 @@ defmodule GalaxiesWeb.FacilitiesLive do
            level
          ) do
       :ok ->
-        # TODO: doing the same as mount seems a bit too much, try to optimize
-        current_planet = Accounts.get_active_planet(socket.assigns.current_player)
-        _ = Planets.process_planet_events(current_planet.id)
-        build_queue = Planets.get_building_queue(current_planet.id)
-        planet_buildings = Accounts.get_planet_facilities_buildings(current_planet)
-
-        building_timers = timers_from_build_queue(build_queue)
-
-        if Enum.empty?(socket.assigns.building_timers) do
-          # building timers was previously empty so we need to restart the periodic timer update
-          schedule_next_timer_update()
-        end
-
-        {:noreply,
-         socket
-         |> assign(:build_queue, build_queue)
-         |> assign(:current_planet, current_planet)
-         |> assign(:building_timers, building_timers)
-         |> assign(:planet_buildings, planet_buildings)}
+        {:noreply, load_build_queue(socket)}
 
       {:error, error} ->
         {:noreply, put_flash(socket, :error, error)}
     end
   end
 
-  defp schedule_next_timer_update() do
-    :erlang.send_after(@timer_update_interval, self(), :update_timers)
+  def handle_event("countdown-ended", _params, socket) do
+    {:noreply, load_build_queue(socket)}
   end
 
-  # defp list_replace(list, to_replace, acc \\ [])
+  defp load_build_queue(socket) do
+    _ = Planets.process_planet_events(socket.assigns.current_planet.id)
+    build_queue = Planets.get_building_queue(socket.assigns.current_planet.id)
+    planet_buildings = Accounts.get_planet_facilities_buildings(socket.assigns.current_planet)
 
-  # defp list_replace([], _, acc), do: Enum.reverse(acc)
-
-  # defp list_replace([h | t], to_replace, acc) do
-  #   if h.id == to_replace.id do
-  #     Enum.reverse(acc) ++ [to_replace | t]
-  #   else
-  #     list_replace(t, to_replace, [h | acc])
-  #   end
-  # end
+    assign(socket, build_queue: build_queue, planet_buildings: planet_buildings)
+  end
 
   defp list_upgrade_costs(nil, _current_level), do: nil
 
@@ -276,19 +135,6 @@ defmodule GalaxiesWeb.FacilitiesLive do
     <% end %>
     """
   end
-
-  defp format_timer(nil), do: ""
-  defp format_timer(seconds) when seconds >= 0 and seconds < 60, do: "#{seconds}s"
-
-  defp format_timer(seconds) when seconds > 0 and seconds < 3600,
-    do: "#{div(seconds, 60)}m#{rem(seconds, 60)}s"
-
-  defp format_timer(seconds) when seconds > 0 and seconds < 86400,
-    do: "#{div(seconds, 3600)}h#{div(rem(seconds, 3600), 60)}m#{rem(seconds, 60)}s"
-
-  defp format_timer(seconds) when seconds > 0,
-    do:
-      "#{div(seconds, 86400)}d#{div(rem(seconds, 86400), 3600)}h#{rem(seconds, 3600)}m#{rem(seconds, 60)}s"
 
   defp format_number(number) when number < 1000, do: "#{number}"
 

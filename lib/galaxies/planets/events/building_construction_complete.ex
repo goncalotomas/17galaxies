@@ -135,7 +135,7 @@ defmodule Galaxies.Planets.Events.BuildingConstructionComplete do
 
       # update enqueued_building to reflect new start and end times
       # TODO: replace with a real formula
-      construction_duration_seconds = 2 * level
+      construction_duration_seconds = :math.pow(2, level) |> trunc()
       completed_at = DateTime.add(started_at, construction_duration_seconds, :second)
 
       Repo.update!(

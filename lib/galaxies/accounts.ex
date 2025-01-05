@@ -120,7 +120,8 @@ defmodule Galaxies.Accounts do
     Repo.all(
       from pe in PlanetEvent,
         join: p in Planet,
-        on: pe.planet_id == p.id and p.player_id == ^player_id
+        on: pe.planet_id == p.id and p.player_id == ^player_id,
+        where: pe.type in ^PlanetEvent.get_fleet_event_ids()
     )
   end
 
