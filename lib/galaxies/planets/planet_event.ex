@@ -18,7 +18,7 @@ defmodule Galaxies.Planets.PlanetEvent do
 
     field :completed_at, :utc_datetime
 
-    belongs_to :planet, Galaxies.Planet
+    belongs_to :planet, Galaxies.Planet, type: :integer
 
     timestamps(updated_at: false, type: :utc_datetime)
   end

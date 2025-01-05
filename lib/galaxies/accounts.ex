@@ -174,7 +174,6 @@ defmodule Galaxies.Accounts do
   """
   def register_player(attrs) do
     now = DateTime.utc_now()
-    home_planet_id = Ecto.UUID.generate()
 
     attrs =
       Enum.reduce(attrs, %{}, fn
@@ -182,14 +181,22 @@ defmodule Galaxies.Accounts do
         {key, value}, acc when is_binary(key) -> Map.put(acc, String.to_existing_atom(key), value)
       end)
 
-    player_changeset =
-      Player.registration_changeset(
-        %Player{},
-        Map.put(attrs, :current_planet_id, home_planet_id)
-      )
-
     Ecto.Multi.new()
-    |> Ecto.Multi.insert(:player, player_changeset)
+    |> Ecto.Multi.run(:home_planet_id, fn repo, _changes ->
+      query = "select nextval('planets_id_seq')"
+      %{rows: [[id]]} = Ecto.Adapters.SQL.query!(repo, query)
+
+      {:ok, id}
+    end)
+    |> Ecto.Multi.run(:player, fn repo, %{home_planet_id: home_planet_id} ->
+      player_changeset =
+        Player.registration_changeset(
+          %Player{},
+          Map.put(attrs, :current_planet_id, home_planet_id)
+        )
+
+      repo.insert(player_changeset)
+    end)
     |> Ecto.Multi.run(:player_researches, fn repo, %{player: player} ->
       player_researches =
         repo.all(from(r in Research))
@@ -211,7 +218,7 @@ defmodule Galaxies.Accounts do
 
       {:ok, nil}
     end)
-    |> Ecto.Multi.insert(:planet, fn %{player: player} ->
+    |> Ecto.Multi.insert(:planet, fn %{home_planet_id: home_planet_id, player: player} ->
       {galaxy, system, slot} = get_available_planet_slot()
 
       player

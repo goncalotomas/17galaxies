@@ -3,7 +3,7 @@ defmodule Galaxies.Repo.Migrations.CreatePlanetsTable do
 
   def change do
     create table(:planets, primary_key: false) do
-      add :id, :binary_id, primary_key: true
+      add :id, :serial, primary_key: true
       add :name, :string, size: 24, null: false
 
       add :galaxy, :smallint, null: false

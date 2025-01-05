@@ -23,8 +23,6 @@ defmodule Galaxies.Repo.Migrations.CreateResearchesTable do
     create index(:researches, [:list_order])
 
     create table(:player_researches, primary_key: false) do
-      add :id, :binary_id, primary_key: true
-
       add :player_id, references(:players, type: :binary_id, on_delete: :delete_all),
         null: false,
         primary_key: true

@@ -26,7 +26,7 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
     create index(:buildings, [:name, :list_order])
 
     create table(:planet_buildings, primary_key: false) do
-      add :planet_id, references(:planets, type: :binary_id, on_delete: :delete_all),
+      add :planet_id, references(:planets, type: :serial, on_delete: :delete_all),
         null: false,
         primary_key: true
 

@@ -11,7 +11,7 @@ defmodule Galaxies.Accounts.Player do
     field :current_password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
-    field :current_planet_id, :binary_id
+    field :current_planet_id, :integer
 
     has_many :planets, Galaxies.Planet
 

@@ -7,7 +7,7 @@ defmodule Galaxies.PlanetBuilding do
   schema "planet_buildings" do
     field :current_level, :integer
 
-    belongs_to :planet, Galaxies.Planet, primary_key: true
+    belongs_to :planet, Galaxies.Planet, primary_key: true, type: :integer
     belongs_to :building, Galaxies.Building, primary_key: true, type: :integer
 
     timestamps(type: :utc_datetime_usec)

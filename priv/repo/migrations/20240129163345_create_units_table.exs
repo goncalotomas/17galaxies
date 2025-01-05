@@ -32,7 +32,7 @@ defmodule Galaxies.Repo.Migrations.CreateUnitsTable do
     create index(:units, [:name, :list_order])
 
     create table(:planet_units, primary_key: false) do
-      add :planet_id, references(:planets, type: :binary_id, on_delete: :delete_all),
+      add :planet_id, references(:planets, type: :serial, on_delete: :delete_all),
         null: false,
         primary_key: true
 

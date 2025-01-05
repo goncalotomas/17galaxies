@@ -15,7 +15,7 @@ defmodule Galaxies.Repo.Migrations.AddCurrentPlanetIdToPlayersTable do
   def change do
     execute """
     ALTER TABLE players
-    ADD COLUMN current_planet_id uuid
+    ADD COLUMN current_planet_id serial
     CONSTRAINT players_current_planet_id_fk
     REFERENCES planets (id)
     DEFERRABLE INITIALLY DEFERRED;

@@ -6,8 +6,6 @@ defmodule GalaxiesWeb.ShipyardLive do
   def mount(_params, _session, socket) do
     socket = GalaxiesWeb.Common.mount_live_context(socket)
     planet_ships = Accounts.get_planet_ship_units(socket.assigns.current_planet)
-    dbg(Enum.map(planet_ships, &Galaxies.Prerequisites.get_unit_prerequisites(&1.id)))
-    # dbg(planet_ships)
 
     {:ok, assign(socket, :planet_ships, planet_ships)}
   end

@@ -9,8 +9,7 @@ defmodule GalaxiesWeb.FleetLive do
     {:ok, assign(socket, first_step: @first_step, last_step: @last_step)}
   end
 
-  def handle_params(unsigned_params, _uri, socket) do
-    dbg(unsigned_params)
+  def handle_params(_unsigned_params, _uri, socket) do
     {:noreply, socket |> GalaxiesWeb.Common.mount_live_context() |> assign(:current_step, 1)}
   end
 

@@ -18,8 +18,7 @@ defmodule GalaxiesWeb.ResourcesLive do
      socket
      |> assign(:build_queue, build_queue)
      |> assign(:planet_buildings, planet_buildings)
-     |> assign(:building_timers, building_timers)
-     |> dbg()}
+     |> assign(:building_timers, building_timers)}
   end
 
   defp timers_from_build_queue([]), do: %{}

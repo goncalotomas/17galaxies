@@ -1,5 +1,5 @@
 defmodule Galaxies.Planet do
-  use Galaxies.Schema
+  use Ecto.Schema
 
   import Ecto.Changeset
 
@@ -27,7 +27,7 @@ defmodule Galaxies.Planet do
     # image_id is used to refer to multiple planet images for the same planet type.
     field :image_id, :integer
 
-    belongs_to :player, Galaxies.Accounts.Player
+    belongs_to :player, Galaxies.Accounts.Player, type: :binary_id
 
     has_many :buildings, Galaxies.PlanetBuilding
     has_many :units, Galaxies.PlanetUnit
