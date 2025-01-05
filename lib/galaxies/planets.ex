@@ -63,7 +63,7 @@ defmodule Galaxies.Planets do
           add_resources(planet_id, -cost_metal, -cost_crystal, -cost_deuterium)
 
           # TODO: replace with a real formula
-          construction_duration_seconds = level + 1
+          construction_duration_seconds = :math.pow(level, 2) |> trunc()
 
           event_id = Ecto.UUID.generate()
           now = DateTime.utc_now(:second)
@@ -336,6 +336,7 @@ defmodule Galaxies.Planets do
         else
           Repo.all(from pb in PlanetBuilding, where: pb.planet_id == ^planet.id)
         end
+
       check_prerequisites(prereqs, player_researches, planet_buildings)
     end
   end

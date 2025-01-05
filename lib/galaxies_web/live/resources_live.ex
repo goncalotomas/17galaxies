@@ -11,14 +11,11 @@ defmodule GalaxiesWeb.ResourcesLive do
     _ = Planets.process_planet_events(socket.assigns.current_planet.id)
     build_queue = Planets.get_building_queue(socket.assigns.current_planet.id)
     planet_buildings = Accounts.get_planet_resource_buildings(socket.assigns.current_planet)
-    building_timers = timers_from_build_queue(build_queue)
-    schedule_next_timer_update()
 
     {:ok,
      socket
      |> assign(:build_queue, build_queue)
-     |> assign(:planet_buildings, planet_buildings)
-     |> assign(:building_timers, building_timers)}
+     |> assign(:planet_buildings, planet_buildings)}
   end
 
   defp timers_from_build_queue([]), do: %{}
@@ -80,7 +77,13 @@ defmodule GalaxiesWeb.ResourcesLive do
                       {hd(@build_queue).level}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {format_timer(@building_timers[hd(@build_queue).building_id])}
+                      <span
+                        id="build-queue-countdown"
+                        phx-hook="Countdown"
+                        data-target={hd(@build_queue).completed_at}
+                      >
+                        {hd(@build_queue).completed_at}
+                      </span>
                     </td>
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
                       <a href="#" class="text-indigo-600 hover:text-indigo-900">
@@ -159,43 +162,54 @@ defmodule GalaxiesWeb.ResourcesLive do
     """
   end
 
-  def handle_info(:update_timers, socket) do
-    num_timers = Enum.count(socket.assigns.building_timers)
+  def handle_info(event, socket) when event in [:update_timers, "update_timers"] do
+    dbg(:ping)
 
-    building_timers =
-      socket.assigns.building_timers
-      |> Enum.reduce(%{}, fn
-        {_building_id, secs}, acc when secs <= 1 ->
-          acc
+    # building timer reached zero, meaning some building was upgraded
+    # re-fetch planet_buildings building queue and update building timers
+    current_planet = socket.assigns.current_planet
+    _ = Planets.process_planet_events(current_planet.id)
+    build_queue = Planets.get_building_queue(current_planet.id)
 
-        {building_id, seconds}, acc ->
-          Map.put(acc, building_id, seconds - 1)
-      end)
+    socket
+    |> assign(:build_queue, build_queue)
 
-    socket =
-      if Enum.count(building_timers) != num_timers do
-        # building timer reached zero, meaning some building was upgraded
-        # re-fetch planet_buildings building queue and update building timers
-        current_planet = socket.assigns.current_planet
-        _ = Planets.process_planet_events(current_planet.id)
-        build_queue = Planets.get_building_queue(current_planet.id)
-        planet_buildings = Accounts.get_planet_resource_buildings(current_planet)
+    # num_timers = Enum.count(socket.assigns.building_timers)
 
-        building_timers = timers_from_build_queue(build_queue)
+    # building_timers =
+    #   socket.assigns.building_timers
+    #   |> Enum.reduce(%{}, fn
+    #     {_building_id, secs}, acc when secs <= 1 ->
+    #       acc
 
-        socket
-        |> assign(:build_queue, build_queue)
-        |> assign(:building_timers, building_timers)
-        |> assign(:planet_buildings, planet_buildings)
-      else
-        socket
-        |> assign(:building_timers, building_timers)
-      end
+    #     {building_id, seconds}, acc ->
+    #       Map.put(acc, building_id, seconds - 1)
+    #   end)
 
-    # no need for periodic ticks if the current building timers Map is empty
-    unless Enum.empty?(socket.assigns.building_timers) do
-      schedule_next_timer_update()
-    end
+    # socket =
+    #   if Enum.count(building_timers) != num_timers do
+    #     # building timer reached zero, meaning some building was upgraded
+    #     # re-fetch planet_buildings building queue and update building timers
+    #     current_planet = socket.assigns.current_planet
+    #     _ = Planets.process_planet_events(current_planet.id)
+    #     build_queue = Planets.get_building_queue(current_planet.id)
+    #     planet_buildings = Accounts.get_planet_resource_buildings(current_planet)
+
+    #     building_timers = timers_from_build_queue(build_queue)
+
+    #     socket
+    #     |> assign(:build_queue, build_queue)
+    #     |> assign(:building_timers, building_timers)
+    #     |> assign(:planet_buildings, planet_buildings)
+    #   else
+    #     socket
+    #     |> assign(:building_timers, building_timers)
+    #   end
+
+    # # no need for periodic ticks if the current building timers Map is empty
+    # unless Enum.empty?(socket.assigns.building_timers) do
+    #   schedule_next_timer_update()
+    # end
 
     {:noreply, socket}
   end
@@ -222,16 +236,16 @@ defmodule GalaxiesWeb.ResourcesLive do
 
         building_timers = timers_from_build_queue(build_queue)
 
-        if Enum.empty?(socket.assigns.building_timers) do
-          # building timers was previously empty so we need to restart the periodic timer update
-          schedule_next_timer_update()
-        end
+        # if Enum.empty?(socket.assigns.building_timers) do
+        #   # building timers was previously empty so we need to restart the periodic timer update
+        #   # schedule_next_timer_update()
+        # end
 
         {:noreply,
          socket
          |> assign(:build_queue, build_queue)
          |> assign(:current_planet, current_planet)
-         |> assign(:building_timers, building_timers)
+         #  |> assign(:building_timers, building_timers)
          |> assign(:planet_buildings, planet_buildings)}
 
       {:error, error} ->
@@ -240,7 +254,7 @@ defmodule GalaxiesWeb.ResourcesLive do
   end
 
   defp schedule_next_timer_update() do
-    :erlang.send_after(@timer_update_interval, self(), :update_timers)
+    # :erlang.send_after(@timer_update_interval, self(), :update_timers)
   end
 
   # defp list_replace(list, to_replace, acc \\ [])
