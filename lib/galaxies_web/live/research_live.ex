@@ -1,8 +1,10 @@
 defmodule GalaxiesWeb.ResearchLive do
-  alias GalaxiesWeb.Numbers
+  alias GalaxiesWeb.CommonComponents
   use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
+
+  import CommonComponents
 
   def mount(_params, _session, socket) do
     socket = GalaxiesWeb.Common.mount_live_context(socket)
@@ -45,7 +47,10 @@ defmodule GalaxiesWeb.ResearchLive do
                   />
                   <p>
                     {research.description_short}<br />
-                    {list_upgrade_costs(research.upgrade_cost_formula, research.current_level + 1)}
+                    <.upgrade_cost
+                      formula={research.upgrade_cost_formula}
+                      level={research.current_level + 1}
+                    />
                   </p>
                 </div>
               </div>
@@ -116,28 +121,5 @@ defmodule GalaxiesWeb.ResearchLive do
     else
       list_replace(t, to_replace, [h | acc])
     end
-  end
-
-  defp list_upgrade_costs(nil, _current_level), do: nil
-
-  defp list_upgrade_costs(formula, current_level) do
-    {metal, crystal, deuterium, energy} = Galaxies.calc_upgrade_cost(formula, current_level)
-    assigns = %{metal: metal, crystal: crystal, deuterium: deuterium, energy: energy}
-
-    ~H"""
-    Requirements:
-    <%= if @metal > 0 do %>
-      Metal: <strong>{Numbers.format_number(@metal)}</strong>
-    <% end %>
-    <%= if @crystal > 0 do %>
-      Crystal: <strong>{Numbers.format_number(@crystal)}</strong>
-    <% end %>
-    <%= if @deuterium > 0 do %>
-      Deuterium: <strong>{Numbers.format_number(@deuterium)}</strong>
-    <% end %>
-    <%= if @energy > 0 do %>
-      Energy: <strong>{Numbers.format_number(@energy)}</strong>
-    <% end %>
-    """
   end
 end

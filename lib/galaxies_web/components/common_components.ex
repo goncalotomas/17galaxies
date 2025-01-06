@@ -4,6 +4,8 @@ defmodule GalaxiesWeb.CommonComponents do
 
   use Gettext, backend: GalaxiesWeb.Gettext
 
+  attr :events, :list, required: true
+
   def build_queue(assigns) do
     # TODO look into replacing with <.table>
     ~H"""
@@ -85,6 +87,32 @@ defmodule GalaxiesWeb.CommonComponents do
         </div>
       </div>
     </div>
+    """
+  end
+
+  attr :formula, :string, required: true
+  attr :level, :integer, required: true
+
+  def upgrade_cost(assigns) do
+    {metal, crystal, deuterium, energy} =
+      Galaxies.calc_upgrade_cost(assigns.formula, assigns.level)
+
+    assigns = %{metal: metal, crystal: crystal, deuterium: deuterium, energy: energy}
+
+    ~H"""
+    Requirements:
+    <%= if @metal > 0 do %>
+      Metal: <strong>{Numbers.format_number(@metal)}</strong>
+    <% end %>
+    <%= if @crystal > 0 do %>
+      Crystal: <strong>{Numbers.format_number(@crystal)}</strong>
+    <% end %>
+    <%= if @deuterium > 0 do %>
+      Deuterium: <strong>{Numbers.format_number(@deuterium)}</strong>
+    <% end %>
+    <%= if @energy > 0 do %>
+      Energy: <strong>{Numbers.format_number(@energy)}</strong>
+    <% end %>
     """
   end
 end

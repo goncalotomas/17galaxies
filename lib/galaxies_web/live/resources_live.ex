@@ -1,5 +1,4 @@
 defmodule GalaxiesWeb.ResourcesLive do
-  alias GalaxiesWeb.Numbers
   alias GalaxiesWeb.CommonComponents
   use GalaxiesWeb, :live_view
 
@@ -54,7 +53,10 @@ defmodule GalaxiesWeb.ResourcesLive do
                   />
                   <p>
                     {building.description_short}<br />
-                    {list_upgrade_costs(building.upgrade_cost_formula, building.current_level + 1)}
+                    <.upgrade_cost
+                      formula={building.upgrade_cost_formula}
+                      level={building.current_level + 1}
+                    />
                   </p>
                 </div>
               </div>
@@ -112,28 +114,5 @@ defmodule GalaxiesWeb.ResourcesLive do
     planet_buildings = Accounts.get_planet_resource_buildings(socket.assigns.current_planet)
 
     assign(socket, build_queue: build_queue, planet_buildings: planet_buildings)
-  end
-
-  defp list_upgrade_costs(nil, _current_level), do: nil
-
-  defp list_upgrade_costs(formula, current_level) do
-    {metal, crystal, deuterium, energy} = Galaxies.calc_upgrade_cost(formula, current_level)
-    assigns = %{metal: metal, crystal: crystal, deuterium: deuterium, energy: energy}
-
-    ~H"""
-    Requirements:
-    <%= if @metal > 0 do %>
-      Metal: <strong>{Numbers.format_number(@metal)}</strong>
-    <% end %>
-    <%= if @crystal > 0 do %>
-      Crystal: <strong>{Numbers.format_number(@crystal)}</strong>
-    <% end %>
-    <%= if @deuterium > 0 do %>
-      Deuterium: <strong>{Numbers.format_number(@deuterium)}</strong>
-    <% end %>
-    <%= if @energy > 0 do %>
-      Energy: <strong>{Numbers.format_number(@energy)}</strong>
-    <% end %>
-    """
   end
 end
