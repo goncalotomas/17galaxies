@@ -58,7 +58,9 @@ defmodule Galaxies.MixProject do
       {:plug_cowboy, "~> 2.5"},
       # for sending out emails using AWS SES. if eventually I need to add ExAws,
       # the swoosh adapter should probably be swapped out for ExAwsAmazonSes.
-      {:gen_smtp, "~> 1.2"}
+      {:gen_smtp, "~> 1.2"},
+      # linting
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -73,6 +75,7 @@ defmodule Galaxies.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      lint: ["format", "credo --strict"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
