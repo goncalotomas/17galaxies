@@ -60,7 +60,8 @@ defmodule Galaxies.MixProject do
       # the swoosh adapter should probably be swapped out for ExAwsAmazonSes.
       {:gen_smtp, "~> 1.2"},
       # linting
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:styler, "~> 1.2", only: [:dev, :test], runtime: false}
     ]
   end
 
