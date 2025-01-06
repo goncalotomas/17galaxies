@@ -16,6 +16,14 @@ jobs:
             otp: 27.2
             lint: true
 
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+
     # A job has any number of steps: we will define them here
     # Each dash (-) represents a step. Sometimes we give them a custom name, sometimes we leave it if it's obvious.
     steps:
