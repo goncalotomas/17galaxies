@@ -38,6 +38,9 @@ jobs:
           restore-keys: |
             deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
 
+      - name: Install dependencies
+        run: mix deps.get --only test
+
       - name: Remove compiled application files
         run: mix clean
 
