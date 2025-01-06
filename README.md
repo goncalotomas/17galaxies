@@ -1,3 +1,5 @@
+[![Github.com](https://github.com/goncalotomas/17galaxies/actions/workflows/ci.yml/badge.svg)](https://github.com/goncalotomas/17galaxies/actions)
+
 # 17 Galaxies
 
 A Proof of Concept for a clone of [OGame](https://lobby.ogame.gameforge.com/) built using Phoenix LiveView.
