@@ -1,4 +1,4 @@
-[![Github.com](https://github.com/goncalotomas/17galaxies/actions/workflows/ci.yml/badge.svg)](https://github.com/goncalotomas/17galaxies/actions)
+[![Build Status](https://github.com/goncalotomas/17galaxies/workflows/CI/badge.svg)](https://github.com/goncalotomas/17galaxies/actions/workflows/ci.yml)
 
 # 17 Galaxies
 
