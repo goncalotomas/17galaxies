@@ -1,5 +1,6 @@
 defmodule GalaxiesWeb.DefensesLive do
   use GalaxiesWeb, :live_view
+  import GalaxiesWeb.CommonComponents
 
   alias Galaxies.Accounts
 
@@ -33,7 +34,15 @@ defmodule GalaxiesWeb.DefensesLive do
                     style="object-fit: cover;"
                     src={defense.image_src}
                   />
-                  {defense.description_short}
+                  <p>
+                    {defense.description_short}<br />
+                    <.unit_cost
+                      metal={defense.unit_cost_metal}
+                      crystal={defense.unit_cost_crystal}
+                      deuterium={defense.unit_cost_deuterium}
+                      energy={defense.unit_cost_energy}
+                    />
+                  </p>
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-gray-500">

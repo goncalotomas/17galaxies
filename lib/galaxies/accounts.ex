@@ -637,7 +637,8 @@ defmodule Galaxies.Accounts do
           amount: planet_unit.amount,
           unit_cost_metal: unit.unit_cost_metal,
           unit_cost_crystal: unit.unit_cost_crystal,
-          unit_cost_deuterium: unit.unit_cost_deuterium
+          unit_cost_deuterium: unit.unit_cost_deuterium,
+          unit_cost_energy: unit.unit_cost_energy
         },
         order_by: [unit.list_order]
 

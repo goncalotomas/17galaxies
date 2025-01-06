@@ -13,6 +13,7 @@ defmodule Galaxies.Repo.Migrations.CreateUnitsTable do
       add :unit_cost_metal, :integer
       add :unit_cost_crystal, :integer
       add :unit_cost_deuterium, :integer
+      add :unit_cost_energy, :integer, default: 0
 
       add :weapon_points, :integer
       add :shield_points, :integer

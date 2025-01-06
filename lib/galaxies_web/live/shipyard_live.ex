@@ -2,6 +2,7 @@ defmodule GalaxiesWeb.ShipyardLive do
   use GalaxiesWeb, :live_view
 
   alias Galaxies.Accounts
+  import GalaxiesWeb.CommonComponents
 
   def mount(_params, _session, socket) do
     socket = GalaxiesWeb.Common.mount_live_context(socket)
@@ -40,7 +41,15 @@ defmodule GalaxiesWeb.ShipyardLive do
                     style="object-fit: cover;"
                     src={ship.image_src}
                   />
-                  {ship.description_short}
+                  <p>
+                    {ship.description_short}<br />
+                    <.unit_cost
+                      metal={ship.unit_cost_metal}
+                      crystal={ship.unit_cost_crystal}
+                      deuterium={ship.unit_cost_deuterium}
+                      energy={0}
+                    />
+                  </p>
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-gray-500">

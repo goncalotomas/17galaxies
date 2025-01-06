@@ -19,6 +19,7 @@ defmodule Galaxies.Unit do
     field :unit_cost_metal, :integer
     field :unit_cost_crystal, :integer
     field :unit_cost_deuterium, :integer
+    field :unit_cost_energy, :integer, default: 0
 
     field :weapon_points, :integer
     field :shield_points, :integer

@@ -100,6 +100,17 @@ defmodule GalaxiesWeb.CommonComponents do
     assigns = %{metal: metal, crystal: crystal, deuterium: deuterium, energy: energy}
 
     ~H"""
+    <.unit_cost metal={@metal} crystal={@crystal} deuterium={@deuterium} energy={@energy} />
+    """
+  end
+
+  attr :metal, :integer, required: true
+  attr :crystal, :integer, required: true
+  attr :deuterium, :integer, required: true
+  attr :energy, :integer, required: true
+
+  def unit_cost(assigns) do
+    ~H"""
     Requirements:
     <%= if @metal > 0 do %>
       Metal: <strong>{Numbers.format_number(@metal)}</strong>
