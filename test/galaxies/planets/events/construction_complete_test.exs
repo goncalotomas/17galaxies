@@ -332,6 +332,92 @@ defmodule Galaxies.Planets.Events.ConstructionCompleteTest do
       refute is_nil(started_event.started_at)
       refute is_nil(started_event.completed_at)
     end
+
+    test "energy is increased when a power plant finishes construction", %{planet: planet} do
+      building_id = 4
+
+      planet_before_event = Repo.preload(planet, [:buildings])
+
+      event =
+        create_event(
+          :construction_complete,
+          planet.id,
+          %{building_id: building_id, duration_seconds: 30},
+          DateTime.add(DateTime.utc_now(), -1, :minute)
+        )
+
+      {:ok, _} = ConstructionComplete.process(event, planet.id)
+
+      planet = Planets.get_planet_by_id(planet.id)
+
+      assert planet.total_energy > planet_before_event.total_energy
+    end
+
+    test "energy is decreased when a power plant finishes demolishing", %{planet: planet} do
+      building_id = 4
+
+      # make sure building level doesn't go negative
+      upgrade_building(planet.id, building_id, 3)
+
+      planet_before = Repo.preload(planet, [:buildings])
+
+      event =
+        create_event(
+          :construction_complete,
+          planet.id,
+          %{building_id: building_id, duration_seconds: 30, demolish: true},
+          DateTime.add(DateTime.utc_now(), -1, :minute)
+        )
+
+      {:ok, _} = ConstructionComplete.process(event, planet.id)
+
+      planet = Planets.get_planet_by_id(planet.id)
+
+      assert planet.total_energy < planet_before.total_energy
+    end
+
+    test "energy is decreased when a production building finishes construction", %{planet: planet} do
+      building_id = 1
+
+      planet_before = Repo.preload(planet, [:buildings])
+
+      event =
+        create_event(
+          :construction_complete,
+          planet.id,
+          %{building_id: building_id, duration_seconds: 30},
+          DateTime.add(DateTime.utc_now(), -1, :minute)
+        )
+
+      {:ok, _} = ConstructionComplete.process(event, planet.id)
+
+      planet = Planets.get_planet_by_id(planet.id)
+
+      assert planet.total_energy < planet_before.total_energy
+    end
+
+    test "energy is increased when a production building finishes demolishing", %{planet: planet} do
+      building_id = 1
+
+      planet_before = Repo.preload(planet, [:buildings])
+
+      # make sure building level doesn't go negative
+      upgrade_building(planet.id, building_id)
+
+      event =
+        create_event(
+          :construction_complete,
+          planet.id,
+          %{building_id: building_id, duration_seconds: 30, demolish: true},
+          DateTime.add(DateTime.utc_now(), -1, :minute)
+        )
+
+      {:ok, _} = ConstructionComplete.process(event, planet.id)
+
+      planet = Planets.get_planet_by_id(planet.id)
+
+      assert planet.total_energy > planet_before.total_energy
+    end
   end
 
   defp create_event(:construction_complete, planet_id, event, completed_at) do
@@ -349,5 +435,14 @@ defmodule Galaxies.Planets.Events.ConstructionCompleteTest do
     Enum.find(planet.buildings, fn planet_building ->
       planet_building.building_id == building_id
     end)
+  end
+
+  defp upgrade_building(planet_id, building_id, increments \\ 1) do
+    from(
+      from pb in PlanetBuilding,
+        where: pb.planet_id == ^planet_id and pb.building_id == ^building_id,
+        update: [inc: [level: ^increments]]
+    )
+    |> Repo.update_all([])
   end
 end
