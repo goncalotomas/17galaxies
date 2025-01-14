@@ -2,12 +2,16 @@ defmodule Galaxies.Planets.PlanetEvent do
   @moduledoc """
   The schema for PlanetEventQueue.
   """
+  alias Galaxies.Planets.Events.BuildingEvent
   use Galaxies.Schema
+
+  import Ecto.Changeset
 
   @atom_values_mapping [
     # location events
-    building_construction: 10,
-    technology_research_complete: 11,
+    construction_complete: 10,
+    research_complete: 11,
+    unit_production_complete: 12,
     # fleet events
     fleet_attack: 20,
     fleet_collect: 21,
@@ -26,14 +30,33 @@ defmodule Galaxies.Planets.PlanetEvent do
       values: @atom_values_mapping,
       null: false
 
-    field :event_id, :binary_id
-    field :data, :map
+    # for now only building events are supported
+    embeds_one :building_event, Galaxies.Planets.Events.BuildingEvent
 
-    field :completed_at, :utc_datetime
+    field :started_at, :utc_datetime_usec
+    # the completed_at field represents the moment in time when the event takes place,
+    # not when it was processed by the server.
+    field :completed_at, :utc_datetime_usec
+
+    field :is_processed, :boolean, default: false
+    field :is_cancelled, :boolean, default: false
 
     belongs_to :planet, Galaxies.Planet, type: :integer
 
-    timestamps(updated_at: false, type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
+  end
+
+  def changeset(event, attrs) do
+    event
+    |> cast(attrs, [
+      :type,
+      :started_at,
+      :completed_at,
+      :is_processed,
+      :is_cancelled,
+      :planet_id
+    ])
+    |> cast_embed(:building_event, with: &BuildingEvent.changeset/2)
   end
 
   def get_fleet_event_ids do
@@ -44,5 +67,15 @@ defmodule Galaxies.Planets.PlanetEvent do
         acc
       end
     end)
+  end
+
+  def process_changeset(event, attrs) do
+    event
+    |> cast(attrs, [:is_processed, :completed_at])
+  end
+
+  def update_changeset(event, attrs) do
+    event
+    |> cast(attrs, [:is_cancelled, :is_processed, :started_at, :completed_at])
   end
 end

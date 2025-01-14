@@ -31,7 +31,7 @@ defmodule Galaxies.Repo.Migrations.CreateResearchesTable do
         null: false,
         primary_key: true
 
-      add :current_level, :integer, default: 0
+      add :level, :integer, default: 0
       add :is_upgrading, :boolean, default: false
       add :upgrade_finished_at, :utc_datetime_usec
 

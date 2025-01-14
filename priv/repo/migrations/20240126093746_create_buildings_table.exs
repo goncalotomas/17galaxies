@@ -10,16 +10,14 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
 
       add :image_src, :string, null: false
 
-      add :upgrade_time_formula, :string
       add :upgrade_cost_formula, :string, null: false
       add :production_formula, :string
-      add :energy_consumption_formula, :string
 
       add :list_order, :smallint, null: false
 
       add :type, :smallint, null: false
 
-      timestamps(type: :utc_datetime_usec)
+      timestamps(type: :utc_datetime)
     end
 
     create index(:buildings, [:name])
@@ -34,12 +32,14 @@ defmodule Galaxies.Repo.Migrations.CreateBuildingsTable do
         null: false,
         primary_key: true
 
-      add :current_level, :integer, default: 0
+      add :level, :integer, default: 0
 
       timestamps(type: :utc_datetime_usec)
     end
 
     create index(:planet_buildings, [:planet_id])
     create unique_index(:planet_buildings, [:planet_id, :building_id])
+
+    create constraint(:planet_buildings, :level_must_be_non_negative, check: "level >= 0")
   end
 end

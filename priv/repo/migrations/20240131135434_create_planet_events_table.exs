@@ -14,41 +14,27 @@ defmodule Galaxies.Repo.Migrations.CreateEventQueueTables do
     create table(:planet_events, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :planet_id, references(:planets, type: :serial, on_delete: :delete_all), null: false
-      # specifies which table to fetch event from (e.g. planet_building_queue, fleet, etc).
+      # specifies which embed to search
       add :type, :integer, null: false
-      # event data is polymorphic and depends on event type
-      add :data, :map
-      add :event_id, :binary_id, null: false
 
-      # precision of seconds is on purpose to enable multiple events to have the same timestamp
-      add :started_at, :utc_datetime_usec
-      add :completed_at, :utc_datetime
+      # only one of these will be set
+      add :building_event, :map, null: true
+      add :research_event, :map, null: true
+      add :fleet_event, :map, null: true
 
-      timestamps(updated_at: false, type: :utc_datetime_usec)
-    end
+      add :started_at, :utc_datetime_usec, null: true
+      # completed_at represents the time when the event takes place,
+      # not when it was processed. It is nil when an event is supposed to be processed
+      # after a previous event (e.g. building queue, research queue, etc)
+      add :completed_at, :utc_datetime_usec, null: true
 
-    create index(:planet_events, [:planet_id, :completed_at])
+      add :is_processed, :boolean, default: false, null: false
+      add :is_cancelled, :boolean, default: false, null: false
 
-    create table(:planet_build_queue, primary_key: false) do
-      add :id, :binary_id, primary_key: true
-      add :planet_id, references(:planets, type: :serial, on_delete: :delete_all), null: false
-
-      add :building_id, references(:buildings, on_delete: :delete_all), null: false
-
-      add :level, :integer, null: false
-      add :list_order, :integer, null: false
-      add :demolish, :boolean, default: false
-
-      add :started_at, :utc_datetime_usec
-      add :completed_at, :utc_datetime_usec
-
-      # inserted_at timestamp sets total order of events inside planet so queries will sort by this field
       timestamps(type: :utc_datetime_usec)
     end
 
-    execute(
-      "CREATE INDEX planet_events_data ON planet_events USING GIN(data)",
-      "DROP INDEX planet_events_data"
-    )
+    create index(:planet_events, [:planet_id, :completed_at])
+    create index(:planet_events, [:planet_id, :inserted_at])
   end
 end

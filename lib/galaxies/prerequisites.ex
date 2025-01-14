@@ -13,11 +13,12 @@ defmodule Galaxies.Prerequisites do
   alias Galaxies.Prerequisites.UnitPrerequisiteResearch
 
   @doc """
-  Loads all prerequisites from the database into memory.
-  Prerequisite information is static and can be considered imutable,
-  but this function can be called to reload prerequisites.
+  Loads all prerequisites from the database into persistent term.
+  Prerequisite information is static and can be considered imutable.
   """
   def load_static_prerequisites do
+    started_at = DateTime.utc_now(:millisecond)
+
     building_prerequisite_buildings =
       Enum.reduce(
         Galaxies.Repo.all(BuildingPrerequisiteBuilding),
@@ -147,11 +148,16 @@ defmodule Galaxies.Prerequisites do
         fn _research_id, prereqs_l, prereqs_r -> prereqs_l ++ prereqs_r end
       )
 
-    Logger.info("Loaded prerequisites into memory")
-
     :persistent_term.put(:building_prerequisites, building_prerequisites)
     :persistent_term.put(:research_prerequisites, research_prerequisites)
     :persistent_term.put(:unit_prerequisites, unit_prerequisites)
+
+    finished_at = DateTime.utc_now(:millisecond)
+
+    Logger.info(
+      "Built prerequisites cache in #{DateTime.diff(finished_at, started_at, :millisecond)} ms"
+    )
+
     :ok
   end
 

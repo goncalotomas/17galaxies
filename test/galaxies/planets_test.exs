@@ -1,49 +1,44 @@
 defmodule Galaxies.PlanetsTest do
+  alias Galaxies.Planets.PlanetEvent
   alias Galaxies.PlayerResearch
-  alias Galaxies.AccountsFixtures
   alias Galaxies.PlanetBuilding
   use Galaxies.DataCase, async: true
 
-  alias Galaxies.{Building, Planet, Planets, Research, Unit}
+  alias Galaxies.{Building, Planets, Research, Unit}
 
   @mine_metal_building_id 1
 
   setup do
-    {:ok, %{planet: planet}} =
-      AccountsFixtures.valid_player_attributes()
-      |> Galaxies.Accounts.register_player()
-
-    {:ok, planet: planet}
+    {:ok, planet: planet_fixture()}
   end
 
-  describe "add_resources/4" do
-    test "adds resources when called with positive amounts", %{planet: planet} do
-      %{metal_units: metal, crystal_units: crystal, deuterium_units: deuterium} = planet
-      Planets.add_resources(planet.id, 100, 100, 100)
-      planet = Repo.get_by(Planet, id: planet.id)
+  describe "get_building_queue/1" do
+    test "returns events only for the planet_id specified", %{planet: planet} do
+      other_planet = planet_fixture()
 
-      refute planet == nil
-      assert planet.metal_units == metal + 100
-      assert planet.crystal_units == crystal + 100
-      assert planet.deuterium_units == deuterium + 100
+      # create events for both planets
+      ten_mins_from_now = DateTime.utc_now() |> DateTime.add(10, :minute)
+      e1 = create_event(:construction_complete, planet.id, %{building_id: 1}, ten_mins_from_now)
+      e2 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      e3 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      e4 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      e5 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      create_event(:construction_complete, other_planet.id, %{building_id: 2}, ten_mins_from_now)
+      create_event(:construction_complete, other_planet.id, %{building_id: 2}, nil)
+      create_event(:construction_complete, other_planet.id, %{building_id: 2}, nil)
+      create_event(:construction_complete, other_planet.id, %{building_id: 2}, nil)
+      create_event(:construction_complete, other_planet.id, %{building_id: 2}, nil)
+
+      assert [e1, e2, e3, e4, e5] == Planets.get_building_queue(planet.id)
     end
 
-    test "subtracts resources when called with negative amounts", %{planet: planet} do
-      %{metal_units: metal, crystal_units: crystal, deuterium_units: deuterium} = planet
-      Planets.add_resources(planet.id, -1, -1, -1)
-      planet = Repo.get_by(Planet, id: planet.id)
-
-      refute planet == nil
-      assert planet.metal_units == metal - 1
-      assert planet.crystal_units == crystal - 1
-      assert planet.deuterium_units == deuterium - 1
-    end
-
-    test "updates the planet's updated_at timestamp", %{planet: planet} do
-      updated_at = planet.updated_at
-      Planets.add_resources(planet.id, 100, 100, 100)
-      planet = Repo.get_by(Planet, id: planet.id)
-      refute DateTime.compare(updated_at, planet.updated_at) == :eq
+    test "does not return cancelled events", %{planet: planet} do
+      ten_mins_from_now = DateTime.utc_now() |> DateTime.add(10, :minute)
+      e1 = create_event(:construction_complete, planet.id, %{building_id: 1}, ten_mins_from_now)
+      e2 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      e3 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      e4 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+      e5 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
     end
   end
 
@@ -77,7 +72,7 @@ defmodule Galaxies.PlanetsTest do
       players_computer_tech =
         Repo.one!(from pr in PlayerResearch, where: pr.research_id == ^computer_tech.id)
 
-      assert players_computer_tech.current_level < 10
+      assert players_computer_tech.level < 10
       refute Planets.can_build_building?(planet, nanite_factory.id)
     end
 
@@ -93,7 +88,7 @@ defmodule Galaxies.PlanetsTest do
       planets_nanite_factory =
         Repo.one!(from pb in PlanetBuilding, where: pb.building_id == ^nanite_factory.id)
 
-      assert planets_nanite_factory.current_level == 0
+      assert planets_nanite_factory.level == 0
       refute Planets.can_build_building?(planet, nanite_factory.id)
     end
 
@@ -409,10 +404,21 @@ defmodule Galaxies.PlanetsTest do
     end
   end
 
+  defp create_event(:construction_complete, planet_id, event, completed_at) do
+    %PlanetEvent{}
+    |> PlanetEvent.changeset(%{
+      planet_id: planet_id,
+      type: :construction_complete,
+      building_event: event,
+      completed_at: completed_at
+    })
+    |> Repo.insert!()
+  end
+
   defp set_planet_building_level(planet_id, building_id, level) do
     from(pb in PlanetBuilding,
       where: pb.planet_id == ^planet_id and pb.building_id == ^building_id,
-      update: [set: [current_level: ^level]]
+      update: [set: [level: ^level]]
     )
     |> Repo.update_all([])
   end
@@ -420,7 +426,7 @@ defmodule Galaxies.PlanetsTest do
   defp set_player_research_level(player_id, research_id, level) do
     from(pr in PlayerResearch,
       where: pr.player_id == ^player_id and pr.research_id == ^research_id,
-      update: [set: [current_level: ^level]]
+      update: [set: [level: ^level]]
     )
     |> Repo.update_all([])
   end

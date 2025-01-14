@@ -5,7 +5,7 @@ defmodule Galaxies.PlayerResearch do
 
   @primary_key false
   schema "player_researches" do
-    field :current_level, :integer
+    field :level, :integer
     field :is_upgrading, :boolean
     field :upgrade_finished_at, :utc_datetime_usec
 
@@ -17,6 +17,6 @@ defmodule Galaxies.PlayerResearch do
 
   def upgrade_changeset(player_research, attrs) do
     player_research
-    |> cast(attrs, [:current_level, :is_upgrading, :upgrade_finished_at])
+    |> cast(attrs, [:level, :is_upgrading, :upgrade_finished_at])
   end
 end

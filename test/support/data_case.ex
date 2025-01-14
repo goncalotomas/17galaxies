@@ -24,6 +24,9 @@ defmodule Galaxies.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Galaxies.DataCase
+
+      import Galaxies.AccountsFixtures
+      import Galaxies.PlanetFixtures
     end
   end
 

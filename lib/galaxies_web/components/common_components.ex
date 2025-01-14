@@ -59,7 +59,7 @@ defmodule GalaxiesWeb.CommonComponents do
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
                   <a
                     href="#"
-                    phx-click={"cancel:#{hd(@events).id}"}
+                    phx-click={"cancel_building_upgrade:#{hd(@events).id}"}
                     class="text-indigo-600 hover:text-indigo-900"
                   >
                     Cancel<span class="sr-only">, {hd(@events).building.name}</span>
@@ -77,7 +77,11 @@ defmodule GalaxiesWeb.CommonComponents do
                   -
                 </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                  <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                  <a
+                    href="#"
+                    phx-click={"cancel_building_upgrade:#{queued.id}"}
+                    class="text-indigo-600 hover:text-indigo-900"
+                  >
                     Cancel<span class="sr-only">, {queued.building.name}</span>
                   </a>
                 </td>

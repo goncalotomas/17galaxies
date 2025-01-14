@@ -20,8 +20,8 @@ defmodule Galaxies.Repo.Migrations.CreatePlanetsTable do
       add :total_energy, :integer, default: 0
       add :available_energy, :integer, default: 0
 
-      add :total_fields, :integer, default: 250
-      add :used_fields, :integer, default: 0
+      add :total_fields, :integer, default: 250, null: false
+      add :used_fields, :integer, default: 0, null: false
 
       add :image_id, :integer, null: false
 

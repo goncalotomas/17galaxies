@@ -2,6 +2,10 @@ defmodule Galaxies.Planets.Production do
   @universe_speed 1000
   @milliseconds_per_hour 3600 * 1000
 
+  @metal_mine_building_id 1
+  @crystal_mine_building_id 2
+  @deuterium_synth_building_id 3
+
   def resources_produced(planet_buildings, duration_millisecond) do
     # TODO: Expand to consider resources_produced = raw_mine_production - deut consumption * available energy
     # TODO: Expand to consider player technologies
@@ -22,14 +26,14 @@ defmodule Galaxies.Planets.Production do
 
   defp mine_levels({m, c, d}, [planet_building | t]) do
     cond do
-      planet_building.building.name == "Metal Mine" ->
-        mine_levels({planet_building.current_level, c, d}, t)
+      planet_building.building_id == @metal_mine_building_id ->
+        mine_levels({planet_building.level, c, d}, t)
 
-      planet_building.building.name == "Crystal Mine" ->
-        mine_levels({m, planet_building.current_level, d}, t)
+      planet_building.building_id == @crystal_mine_building_id ->
+        mine_levels({m, planet_building.level, d}, t)
 
-      planet_building.building.name == "Deuterium Synthesizer" ->
-        mine_levels({m, c, planet_building.current_level}, t)
+      planet_building.building_id == @deuterium_synth_building_id ->
+        mine_levels({m, c, planet_building.level}, t)
 
       true ->
         mine_levels({m, c, d}, t)

@@ -49,17 +49,17 @@ defmodule Galaxies.Accounts do
             preload: :research
         )
 
-      if player_research.current_level == level - 1 do
+      if player_research.level == level - 1 do
         {:ok, _} =
           Repo.update(
             PlayerResearch.upgrade_changeset(player_research, %{
-              current_level: level
+              level: level
             })
           )
 
         {:ok, player_research}
       else
-        {:error, "Cannot upgrade from level #{player_research.current_level} to #{level}"}
+        {:error, "Cannot upgrade from level #{player_research.level} to #{level}"}
       end
     end)
     |> Ecto.Multi.run(:update_planet, fn repo, %{player_research: player_research} ->
@@ -205,7 +205,7 @@ defmodule Galaxies.Accounts do
           %{
             player_id: player.id,
             research_id: research.id,
-            current_level: 0,
+            level: 0,
             inserted_at: now,
             updated_at: now
           }
@@ -234,7 +234,11 @@ defmodule Galaxies.Accounts do
         image_id: 1,
         metal_units: 5_000.0,
         crystal_units: 5_000.0,
-        deuterium_units: 500.0
+        deuterium_units: 500.0,
+        total_energy: 0,
+        available_energy: 0,
+        total_fields: 250,
+        used_fields: 0
       })
     end)
     |> Ecto.Multi.run(:planet_buildings, fn repo, %{player: player, planet: planet} ->
@@ -244,7 +248,7 @@ defmodule Galaxies.Accounts do
           %{
             planet_id: planet.id,
             building_id: building.id,
-            current_level: 0,
+            level: 0,
             inserted_at: now,
             updated_at: now
           }
@@ -532,7 +536,7 @@ defmodule Galaxies.Accounts do
           description_short: building.short_description,
           description_long: building.long_description,
           image_src: building.image_src,
-          current_level: planet_building.current_level,
+          level: planet_building.level,
           upgrade_cost_formula: building.upgrade_cost_formula
         },
         order_by: [building.list_order]
@@ -556,7 +560,7 @@ defmodule Galaxies.Accounts do
           description_short: building.short_description,
           description_long: building.long_description,
           image_src: building.image_src,
-          current_level: planet_building.current_level,
+          level: planet_building.level,
           upgrade_cost_formula: building.upgrade_cost_formula
         },
         order_by: [building.list_order]
@@ -579,7 +583,7 @@ defmodule Galaxies.Accounts do
           description_short: research.short_description,
           description_long: research.long_description,
           image_src: research.image_src,
-          current_level: player_research.current_level,
+          level: player_research.level,
           upgrade_cost_formula: research.upgrade_cost_formula,
           is_upgrading: player_research.is_upgrading,
           upgrade_finished_at: player_research.upgrade_finished_at

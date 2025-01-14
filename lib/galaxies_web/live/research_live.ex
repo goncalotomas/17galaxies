@@ -31,8 +31,8 @@ defmodule GalaxiesWeb.ResearchLive do
             <div class="flex items-center justify-between">
               <div class="truncate text-sm font-medium text-indigo-600">
                 {research.name}
-                <%= if research.current_level > 0 do %>
-                  ( Level {research.current_level} )
+                <%= if research.level > 0 do %>
+                  ( Level {research.level} )
                 <% end %>
               </div>
             </div>
@@ -47,17 +47,14 @@ defmodule GalaxiesWeb.ResearchLive do
                   />
                   <p>
                     {research.description_short}<br />
-                    <.upgrade_cost
-                      formula={research.upgrade_cost_formula}
-                      level={research.current_level + 1}
-                    />
+                    <.upgrade_cost formula={research.upgrade_cost_formula} level={research.level + 1} />
                   </p>
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-indigo-500">
                 <a href="#" class="block hover:bg-gray-50">
-                  <.button phx-click={"upgrade:#{research.id}"}>
-                    <%= if research.current_level == 0 do %>
+                  <.button phx-click={"upgrade_research:#{research.id}"}>
+                    <%= if research.level == 0 do %>
                       Build
                     <% else %>
                       Upgrade
@@ -73,13 +70,13 @@ defmodule GalaxiesWeb.ResearchLive do
     """
   end
 
-  def handle_event("upgrade:" <> research_id, _value, socket) do
+  def handle_event("upgrade_research:" <> research_id, _value, socket) do
     building =
       Enum.find(socket.assigns.player_researches, fn building ->
         "#{building.id}" == research_id
       end)
 
-    level = building.current_level + 1
+    level = building.level + 1
 
     case Accounts.upgrade_player_research(
            socket.assigns.current_player,
@@ -88,7 +85,7 @@ defmodule GalaxiesWeb.ResearchLive do
            level
          ) do
       {:ok, _} ->
-        updated_research = Map.put(building, :current_level, level)
+        updated_research = Map.put(building, :level, level)
 
         {metal, crystal, deuterium, _energy} =
           Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)

@@ -37,8 +37,8 @@ defmodule GalaxiesWeb.FacilitiesLive do
             <div class="flex items-center justify-between">
               <div class="truncate text-sm font-medium text-indigo-600">
                 {building.name}
-                <%= if building.current_level > 0 do %>
-                  ( Level {building.current_level} )
+                <%= if building.level > 0 do %>
+                  ( Level {building.level} )
                 <% end %>
               </div>
             </div>
@@ -53,21 +53,18 @@ defmodule GalaxiesWeb.FacilitiesLive do
                   />
                   <p>
                     {building.description_short}<br />
-                    <.upgrade_cost
-                      formula={building.upgrade_cost_formula}
-                      level={building.current_level + 1}
-                    />
+                    <.upgrade_cost formula={building.upgrade_cost_formula} level={building.level + 1} />
                   </p>
                 </div>
               </div>
               <div class="ml-2 flex items-center text-sm text-indigo-500">
                 <%!-- Should I move this logic out of the template? Probably. --%>
-                <.link class="px-2 py-2" phx-click={"upgrade:#{building.id}"}>
+                <.link class="px-2 py-2" phx-click={"upgrade_building:#{building.id}"}>
                   <p class="my-auto">
                     <%= case Enum.empty?(@build_queue) do %>
                       <% false -> %>
                         Add to Queue
-                      <% true when building.current_level == 0 -> %>
+                      <% true when building.level == 0 -> %>
                         Build
                       <% true -> %>
                         Upgrade
@@ -83,13 +80,13 @@ defmodule GalaxiesWeb.FacilitiesLive do
     """
   end
 
-  def handle_event("upgrade:" <> building_id, _value, socket) do
+  def handle_event("upgrade_building:" <> building_id, _value, socket) do
     building =
       Enum.find(socket.assigns.planet_buildings, fn building ->
         "#{building.id}" == building_id
       end)
 
-    level = building.current_level + 1
+    level = building.level + 1
 
     case Accounts.upgrade_planet_building(
            socket.assigns.current_planet,
@@ -102,6 +99,15 @@ defmodule GalaxiesWeb.FacilitiesLive do
       {:error, error} ->
         {:noreply, put_flash(socket, :error, error)}
     end
+  end
+
+  def handle_event("cancel_building_upgrade:" <> _event_id, _params, socket) do
+    # case Planets.cancel_building_event(event_id) do
+    #   :ok -> {:noreply, load_build_queue(socket)}
+    #   {:error, error} -> {:noreply, put_flash(socket, :error, error)}
+    # end
+    # dbg("cancel_building_upgrade:#{event_id}")
+    {:noreply, socket}
   end
 
   def handle_event("countdown-ended", _params, socket) do

@@ -23,7 +23,7 @@ defmodule Galaxies.Building do
 
     field :list_order, :integer
 
-    timestamps(type: :utc_datetime_usec)
+    timestamps(type: :utc_datetime)
   end
 
   def terraformer_extra_fields(level) when rem(level, 2) == 0, do: 6
