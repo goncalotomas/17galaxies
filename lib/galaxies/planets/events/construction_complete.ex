@@ -1,7 +1,9 @@
 defmodule Galaxies.Planets.Events.ConstructionComplete do
+  alias Galaxies.PlayerResearch
   alias Galaxies.Planets.PlanetEvent
   alias Galaxies.PlanetBuilding
   alias Galaxies.Planet
+  alias Galaxies.Formulas.Buildings
   alias Galaxies.Formulas.Buildings.Terraformer
   alias Galaxies.Planets.Production
   alias Galaxies.Repo
@@ -10,7 +12,10 @@ defmodule Galaxies.Planets.Events.ConstructionComplete do
   import Ecto.Query
   import Ecto.Changeset
 
+  @behaviour Galaxies.Planets.Event
+
   @terraformer_building_id 13
+  @energy_tech_id 3
 
   def process(%PlanetEvent{type: :construction_complete} = event, planet_id) do
     %{
@@ -63,21 +68,56 @@ defmodule Galaxies.Planets.Events.ConstructionComplete do
         {metal, crystal, deuterium} =
           Production.resources_produced(planet.buildings, time_delta)
 
-        new_used_fields = if demolish, do: planet.used_fields - 1, else: planet.used_fields + 1
+        # energy delta calculation
+        planet_building = Enum.find(planet.buildings, fn pb -> pb.building_id == building_id end)
+        level = planet_building.level
+        resource_building? = Galaxies.Buildings.resource_production_building?(building_id)
 
-        # TODO do one of:
-        # - add available energy from the planet if a mine has been downgraded,
-        # - remove available energy to the planet if a mine has been upgraded,
-        # - add available energy from the planet if a power plant has been upgraded,
-        # - remove available energy to the planet if a power plant has been downgraded
+        l1 = level
+        l2 = if demolish, do: level + 1, else: level - 1
+
+        energy_changes =
+          if resource_building? do
+            # it's a mine
+            energy_delta =
+              building_id
+              |> energy_consumption_delta(l1, l2)
+              |> then(fn delta -> if demolish, do: delta, else: -delta end)
+
+            [available_energy: planet.available_energy + energy_delta]
+          else
+            # it's an energy production building
+            energy_tech_level =
+              repo.one!(
+                from pt in PlayerResearch,
+                  where: pt.player_id == ^planet.player_id and pt.research_id == ^@energy_tech_id
+              ).level
+
+            energy_delta =
+              building_id
+              |> energy_production_delta(l1, l2, energy_tech_level)
+              |> then(fn delta -> if demolish, do: -delta, else: delta end)
+
+            [
+              available_energy: planet.available_energy + energy_delta,
+              total_energy: planet.total_energy + energy_delta
+            ]
+          end
+
+        new_used_fields = if demolish, do: planet.used_fields - 1, else: planet.used_fields + 1
 
         planet =
           planet
           |> change(
-            metal_units: planet.metal_units + metal,
-            crystal_units: planet.crystal_units + crystal,
-            deuterium_units: planet.deuterium_units + deuterium,
-            used_fields: new_used_fields
+            Keyword.merge(
+              [
+                metal_units: planet.metal_units + metal,
+                crystal_units: planet.crystal_units + crystal,
+                deuterium_units: planet.deuterium_units + deuterium,
+                used_fields: new_used_fields
+              ],
+              energy_changes
+            )
           )
           |> repo.update!()
 
@@ -192,5 +232,19 @@ defmodule Galaxies.Planets.Events.ConstructionComplete do
         {:cont, {[event | cancelled], nil}}
       end
     end)
+  end
+
+  defp energy_production_delta(building_id, l1, l2, energy_tech_level) do
+    p1 = Buildings.energy_production(building_id, l1, energy_tech_level)
+    p2 = Buildings.energy_production(building_id, l2, energy_tech_level)
+
+    abs(p2 - p1)
+  end
+
+  defp energy_consumption_delta(building_id, l1, l2) do
+    p1 = Buildings.energy_consumption(building_id, l1)
+    p2 = Buildings.energy_consumption(building_id, l2)
+
+    abs(p2 - p1)
   end
 end

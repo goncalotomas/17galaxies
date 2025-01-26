@@ -16,10 +16,7 @@ defmodule Galaxies.Building do
 
     field :image_src, :string
 
-    field :upgrade_time_formula, :string
     field :upgrade_cost_formula, :string
-    field :production_formula, :string
-    field :energy_consumption_formula, :string
 
     field :list_order, :integer
 

@@ -351,6 +351,7 @@ defmodule Galaxies.Planets.Events.ConstructionCompleteTest do
       planet = Planets.get_planet_by_id(planet.id)
 
       assert planet.total_energy > planet_before_event.total_energy
+      assert planet.available_energy > planet_before_event.available_energy
     end
 
     test "energy is decreased when a power plant finishes demolishing", %{planet: planet} do
@@ -374,6 +375,7 @@ defmodule Galaxies.Planets.Events.ConstructionCompleteTest do
       planet = Planets.get_planet_by_id(planet.id)
 
       assert planet.total_energy < planet_before.total_energy
+      assert planet.available_energy < planet_before.available_energy
     end
 
     test "energy is decreased when a production building finishes construction", %{planet: planet} do
@@ -393,7 +395,7 @@ defmodule Galaxies.Planets.Events.ConstructionCompleteTest do
 
       planet = Planets.get_planet_by_id(planet.id)
 
-      assert planet.total_energy < planet_before.total_energy
+      assert planet.available_energy < planet_before.available_energy
     end
 
     test "energy is increased when a production building finishes demolishing", %{planet: planet} do
@@ -416,7 +418,7 @@ defmodule Galaxies.Planets.Events.ConstructionCompleteTest do
 
       planet = Planets.get_planet_by_id(planet.id)
 
-      assert planet.total_energy > planet_before.total_energy
+      assert planet.available_energy > planet_before.available_energy
     end
   end
 

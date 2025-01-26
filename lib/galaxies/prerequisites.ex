@@ -16,7 +16,7 @@ defmodule Galaxies.Prerequisites do
   Loads all prerequisites from the database into persistent term.
   Prerequisite information is static and can be considered imutable.
   """
-  def load_static_prerequisites do
+  def load_static_prerequisites do           
     started_at = DateTime.utc_now(:millisecond)
 
     building_prerequisite_buildings =

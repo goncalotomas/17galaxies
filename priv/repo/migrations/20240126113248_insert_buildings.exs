@@ -17,7 +17,8 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         type: :resource,
         list_order: 10,
         image_src: "/images/buildings/metal-mine-v3.webp",
-        upgrade_cost_formula: "60 * 1.5^(level - 1)$15 * 1.5^(level - 1)$0$0",
+        upgrade_cost_formula:
+          "60 * 1.5^(level - 1)$15 * 1.5^(level - 1)$0$10 * level * 1.1^(level)",
         short_description:
           "The metal mine allows the extraction of raw metal from the planet. Metal production increases as the structure level increases. Once the metal storages are fully filled, metal production on the planet is also stopped. Metal mine needs energy to operate.",
         long_description:
@@ -31,7 +32,8 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         type: :resource,
         list_order: 20,
         image_src: "/images/buildings/crystal-mine.webp",
-        upgrade_cost_formula: "48 * 1.6^(level - 1)$24 * 1.6^(level - 1)$0$0",
+        upgrade_cost_formula:
+          "48 * 1.6^(level - 1)$24 * 1.6^(level - 1)$0$10 * level * 1.1^(level)",
         short_description:
           "The metal mine allows the extraction of raw metal from the planet. Metal production increases as the structure level increases. Once the metal storages are fully filled, metal production on the planet is also stopped. Metal mine needs energy to operate.",
         long_description:
@@ -45,7 +47,8 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         type: :resource,
         list_order: 30,
         image_src: "/images/buildings/deuterium-refinery-v3.webp",
-        upgrade_cost_formula: "225 * 1.5^(level - 1)$75 * 1.5^(level - 1)$0$0",
+        upgrade_cost_formula:
+          "225 * 1.5^(level - 1)$75 * 1.5^(level - 1)$0$20 * level * 1.1^(level)",
         short_description:
           "Deuterium synthesizer provides the extraction of deuterium from the planet. The deuterium production increases as the structure level increases. Once the deuterium tanks are fully filled, deuterium production on the planet is also stopped. Deuterium synthesizer needs energy to operate.",
         long_description:
@@ -59,7 +62,8 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         type: :resource,
         list_order: 40,
         image_src: "/images/buildings/solar-power-plant.webp",
-        upgrade_cost_formula: "75 * 1.5^(level - 1)$30 * 1.5^(level - 1)$0$0",
+        upgrade_cost_formula:
+          "75 * 1.5^(level - 1)$30 * 1.5^(level - 1)$0$20 * level * 1.1^(level)",
         short_description:
           "Solar power plants are huge structures that produce energy using solar rays. They contribute to the energy production of the planet and helps the operation of the mines.",
         long_description:
@@ -74,7 +78,7 @@ defmodule Galaxies.Repo.Migrations.InsertBuildings do
         list_order: 50,
         image_src: "/images/buildings/fusion-reactor.webp",
         upgrade_cost_formula:
-          "900 * 1.8^(level - 1)$360 * 1.8^(level - 1)$180 * 1.8^(level - 1)$0",
+          "900 * 1.8^(level - 1)$360 * 1.8^(level - 1)$180 * 1.8^(level - 1)$30 * level * 1.1^(level)",
         short_description:
           "Fusion reactors are plants that produce radioactive energy using fusion technology. They contribute to the energy production of the planet and helping the operation of the mines. Fusion reactors need deuterium to work and use some of the deuterium production on the planet.",
         long_description:

@@ -39,6 +39,12 @@ defmodule Galaxies.PlanetsTest do
       e3 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
       e4 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
       e5 = create_event(:construction_complete, planet.id, %{building_id: 1}, nil)
+
+      for event <- [e2, e4] do
+        Repo.update!(PlanetEvent.update_changeset(event, %{is_cancelled: true}))
+      end
+
+      assert [e1, e3, e5] == Planets.get_building_queue(planet.id)
     end
   end
 

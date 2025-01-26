@@ -3,12 +3,18 @@ defmodule Galaxies.Buildings do
   Utility functions related to buildings, including building cost, duration and occupied fields.
   """
 
-  # TODO: Maybe read hardcoded IDs from file or Application.compile_env?
-  @production_building_ids [1, 2, 3, 4, 5]
+  # Maybe read hardcoded IDs from file or Application.compile_env?
+  @resource_production_building_ids [1, 2, 3]
+  @energy_production_building_ids [4, 5]
+  @production_building_ids @resource_production_building_ids ++ @energy_production_building_ids
   @terraformer_building_id 13
 
   def production_building?(building_id) do
     building_id in @production_building_ids
+  end
+
+  def resource_production_building?(building_id) do
+    building_id in @resource_production_building_ids
   end
 
   @doc """
