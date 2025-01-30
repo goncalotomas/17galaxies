@@ -30,8 +30,8 @@ defmodule Galaxies.Planets.PlanetEvent do
       values: @atom_values_mapping,
       null: false
 
-    # for now only building events are supported
     embeds_one :building_event, Galaxies.Planets.Events.BuildingEvent
+    embeds_one :research_event, Galaxies.Planets.Events.ResearchEvent
 
     field :started_at, :utc_datetime_usec
     # the completed_at field represents the moment in time when the event takes place,
