@@ -17,6 +17,12 @@ defmodule Galaxies.Planets do
   @building_queue_max_size 5
   @research_queue_max_size 5
 
+  # TODO move hardcoded building IDs to some config
+  @universe_speed 100
+  @base_construction_speed_factor 2500
+  @robot_factory_building_id 9
+  @nanite_factory_building_id 10
+
   @doc """
   Enqueues the construction of a building on a planet.
   Checks if the user has the prerequisites to enqueue the building.
@@ -148,6 +154,33 @@ defmodule Galaxies.Planets do
         order_by: pe.inserted_at,
         limit: @building_queue_max_size
     )
+  end
+
+  @doc """
+  Returns the duration of a building upgrade in seconds for a given planet.
+  The duration depends on the cost of the upgrade, but also on the level of the planet's robot and nanite factories.
+  """
+  def building_upgrade_duration(planet_buildings, building_id, level) do
+    building = Galaxies.Cached.Buildings.get_building_by_id(building_id)
+
+    {cost_metal, cost_crystal, _cost_deuterium, _cost_energy} =
+      Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, level)
+
+    robot_factory =
+      Enum.find(planet_buildings, fn pb -> pb.building_id == @robot_factory_building_id end)
+
+    nanite_factory =
+      Enum.find(planet_buildings, fn pb -> pb.building_id == @nanite_factory_building_id end)
+
+    num = cost_metal + cost_crystal
+
+    low_level_factor = if level < 5, do: 7, else: 1
+
+    den =
+      @base_construction_speed_factor * (1 + robot_factory.level) *
+        :math.pow(2, nanite_factory.level) * @universe_speed * low_level_factor
+
+    trunc(:math.ceil(num / den))
   end
 
   @doc """
