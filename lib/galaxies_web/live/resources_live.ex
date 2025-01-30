@@ -81,17 +81,14 @@ defmodule GalaxiesWeb.ResourcesLive do
   end
 
   def handle_event("upgrade_building:" <> building_id, _value, socket) do
-    building =
-      Enum.find(socket.assigns.planet_buildings, fn building ->
-        "#{building.id}" == building_id
-      end)
-
-    level = building.level + 1
+    # TODO implement demolish feature
+    demolish = false
 
     case Accounts.upgrade_planet_building(
+           socket.assigns.current_player,
            socket.assigns.current_planet,
            String.to_integer(building_id),
-           level
+           demolish
          ) do
       :ok ->
         {:noreply, load_build_queue(socket)}

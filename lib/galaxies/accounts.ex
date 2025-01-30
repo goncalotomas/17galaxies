@@ -4,6 +4,8 @@ defmodule Galaxies.Accounts do
   """
 
   import Ecto.Query, warn: false
+  alias Galaxies.Planets.Actions.EnqueueBuilding
+  alias Galaxies.Planets.PlanetAction
   alias Galaxies.Planets
   alias Galaxies.Planet
   alias Galaxies.Repo
@@ -19,14 +21,17 @@ defmodule Galaxies.Accounts do
   @doc """
   Tries to upgrade a planet building.
   """
-  def upgrade_planet_building(planet, building_id, level) do
+  def upgrade_planet_building(player, planet, building_id, demolish) do
     # TODO maybe wrap in transaction
     now = DateTime.utc_now()
 
-    with {:prerequisites_ok, true} <-
-           {:prerequisites_ok, Planets.can_build_building?(planet, building_id)},
-         :ok <- Planets.enqueue_building(planet.id, building_id, level),
-         :ok <- Planets.process_planet_events(planet.id, now) do
+    action = %PlanetAction{
+      type: :enqueue_building,
+      data: %{planet_id: planet.id, data: %{building_id: building_id, demolish: demolish}}
+    }
+
+    with {:ok, result} <- EnqueueBuilding.perform(player, action) do
+      dbg(result)
       :ok
     else
       {:prerequisites_ok, false} ->

@@ -31,8 +31,19 @@ defmodule Galaxies.Planet do
 
     has_many :buildings, Galaxies.PlanetBuilding
     has_many :units, Galaxies.PlanetUnit
+    has_many :events, Galaxies.Planets.PlanetEvent
 
     timestamps(type: :utc_datetime_usec)
+  end
+
+  def update_resources_changeset(planet, attrs) do
+    planet
+    |> cast(attrs, [
+      :metal_units,
+      :crystal_units,
+      :deuterium_units,
+      :updated_at
+    ])
   end
 
   def building_construction_complete_changeset(planet, attrs) do
