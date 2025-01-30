@@ -34,7 +34,6 @@ defmodule Galaxies.Repo.Migrations.CreateEventQueueTables do
       timestamps(type: :utc_datetime_usec)
     end
 
-    create index(:planet_events, [:planet_id, :completed_at])
-    create index(:planet_events, [:planet_id, :inserted_at])
+    create index(:planet_events, [:planet_id, :type])
   end
 end
