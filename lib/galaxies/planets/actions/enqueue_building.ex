@@ -4,191 +4,234 @@ defmodule Galaxies.Planets.Actions.EnqueueBuilding do
   import Ecto.Query
 
   require Logger
+  alias Galaxies.Planet
+  alias Galaxies.Accounts.Player
   alias Galaxies.Prerequisites
   alias Galaxies.Planets.PlanetEvent
   alias Galaxies.Planets.PlanetAction
+  alias Galaxies.Repo
 
   @building_queue_max_size 5
+  @terraformer_building_id 13
 
-  def perform(player, %PlanetAction{type: :enqueue_building} = action) do
+  def perform(%Player{} = player, %PlanetAction{type: :enqueue_building} = action) do
+    now = DateTime.utc_now(:microsecond)
     %{planet_id: planet_id, data: %{building_id: building_id, demolish: demolish}} = action.data
 
     Ecto.Multi.new()
-    |> Ecto.Multi.run(:planet, fn repo, _changes ->
-      planet = repo.one!(from p in Planet, where: p.id == ^planet_id)
+    |> Ecto.Multi.run(:planet, &fetch_planet(&1, &2, planet_id))
+    |> Ecto.Multi.run(:data, &compile_event_data(&1, &2, building_id, demolish, player))
+    |> Ecto.Multi.run(:player_techs, &maybe_fetch_player_techs/2)
+    |> Ecto.Multi.run(:player_owns_planet, &check_player_owns_planet/2)
+    |> Ecto.Multi.run(:enough_resources, &check_enough_resources/2)
+    |> Ecto.Multi.run(:enough_planet_fields, &check_enough_planet_fields/2)
+    |> Ecto.Multi.run(:prerequisites_met, &check_prerequisites/2)
+    |> Ecto.Multi.run(:build_queue_not_full, &check_build_queue_not_full/2)
+    |> Ecto.Multi.run(:maybe_pay_building_cost, &maybe_pay_building_cost/2)
+    |> Ecto.Multi.run(
+      :add_construction_complete_event,
+      &add_construction_complete_event(&1, &2, now)
+    )
+    |> Repo.transaction()
+  end
 
-      if planet.player_id != player.id do
-        Logger.notice(
-          "Player #{player.id} tried to build on a planet that does not belong to them (planet_id: #{planet_id})"
+  defp fetch_planet(repo, _changes, planet_id) do
+    # fetch planet with buildings and build queue
+    {:ok,
+     repo.one!(
+       from p in Planet,
+         where: p.id == ^planet_id,
+         left_join: pe in assoc(p, :events),
+         on:
+           pe.planet_id == ^planet_id and pe.type == ^:construction_complete and
+             not pe.is_processed and not pe.is_cancelled,
+         join: pb in assoc(p, :buildings),
+         preload: [buildings: pb, events: pe]
+     )}
+  end
+
+  defp compile_event_data(_repo, %{planet: planet}, building_id, demolish, player) do
+    planet_building = Enum.find(planet.buildings, fn pb -> pb.building_id == building_id end)
+
+    target_level =
+      if demolish do
+        planet_building.level - 1
+      else
+        planet_building.level + 1
+      end
+
+    building_cost =
+      building_id
+      |> Galaxies.Cached.Buildings.get_building_by_id()
+      |> then(&Galaxies.calc_upgrade_cost(&1.upgrade_cost_formula, target_level))
+
+    building_prereqs = Prerequisites.get_building_prerequisites(building_id)
+
+    {:ok,
+     %{
+       building_id: building_id,
+       building_cost: building_cost,
+       building_prereqs: building_prereqs,
+       target_level: target_level,
+       demolish: demolish,
+       player: player
+     }}
+  end
+
+  defp maybe_fetch_player_techs(repo, %{data: %{building_prereqs: prereqs, player: player}}) do
+    has_research_prereqs? = Enum.any?(prereqs, fn prereq -> match?({:research, _, _}, prereq) end)
+
+    if has_research_prereqs? do
+      {:ok, repo.preload(player, [:researches]).researches}
+    else
+      {:ok, nil}
+    end
+  end
+
+  defp check_player_owns_planet(_repo, %{planet: planet, data: %{player: player}}) do
+    if planet.player_id != player.id do
+      Logger.notice(
+        "Player #{player.id} tried to build on a planet that does not belong to them (planet_id: #{planet.id})"
+      )
+
+      {:error, :invalid_action_build_on_other_player_planet}
+    else
+      {:ok, :pass}
+    end
+  end
+
+  defp check_enough_resources(_repo, %{
+         planet: planet,
+         data: %{building_id: building_id, target_level: target_level}
+       }) do
+    building = Galaxies.Cached.Buildings.get_building_by_id(building_id)
+
+    {cost_metal, cost_crystal, cost_deuterium, _cost_energy} =
+      Galaxies.calc_upgrade_cost(building.upgrade_cost_formula, target_level)
+
+    if planet.metal_units < cost_metal or planet.crystal_units < cost_crystal or
+         planet.deuterium_units < cost_deuterium do
+      {:error, :not_enough_resources}
+    else
+      {:ok, :pass}
+    end
+  end
+
+  defp check_enough_planet_fields(_repo, %{
+         planet: planet,
+         data: %{building_id: building_id, demolish: demolish}
+       }) do
+    cond do
+      demolish and building_id != @terraformer_building_id ->
+        {:ok, :pass}
+
+      demolish ->
+        {:error, :cannot_demolish_terraformer}
+
+      planet.used_fields + 1 > planet.total_fields ->
+        {:error, :not_enough_planet_fields}
+
+      true ->
+        {:ok, :pass}
+    end
+  end
+
+  defp check_prerequisites(_repo, changes) do
+    %{planet: planet, player_techs: player_techs, data: %{building_id: building_id}} = changes
+
+    prereqs = Prerequisites.get_building_prerequisites(building_id)
+
+    if prerequisites_met?(prereqs, player_techs, planet.buildings) do
+      {:ok, :pass}
+    else
+      {:error, :prerequisites_not_met}
+    end
+  end
+
+  defp check_build_queue_not_full(_repo, %{planet: planet}) do
+    queue_length = length(planet.events)
+
+    if queue_length >= @building_queue_max_size do
+      {:error, :building_queue_full}
+    else
+      {:ok, :pass}
+    end
+  end
+
+  defp maybe_pay_building_cost(repo, %{
+         planet: planet,
+         data: %{building_cost: {cost_metal, cost_crystal, cost_deuterium, _cost_energy}}
+       }) do
+    if Enum.empty?(planet.events) do
+      # no cost is paid now because we're adding the building to the end of the queue
+      {:ok, :skip}
+    else
+      {1, _} =
+        repo.update(
+          Planet.update_resources_changeset(planet, %{
+            metal_units: planet.metal_units - cost_metal,
+            crystal_units: planet.crystal_units - cost_crystal,
+            deuterium_units: planet.deuterium_units - cost_deuterium
+          })
         )
 
-        {:error, :invalid_player_action_build_on_other_player_planet}
-      else
-        {:ok, planet}
-      end
-    end)
-    |> Ecto.Multi.run(:build_queue, fn repo, _changes ->
-      build_queue =
-        repo.all(
-          from pe in PlanetEvent,
-            where:
-              pe.planet_id == ^planet_id and pe.type == ^:construction_complete and
-                not pe.is_processed and not pe.is_cancelled,
-            order_by: [asc: pe.inserted_at]
-        )
+      {:ok, :done}
+    end
+  end
 
-      if length(build_queue) >= @building_queue_max_size do
-        {:error, :building_queue_full}
-      else
-        {:ok, build_queue}
-      end
-    end)
-    |> Ecto.Multi.run(:enqueue_building, fn repo, %{build_queue: queue, planet: planet} ->
-      base_event =
-        PlanetEvent.changeset(%PlanetEvent{}, %{
-          planet_id: planet_id,
-          type: :construction_complete,
-          is_processed: false,
-          is_cancelled: false,
+  defp add_construction_complete_event(
+         repo,
+         %{
+           planet: planet,
+           data: %{building_id: building_id, target_level: target_level, demolish: demolish}
+         },
+         current_time
+       ) do
+    construction_complete_event =
+      if Enum.empty?(planet.events) do
+        construction_time_seconds =
+          Galaxies.Planets.building_upgrade_duration(planet.buildings, building_id, target_level)
+
+        %PlanetEvent{
+          planet_id: planet.id,
           building_event: %{
             building_id: building_id,
             demolish: demolish
-          }
-        })
-
-      if Enum.empty?(queue) do
-        # no buildings in progress, check for prerequisites
-        planet = repo.preload(planet, [:buildings])
-
-        
-
-        if planet.used_fields >= planet.total_fields do
-          {:error, :not_enough_planet_fields}
-        else
-          building = Enum.find(planet.buildings, fn b -> b.id == building_id end)
-
-          if building do
-            {:error, :building_already_exists}
-          else
-            {:ok, base_event}
-          end
-        end
+          },
+          type: :construction_complete,
+          started_at: current_time,
+          completed_at: DateTime.add(current_time, construction_time_seconds, :second)
+        }
       else
-        # adding the building to the end of the queue
-        repo.insert(base_event)
+        # we don't set started_at or completed_at when the queue is not empty
+        %PlanetEvent{
+          planet_id: planet.id,
+          building_event: %{
+            building_id: building_id,
+            demolish: demolish
+          },
+          type: :construction_complete
+        }
       end
-    end)
-    |> Repo.transaction()
 
-    building_queue = get_building_queue(planet_id)
+    repo.insert(construction_complete_event)
+  end
 
-    case length(building_queue) do
-      length when length >= @building_queue_max_size ->
-        {:error, :building_queue_full}
+  # helper functions
 
-      0 ->
-        # no other buildings in progress, subtract building cost
-        planet_buildings =
-          Repo.all(
-            from pb in PlanetBuilding,
-              where: pb.planet_id == ^planet_id,
-              select: pb,
-              preload: [:building]
-          )
+  defp prerequisites_met?([], _player_researches, _planet_buildings), do: true
 
-        planet_building = Enum.find(planet_buildings, fn pb -> pb.building_id == building_id end)
+  defp prerequisites_met?([{:building, id, level} | t], player_researches, planet_buildings) do
+    planet_building = Enum.find(planet_buildings, fn pb -> pb.building_id == id end)
 
-        {cost_metal, cost_crystal, cost_deuterium, _energy} =
-          Galaxies.calc_upgrade_cost(planet_building.building.upgrade_cost_formula, level)
+    planet_building.level >= level and
+      prerequisites_met?(t, player_researches, planet_buildings)
+  end
 
-        %{
-          metal_units: planet_metal,
-          crystal_units: planet_crystal,
-          deuterium_units: planet_deuterium
-        } =
-          _planet =
-          Repo.one!(
-            from p in Planet,
-              where: p.id == ^planet_id
-          )
+  defp prerequisites_met?([{:research, id, level} | t], player_researches, planet_buildings) do
+    player_research = Enum.find(player_researches, fn pr -> pr.research_id == id end)
 
-        if planet_metal >= cost_metal and planet_crystal >= cost_crystal and
-             planet_deuterium >= cost_deuterium do
-          add_resources(planet_id, -cost_metal, -cost_crystal, -cost_deuterium)
-
-          # TODO: replace with a real formula
-          construction_duration_seconds = :math.pow(2, level) |> trunc()
-
-          event_id = Ecto.UUID.generate()
-          now = DateTime.utc_now(:second)
-
-          Repo.insert!(%PlanetEvent{
-            planet_id: planet_id,
-            completed_at: DateTime.add(now, construction_duration_seconds),
-            type: :building_construction,
-            building_event: %BuildingEvent{
-              id: event_id,
-              list_order: 1,
-              planet_id: planet_id,
-              building_id: building_id,
-              level: level,
-              demolish: false,
-              started_at: now,
-              completed_at: DateTime.add(now, construction_duration_seconds)
-            }
-          })
-
-          :ok
-        else
-          {:error, :not_enough_resources}
-        end
-
-      _ ->
-        # adding at the end of the queue which means level could be wrong
-        # (e.g. trying to update metal mine twice from level 10 will yield 2 events with level = 11)
-        # so we need to set level to a proper value (highest in queue + 1)
-        {level, list_order} =
-          Enum.reduce(building_queue, {level, 1}, fn %EnqueuedBuilding{
-                                                       list_order: lo,
-                                                       building_id: b_id,
-                                                       level: lvl
-                                                     },
-                                                     {acc_level, acc_order} ->
-            level =
-              if b_id == building_id and lvl >= acc_level do
-                lvl + 1
-              else
-                acc_level
-              end
-
-            order =
-              if lo >= acc_order do
-                lo + 1
-              else
-                acc_order
-              end
-
-            {level, order}
-          end)
-
-        # TODO: replace with a real formula
-        construction_duration_seconds = :math.pow(2, level) |> trunc()
-
-        now = DateTime.utc_now(:second)
-
-        # no PlanetEvent is inserted because we are inserting at the end of the queue,
-        # so an event already exists to fetch from the head of the queue.
-        Repo.insert!(%EnqueuedBuilding{
-          planet_id: planet_id,
-          list_order: list_order,
-          building_id: building_id,
-          level: level,
-          demolish: false,
-          started_at: now,
-          completed_at: DateTime.add(now, construction_duration_seconds, :second)
-        })
-
-        :ok
-    end
+    player_research.level >= level and
+      prerequisites_met?(t, player_researches, planet_buildings)
   end
 end
