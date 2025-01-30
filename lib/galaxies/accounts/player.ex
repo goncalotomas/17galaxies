@@ -14,6 +14,7 @@ defmodule Galaxies.Accounts.Player do
     field :current_planet_id, :integer
 
     has_many :planets, Galaxies.Planet
+    has_many :researches, Galaxies.PlayerResearch
 
     timestamps(type: :utc_datetime)
   end
